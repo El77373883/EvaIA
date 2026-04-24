@@ -334,7 +334,9 @@ var models = [
     { modelId: 'nyx',    name: 'Nyx',        greeting: 'Nyx te escucha.\nQue inquietud traes?' },
     { modelId: 'aria',   name: 'Aria',       greeting: 'Aria en linea.\nQue datos necesitas?' },
     { modelId: 'wiki',   name: '📚 Wiki',    greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' },
-    { modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' }
+    {{ modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
+{ modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
+{ modelId: 'openrouter', name: '🌐 OpenRouter', greeting: 'OpenRouter conectado.\nModo gratuito ilimitado.' }
 ];
 var knowledge = [];
 
@@ -1654,19 +1656,37 @@ sendMessage = async function() {
                 baseResponse = 'No encontré nada en Wikipedia sobre eso. 🤔';
             }
         }
-        // 💻 CODE: Solo Groq
-        else if (currentModel === 'code') {
-            var groqResult = await askGroq(message);
-            if (groqResult) {
-                baseResponse = groqResult;
-            } else {
-                baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
-            }
-        }
-        // 🤖 RESTO: Eva, Selene, Nyx, Aria
-        else {
-            baseResponse = generateResponse(message);
-        }
+        // 💻 CODE: Solo Groq (Llama)
+else if (currentModel === 'code') {
+    var groqResult = await askGroq(message);
+    if (groqResult) {
+        baseResponse = groqResult;
+    } else {
+        baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
+    }
+}
+// 🧠 QWEN: Groq con Qwen
+else if (currentModel === 'qwen') {
+    var qwenResult = await askQwen(message);
+    if (qwenResult) {
+        baseResponse = qwenResult;
+    } else {
+        baseResponse = 'Qwen no está disponible ahora. 🧠';
+    }
+}
+// 🌐 OPENROUTER: OpenRouter con Qwen
+else if (currentModel === 'openrouter') {
+    var openRouterResult = await askOpenRouter(message);
+    if (openRouterResult) {
+        baseResponse = openRouterResult;
+    } else {
+        baseResponse = 'OpenRouter no responde. 🌐';
+    }
+}
+// 🤖 RESTO: Eva, Selene, Nyx, Aria
+else {
+    baseResponse = generateResponse(message);
+}
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
         typewriterEffect(contextualResponse, 'eva');
@@ -2552,6 +2572,36 @@ async function searchDuckDuckGo(query) {
     return null;
 }
 
+
+async function askQwen(message) {
+    try {
+        var resp = await fetch('/api/qwen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+async function askOpenRouter(message) {
+    try {
+        var resp = await fetch('/api/openrouter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
 
 async function askGroq(message) {
     try {

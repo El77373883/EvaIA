@@ -752,9 +752,10 @@ function generateResponse(input) {
         nyx:    ['Profundo. Exploremos las capas de eso.', 'Hay mas de lo que parece en esa pregunta.', 'Que te llevo a pensar en eso?'],
         aria:   ['Analizando entrada. Procesando.', 'Logica aplicada. Respuesta generada.', 'Input recibido. Calculando parametros.']
     };
-    var options = contextual[currentModel] || contextual.eva;
-    return options[Math.floor(Math.random() * options.length)];
+    var detected = detectContext(msg);
+    return getIntelligentResponse(msg, detected.context);
 }
+
 
 // ============ CHAT UI ============
 function showCodeResponse(text, sender) {

@@ -1647,7 +1647,7 @@ if (!webResult) {
 setTimeout(function() {
     removeThinkingIndicator(typingId);
 var baseResponse = generateResponse(message);
-if (currentModel === 'wiki' && webResult) {
+if ((currentModel === 'wiki' || currentModel === 'code') && webResult && baseResponse.includes('Dame mas contexto')) {
     baseResponse = webResult;
 }
     

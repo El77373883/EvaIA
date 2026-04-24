@@ -1,16 +1,13 @@
-// api/search.js
 export default async function handler(req, res) {
     const { q } = req.query;
     if (!q) return res.status(400).json({ error: 'Falta query' });
 
     try {
-        // Usar DuckDuckGo Instant Answer API (gratis, sin key)
         const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`);
         const data = await response.json();
         
         let result = '';
         
-        // Intentar obtener respuesta directa
         if (data.AbstractText) {
             result = data.AbstractText;
         } else if (data.Answer) {

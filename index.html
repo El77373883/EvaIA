@@ -1702,7 +1702,11 @@ var pageTypes = {
     portfolio: 'Portfolio',
     calculadora: 'Calculadora',
     formulario: 'Formulario de Contacto',
-    dashboard: 'Dashboard / Panel'
+    dashboard: 'Dashboard / Panel',
+    tienda: 'Tienda / E-commerce',
+    blog: 'Blog',
+    comingsoon: 'Coming Soon',
+    todo: 'To-Do List'
 };
 
 var creationKeywords = ['hazme', 'crea', 'genera', 'hacer una', 'quiero una', 'necesito una', 'diseña', 'arma', 'construye', 'haz una', 'haz un', 'crea un', 'hazme un'];
@@ -1722,7 +1726,11 @@ function detectPageType(msg) {
     if (lower.includes('portfolio') || lower.includes('portafolio')) return 'portfolio';
     if (lower.includes('calculadora') || lower.includes('calcular')) return 'calculadora';
     if (lower.includes('formulario') || lower.includes('contacto')) return 'formulario';
-    if (lower.includes('dashboard') || lower.includes('panel')) return 'dashboard';
+if (lower.includes('dashboard') || lower.includes('panel')) return 'dashboard';
+    if (lower.includes('tienda') || lower.includes('ecommerce') || lower.includes('shop') || lower.includes('comprar')) return 'tienda';
+    if (lower.includes('blog') || lower.includes('articulos') || lower.includes('noticias')) return 'blog';
+    if (lower.includes('coming soon') || lower.includes('proximamente') || lower.includes('en construccion') || lower.includes('cuenta regresiva')) return 'comingsoon';
+    if (lower.includes('todo') || lower.includes('lista de tareas') || lower.includes('pendientes') || lower.includes('checklist')) return 'todo';
     return null;
 }
 
@@ -2297,6 +2305,195 @@ function generatePageCode(data) {
       </table>
     </div>
   </div>
+</body>
+</html>`;
+    }
+    
+    
+    else if (type === 'tienda') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Tienda</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f9; }
+    header { background: #fff; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+    .logo { font-weight: 900; font-size: 20px; color: ${color}; }
+    .cart { background: ${color}; color: #fff; padding: 8px 16px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .hero { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, ${color}11, #fff); }
+    .hero h1 { font-size: 36px; font-weight: 900; margin-bottom: 12px; }
+    .hero p { color: #888; font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 40px; max-width: 1000px; margin: 0 auto; }
+    .product { background: #fff; border-radius: 20px; padding: 0 0 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06); transition: transform 0.2s; }
+    .product:hover { transform: translateY(-4px); }
+    .product-img { height: 180px; background: linear-gradient(135deg, ${color}44, ${color}22); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .product-info { padding: 16px; }
+    .product-info h3 { font-size: 16px; margin-bottom: 6px; }
+    .product-info p { color: #999; font-size: 13px; margin-bottom: 12px; }
+    .price { font-size: 20px; font-weight: 900; color: ${color}; }
+    .btn-buy { display: block; margin: 0 16px 16px; padding: 12px; background: ${color}; color: #fff; text-align: center; border-radius: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }
+    footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header><div class="logo">${name}</div><div class="cart">🛒 0</div></header>
+  <section class="hero">
+    <h1>${name}</h1>
+    <p>${desc || 'Descubre los mejores productos para ti.'}</p>
+  </section>
+  <section class="grid">
+    <div class="product"><div class="product-img">📱</div><div class="product-info"><h3>Producto 1</h3><p>Descripción breve</p><span class="price">$29.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">🎧</div><div class="product-info"><h3>Producto 2</h3><p>Descripción breve</p><span class="price">$49.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">⌚</div><div class="product-info"><h3>Producto 3</h3><p>Descripción breve</p><span class="price">$99.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">💻</div><div class="product-info"><h3>Producto 4</h3><p>Descripción breve</p><span class="price">$199.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+  </section>
+  <footer>© 2025 ${name}. Todos los derechos reservados.</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'blog') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Blog</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', serif; background: #fafafa; color: #333; }
+    header { padding: 20px 40px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 900; font-size: 22px; color: ${color}; }
+    nav a { margin-left: 20px; text-decoration: none; color: #888; font-size: 14px; }
+    .hero { text-align: center; padding: 80px 20px 40px; }
+    .hero h1 { font-size: 40px; font-weight: 900; }
+    .hero p { color: #999; margin-top: 12px; }
+    .posts { max-width: 700px; margin: 0 auto; padding: 0 20px 60px; }
+    .post { background: #fff; border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .post .date { font-size: 12px; color: #999; margin-bottom: 8px; }
+    .post h2 { font-size: 22px; margin-bottom: 10px; }
+    .post h2 a { color: #111; text-decoration: none; }
+    .post p { color: #777; line-height: 1.7; font-size: 15px; }
+    .tag { display: inline-block; background: ${color}22; color: ${color}; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+    footer { text-align: center; padding: 30px; background: #111; color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header><div class="logo">${name}</div><nav><a href="#">Inicio</a><a href="#">Blog</a><a href="#">Contacto</a></nav></header>
+  <section class="hero"><h1>${name}</h1><p>${desc || 'Historias, ideas y conocimientos compartidos.'}</p></section>
+  <section class="posts">
+    <div class="post"><div class="date">Abril 2025</div><h2><a href="#">Primer artículo del blog</a></h2><p>Un breve resumen del contenido del artículo. Lorem ipsum dolor sit amet consectetur.</p><span class="tag">Tecnología</span></div>
+    <div class="post"><div class="date">Marzo 2025</div><h2><a href="#">Otra entrada interesante</a></h2><p>Compartiendo conocimiento sobre temas relevantes para la comunidad.</p><span class="tag">Diseño</span></div>
+    <div class="post"><div class="date">Febrero 2025</div><h2><a href="#">Tutorial paso a paso</a></h2><p>Aprende a hacer esto en 5 minutos con nuestra guía completa.</p><span class="tag">Tutorial</span></div>
+  </section>
+  <footer>© 2025 ${name}. Hecho con ❤️</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'comingsoon') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Coming Soon</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: ${color}; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .content { padding: 40px; }
+    .badge { display: inline-block; padding: 8px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 50px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+    h1 { font-size: 56px; font-weight: 900; margin-bottom: 16px; }
+    p { font-size: 18px; opacity: 0.7; margin-bottom: 40px; }
+    .countdown { display: flex; justify-content: center; gap: 20px; }
+    .box { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 80px; }
+    .box .num { font-size: 32px; font-weight: 900; }
+    .box .label { font-size: 10px; opacity: 0.6; margin-top: 4px; text-transform: uppercase; }
+    .subscribe { margin-top: 40px; display: flex; gap: 10px; justify-content: center; }
+    .subscribe input { padding: 14px 18px; border-radius: 12px; border: none; outline: none; font-size: 14px; width: 260px; }
+    .subscribe button { padding: 14px 24px; background: #fff; color: ${color}; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="badge">🚀 Coming Soon</div>
+    <h1>${name}</h1>
+    <p>${desc || 'Estamos construyendo algo increíble. Vuelve pronto.'}</p>
+    <div class="countdown">
+      <div class="box"><div class="num" id="dias">00</div><div class="label">Días</div></div>
+      <div class="box"><div class="num" id="horas">00</div><div class="label">Horas</div></div>
+      <div class="box"><div class="num" id="minutos">00</div><div class="label">Min</div></div>
+      <div class="box"><div class="num" id="segundos">00</div><div class="label">Seg</div></div>
+    </div>
+    <div class="subscribe"><input type="email" placeholder="Tu correo"><button>Notificarme</button></div>
+  </div>
+  <script>
+    var target = new Date();
+    target.setDate(target.getDate() + 30);
+    setInterval(function(){
+      var now = new Date().getTime();
+      var d = Math.max(0, target - now);
+      document.getElementById('dias').textContent = String(Math.floor(d/(1000*60*60*24))).padStart(2,'0');
+      document.getElementById('horas').textContent = String(Math.floor((d%(1000*60*60*24))/(1000*60*60))).padStart(2,'0');
+      document.getElementById('minutos').textContent = String(Math.floor((d%(1000*60*60))/(1000*60))).padStart(2,'0');
+      document.getElementById('segundos').textContent = String(Math.floor((d%(1000*60))/1000)).padStart(2,'0');
+    },1000);
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'todo') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - To-Do</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, ${color}22 0%, #fff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 28px; padding: 36px 28px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+    h1 { font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+    h1 span { color: ${color}; }
+    .date { font-size: 13px; color: #999; margin-bottom: 24px; }
+    .input-row { display: flex; gap: 8px; margin-bottom: 24px; }
+    .input-row input { flex-grow: 1; padding: 14px 16px; border: 2px solid #eee; border-radius: 14px; font-size: 14px; outline: none; }
+    .input-row input:focus { border-color: ${color}; }
+    .input-row button { padding: 14px 20px; background: ${color}; color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 20px; }
+    .task { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+    .task input[type=checkbox] { width: 22px; height: 22px; accent-color: ${color}; }
+    .task span { flex-grow: 1; font-size: 15px; }
+    .task span.done { text-decoration: line-through; color: #bbb; }
+    .delete-btn { background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 18px; }
+    .footer { text-align: center; margin-top: 16px; font-size: 12px; color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1><span>${name}</span></h1>
+    <div class="date" id="today"></div>
+    <div class="input-row">
+      <input type="text" id="taskInput" placeholder="Agregar tarea..." onkeydown="if(event.key==='Enter')addTask()">
+      <button onclick="addTask()">+</button>
+    </div>
+    <div id="taskList"></div>
+    <div class="footer">${desc || 'Organiza tu día'}</div>
+  </div>
+  <script>
+    var tasks = JSON.parse(localStorage.getItem('todo_${name.replace(/\s/g,'')}')||'[]');
+    var d = new Date();
+    document.getElementById('today').textContent = d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+    function render(){var h='';tasks.forEach(function(t,i){h+='<div class="task"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggle('+i+')"><span class="'+(t.done?'done':'')+'">'+t.text+'</span><button class="delete-btn" onclick="del('+i+')">✕</button></div>';});document.getElementById('taskList').innerHTML=h||'<div style="text-align:center;color:#ccc;padding:30px;">Sin tareas ✨</div>';}
+    function addTask(){var v=document.getElementById('taskInput').value.trim();if(!v)return;tasks.push({text:v,done:false});save();render();document.getElementById('taskInput').value='';}
+    function toggle(i){tasks[i].done=!tasks[i].done;save();render();}
+    function del(i){tasks.splice(i,1);save();render();}
+    function save(){localStorage.setItem('todo_${name.replace(/\s/g,'')}',JSON.stringify(tasks));}
+    render();
+  <\/script>
 </body>
 </html>`;
     }

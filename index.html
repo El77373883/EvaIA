@@ -536,8 +536,10 @@ document.addEventListener('click', function(e) {
 // ============ SISTEMA DE INTELIGENCIA AVANZADA ============
 
 // Base de conocimiento para analizar temas
-var currentTopic = null; // tema actual de la conversación
-var waitingForCode = false; // esperando que manden código
+var currentTopic = null;
+var waitingForCode = false;
+var lastAskedTopic = null;
+
 
 var knowledgeBase = {
     programacion: {
@@ -1139,29 +1141,12 @@ function generateResponse(input) {
         
                 // Si el mensaje es muy corto (1-2 palabras), no asumir — preguntar qué quiere
         var wordCount = msg.trim().split(/\s+/).length;
-        if (wordCount <= 2) {
-            // Revisar si ya preguntamos esto antes para no repetir
-            var yaPregunte = shortTermMemory.length > 0 && 
-                shortTermMemory[shortTermMemory.length - 1].eva.includes('¿En qué te puedo ayudar con');
-            
-                                  if (yaPregunte) {
-                var preguntas = [
-                    '¿Tienes un error o quieres aprender algo? 🐛',
-                    '¿Es HTML, CSS, JavaScript, Python u otro lenguaje? 💻',
-                    '¿Estás haciendo una página web, una app o un script? 🛠️',
-                    '¿Puedes darme más detalles de lo que necesitas? 🤔'
-                ];
-                // Rotar preguntas según cuántas veces ha preguntado
-                var idx = shortTermMemory.filter(function(m) {
-                    return m.eva.includes('¿Tienes un error') || 
-                           m.eva.includes('¿Es HTML') || 
-                           m.eva.includes('¿Estás haciendo');
-                }).length;
-                return preguntas[idx % preguntas.length];
+                if (wordCount <= 2) {
+            if (lastAskedTopic === k.category) {
+                lastAskedTopic = null;
+                return '¿Puedes contarme más sobre lo que necesitas? 😊';
             }
-
-
-            
+            lastAskedTopic = k.category;
             var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';
             return '¿En qué te puedo ayudar con ' + topicLabel + '? 😊';
         }
@@ -1791,6 +1776,8 @@ async function sendMessage() {
     isProcessing = true;
     
     learnFromUserInput(message);
+        if (message.trim().split(/\s+/).length > 2) lastAskedTopic = null;
+
 
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('chatArea').classList.add('active');

@@ -14,7 +14,7 @@ export default async function handler(req, res) {
                 'X-Title': 'Eva Chat'
             },
             body: JSON.stringify({
-                model: 'qwen/qwen-2.5-7b-instruct',
+                model: 'qwen/qwen-2-7b-instruct:free',  // ← MODELO CORREGIDO
                 messages: [
                     { role: 'system', content: 'Eres Qwen, una IA asistente. Respondes en español de forma útil y amigable.' },
                     { role: 'user', content: message }

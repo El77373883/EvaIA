@@ -337,6 +337,9 @@ var models = [
 { modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
 { modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
 { modelId: 'deepseek', name: '🧠 DeepSeek', greeting: 'DeepSeek en línea.\nRazonamiento profundo activado.' }
+{ modelId: 'gemini', name: '🌟 Gemini', greeting: 'Gemini en línea.\nIA de Google lista para ayudarte.' },
+{ modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
+{ modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' }
 ];
 var knowledge = [];
 
@@ -1674,6 +1677,27 @@ else if (currentModel === 'qwen') {
         baseResponse = 'Qwen no está disponible ahora. 🧠';
     }
 }
+
+// 🌟 GEMINI
+else if (currentModel === 'gemini') {
+    var geminiResult = await askGemini(message);
+    if (geminiResult) { baseResponse = geminiResult; }
+    else { baseResponse = 'Gemini no está disponible ahora. 🌟'; }
+}
+// 💨 MISTRAL
+else if (currentModel === 'mistral') {
+    var mistralResult = await askMistral(message);
+    if (mistralResult) { baseResponse = mistralResult; }
+    else { baseResponse = 'Mistral no está disponible ahora. 💨'; }
+}
+// ☁️ CLOUDFLARE
+else if (currentModel === 'cloudflare') {
+    var cfResult = await askCloudflareAI(message);
+    if (cfResult) { baseResponse = cfResult; }
+    else { baseResponse = 'Cloudflare AI no está disponible ahora. ☁️'; }
+}
+
+
 // 🧠 DEEPSEEK
 else if (currentModel === 'deepseek') {
     var deepseekResult = await askDeepSeek(message);
@@ -2580,6 +2604,46 @@ async function askQwen(message) {
         if (data.answer && data.answer.length > 5) {
             return data.answer;
         }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askGemini(message) {
+    try {
+        var resp = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askMistral(message) {
+    try {
+        var resp = await fetch('/api/mistral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askCloudflareAI(message) {
+    try {
+        var resp = await fetch('/api/cloudflare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
     } catch(e) {}
     return null;
 }

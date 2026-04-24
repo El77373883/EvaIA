@@ -944,8 +944,6 @@ function generateResponse(input) {
     var msg = corregirTexto(input);
     // Buscar en internet si es una pregunta que Eva no puede responder
     if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('capital de') || msg.includes('cuanto mide') || msg.includes('donde queda') || msg.includes('cuando fue') || msg.includes('busca en internet') || msg.includes('googlea') || msg.includes('busca')) {
-        var searchResult = searchDuckDuckGo(msg);
-        if (searchResult) return searchResult;
     }
     var msgOriginal = input.toLowerCase().trim();
 
@@ -996,7 +994,6 @@ function generateResponse(input) {
     
     // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
     if (matches.length === 0 && (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('cuando') || msg.includes('donde') || msg.includes('busca'))) {
-        return searchDuckDuckGo(msg);
     }
     
       if (matches.length > 0) {
@@ -1625,7 +1622,7 @@ function generateContextualResponse(input, baseResponse) {
 }
 
 // ============ REEMPLAZAR sendMessage() ============
-sendMessage = function() {
+sendMessage = async function() {
     if (isProcessing) return;
     var input = document.getElementById('chatInput');
     var message = input.value.trim();
@@ -1638,11 +1635,16 @@ sendMessage = function() {
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('chatArea').classList.add('active');
     addMessage(message, 'user');
+    var msg = corregirTexto(message);
+var webResult = null;
+if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('busca')) {
+    webResult = await searchDuckDuckGo(msg);
+}
     var typingId = addThinkingIndicator();
     
     setTimeout(function() {
     removeThinkingIndicator(typingId);
-    var baseResponse = generateResponse(message);
+var baseResponse = webResult || generateResponse(message);
     
     // Si el usuario mandó código suelto, lo envolvemos automáticamente
     if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {
@@ -2527,12 +2529,13 @@ async function searchDuckDuckGo(query) {
     try {
         var resp = await fetch('/api/search?q=' + encodeURIComponent(query));
         var data = await resp.json();
-        if (data.answer) {
-            return '🔍 Esto encontré en internet: ' + data.answer;
+        if (data.answer && data.answer.length > 10) {
+            return '🔍 ' + data.answer;
         }
     } catch(e) {}
-    return 'No encontré nada. ¿Pregúntame otra cosa? 🤷';
+    return null;
 }
+
 
 // ============ INIT ============
 console.log('🧠 Eva: Sistema de memoria y razonamiento activado');

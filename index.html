@@ -69,12 +69,31 @@
         .disclaimer .mini-eva { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c); animation: miniFloat 2s ease-in-out infinite; flex-shrink: 0; box-shadow: 0 2px 4px rgba(212,138,114,0.3); }
         @keyframes miniFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
         svg { width: 20px; height: 20px; fill: currentColor; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .sidebar-overlay.active { display: block; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100dvh; background: #fff; z-index: 300; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.12); transition: left 0.3s ease; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid #eaeaea; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-header h2 { font-size: 16px; font-weight: 600; }
+        .new-chat-btn { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin: 8px; background: #2563EB; color: #fff; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+        .new-chat-btn:active { transform: scale(0.97); }
+        .chats-list { flex-grow: 1; overflow-y: auto; padding: 4px 8px; }
+        .chat-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-bottom: 2px; }
+        .chat-item:hover, .chat-item.active-chat { background: #f5f5f5; }
+        .chat-item-title { font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .chat-item-date { font-size: 11px; color: #bbb; }
+        .chat-delete-btn { width: 24px; height: 24px; border-radius: 6px; border: none; background: transparent; color: #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .chat-delete-btn:hover { background: #fee2e2; color: #EF4444; }
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid #eaeaea; }
+        .clear-all-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eaeaea; background: #fff; font-size: 13px; color: #999; cursor: pointer; }
+        .clear-all-btn:active { background: #fee2e2; color: #EF4444; }
+        .empty-chats { text-align: center; color: #bbb; padding: 40px 20px; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="icon-btn" onclick="clearChat()">
+    <div class="icon-btn" onclick="openSidebar()">
         <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
     </div>
     <div class="model-selector" onclick="toggleModelDropdown()">
@@ -86,7 +105,25 @@
     </div>
 </header>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>💬 Chats</h2>
+        <div class="icon-btn" onclick="closeSidebar()" style="width:32px;height:32px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+    </div>
+    <div class="new-chat-btn" onclick="createNewChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:18px;height:18px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo chat
+    </div>
+    <div class="chats-list" id="chatsList"></div>
+    <div class="sidebar-footer">
+        <button class="clear-all-btn" onclick="deleteAllChats()">🗑 Borrar todos los chats</button>
+    </div>
+</div>
 <div class="model-dropdown" id="modelDropdown"></div>
+
 
 <div class="chat-area" id="chatArea"></div>
 
@@ -138,6 +175,150 @@ var currentModel = 'eva';
 var currentModelName = 'Eva 1.0';
 var isProcessing = false;
 var typewriterTimers = [];
+var currentChatId = null;
+
+// ============ SISTEMA DE CHATS ============
+function getAllChats() {
+    return JSON.parse(localStorage.getItem('eva_chats') || '[]');
+}
+
+function saveAllChats(chats) {
+    localStorage.setItem('eva_chats', JSON.stringify(chats));
+}
+
+function createNewChat() {
+    // Guardar chat actual si tiene mensajes
+    saveCurrentChat();
+    
+    // Limpiar pantalla
+    typewriterTimers.forEach(function(t) { clearTimeout(t); });
+    typewriterTimers = [];
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('chatArea').classList.remove('active');
+    document.getElementById('welcomeScreen').classList.remove('hidden');
+    localStorage.removeItem('eva_chat_history');
+    
+    currentChatId = Date.now().toString();
+    closeSidebar();
+}
+
+function saveCurrentChat() {
+    var messages = [];
+    document.querySelectorAll('#chatArea .message-wrapper').forEach(function(w) {
+        var msg = w.querySelector('.message');
+        if (msg) {
+            messages.push({
+                text: msg.textContent,
+                sender: msg.classList.contains('user') ? 'user' : 'eva'
+            });
+        }
+    });
+    if (messages.length === 0) return;
+    
+    var chats = getAllChats();
+    var existing = chats.findIndex(function(c) { return c.id === currentChatId; });
+    
+    var firstUserMsg = messages.find(function(m) { return m.sender === 'user'; });
+    var title = firstUserMsg ? firstUserMsg.text.slice(0, 40) : 'Chat sin título';
+    
+    var chatData = {
+        id: currentChatId,
+        title: title,
+        messages: messages.slice(-50),
+        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }),
+        timestamp: Date.now()
+    };
+    
+    if (existing >= 0) {
+        chats[existing] = chatData;
+    } else {
+        chats.unshift(chatData);
+    }
+    
+    if (chats.length > 30) chats = chats.slice(0, 30);
+    saveAllChats(chats);
+    renderChatsList();
+}
+
+function loadChat(chatId) {
+    saveCurrentChat();
+    var chats = getAllChats();
+    var chat = chats.find(function(c) { return c.id === chatId; });
+    if (!chat) return;
+    
+    currentChatId = chatId;
+    typewriterTimers.forEach(function(t) { clearTimeout(t); });
+    typewriterTimers = [];
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('chatArea').classList.add('active');
+    
+    chat.messages.forEach(function(m) { addMessage(m.text, m.sender); });
+    closeSidebar();
+    renderChatsList();
+}
+
+function deleteChat(chatId, e) {
+    e.stopPropagation();
+    var chats = getAllChats().filter(function(c) { return c.id !== chatId; });
+    saveAllChats(chats);
+    
+    if (currentChatId === chatId) {
+        createNewChat();
+    } else {
+        renderChatsList();
+    }
+}
+
+function deleteAllChats() {
+    if (!confirm('¿Borrar todos los chats?')) return;
+    localStorage.removeItem('eva_chats');
+    localStorage.removeItem('eva_chat_history');
+    createNewChat();
+}
+
+function renderChatsList() {
+    var chats = getAllChats();
+    var list = document.getElementById('chatsList');
+    if (!list) return;
+    
+    if (chats.length === 0) {
+        list.innerHTML = '<div class="empty-chats">📭 No hay chats guardados</div>';
+        return;
+    }
+    
+    list.innerHTML = chats.map(function(chat) {
+        var isActive = chat.id === currentChatId ? 'active-chat' : '';
+        return '<div class="chat-item ' + isActive + '" onclick="loadChat(\'' + chat.id + '\')">'
+            + '<div>'
+            + '<div class="chat-item-title">' + escapeHtml(chat.title) + '</div>'
+            + '<div class="chat-item-date">' + chat.date + '</div>'
+            + '</div>'
+            + '<button class="chat-delete-btn" onclick="deleteChat(\'' + chat.id + '\', event)">'
+            + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>'
+            + '</button>'
+            + '</div>';
+    }).join('');
+}
+
+function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function openSidebar() {
+    saveCurrentChat();
+    renderChatsList();
+    document.getElementById('sidebar').classList.add('active');
+    document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 
 var icons = {
     eva:    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
@@ -1450,10 +1631,13 @@ function loadChatHistory() {
 // ============ INIT ============
 console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
 console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
+currentChatId = Date.now().toString();
 loadFromAdmin();
 loadLongTermMemory();
 loadChatHistory();
 buildModelDropdown();
+renderChatsList();
+
 
 // Mensaje de bienvenida personalizado si ya conoce al usuario
 if (longTermMemory.userName) {

@@ -296,9 +296,8 @@ function showCodeResponse(text, sender) {
     msgDiv.className = 'message ' + sender;
     msgDiv.style.whiteSpace = 'pre-wrap';
     msgDiv.style.wordBreak = 'break-word';
-    msgDiv.style.background = '#F0F0F0';
-    wrapper.appendChild(msgDiv);
-
+msgDiv.style.background = '#F0F0F0';
+    
     var parts = text.split(/(```[\s\S]*?```)/g);
     var finalHTML = '';
     

@@ -288,34 +288,6 @@ function generateResponse(input) {
 }
 
 // ============ CHAT UI ============
-function sendMessage() {
-    if (isProcessing) return;
-    var input = document.getElementById('chatInput');
-    var message = input.value.trim();
-    if (!message) return;
-    input.value = '';
-    isProcessing = true;
-    document.getElementById('welcomeScreen').classList.add('hidden');
-    document.getElementById('chatArea').classList.add('active');
-    addMessage(message, 'user');
-    var typingId = addThinkingIndicator();
-    setTimeout(function() {
-    removeThinkingIndicator(typingId);
-    var baseResponse = generateResponse(message);
-    var contextualResponse = generateContextualResponse(message, baseResponse);
-    
-    // Si es código, mostrarlo directo con resaltado
-    if (contextualResponse.includes('```')) {
-        showCodeResponse(contextualResponse, 'eva');
-    } else {
-        typewriterEffect(contextualResponse, 'eva');
-    }
-    
-    addToShortTermMemory(message, contextualResponse);
-    saveChatHistory();
-    isProcessing = false;
-}, 800 + Math.random() * 1200);
-
 function showCodeResponse(text, sender) {
     var chatArea = document.getElementById('chatArea');
     var wrapper = document.createElement('div');
@@ -731,7 +703,7 @@ function generateContextualResponse(input, baseResponse) {
     return baseResponse + contextualAddon;
 }
 
-// // ============ REEMPLAZAR sendMessage() ============
+// ============ REEMPLAZAR sendMessage() ============
 var originalSendMessage = sendMessage;
 sendMessage = function() {
     if (isProcessing) return;

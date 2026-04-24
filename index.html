@@ -194,30 +194,25 @@ function loadFromAdmin() {
     try {
         var entries = JSON.parse(localStorage.getItem('eva_entries') || '[]');
         
-        entries.forEach(function(entry) {
-            // Agregar a knowledge
-            var categoryName = 'custom_' + entry.keywords.join('_').slice(0, 30);
-            var existingCat = null;
-            for (var i = 0; i < knowledge.length; i++) {
-                if (knowledge[i].category === categoryName) {
-                    existingCat = knowledge[i];
-                    break;
-                }
-            }
-            if (existingCat) {
-                existingCat.keywords = Array.from(new Set(existingCat.keywords.concat(entry.keywords)));
-            } else {
-                knowledge.push({ category: categoryName, keywords: entry.keywords });
-            }
+        entries.forEach(function(entry, idx) {
+            var catName = 'custom_entry_' + idx;
             
-            // Agregar a responses
+            knowledge.push({
+                category: catName,
+                keywords: entry.keywords
+            });
+            
             responses.push({
-                category: categoryName,
-                model: entry.model,
+                category: catName,
+                model: entry.model || 'eva',
                 text: entry.response
             });
         });
-    } catch(e) {}
+        
+        console.log('✅ Entradas del admin cargadas: ' + entries.length);
+    } catch(e) {
+        console.log('❌ Error:', e);
+    }
 }
 
 // ============ DROPDOWN ============

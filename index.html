@@ -1927,18 +1927,18 @@ else if (currentModel === 'deepseek') {
 else {
     baseResponse = generateResponse(message);
 }
-        
-        var contextualResponse = generateContextualResponse(message, baseResponse);
-// Si la respuesta contiene una imagen, usar addMessage (sin typewriter)
-if (contextualResponse.includes('![') && contextualResponse.includes('](')) {
-    addMessage(contextualResponse, 'eva');
+
+if (baseResponse.includes('![') && baseResponse.includes('](')) {
+    addMessage(baseResponse, 'eva');
+    addToShortTermMemory(message, baseResponse);
 } else {
+    var contextualResponse = generateContextualResponse(message, baseResponse);
     typewriterEffect(contextualResponse, 'eva');
+    addToShortTermMemory(message, contextualResponse);
 }
-        
-        addToShortTermMemory(message, contextualResponse);
-        saveChatHistory();
-        isProcessing = false;
+
+saveChatHistory();
+isProcessing = false;
     }, delay);
 };
 

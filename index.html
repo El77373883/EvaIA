@@ -1638,9 +1638,10 @@ addMessage(message, 'user');
 var typingId = addThinkingIndicator();
 
 var msg = corregirTexto(message);
-var webResult = null;
-webResult = await searchDuckDuckGo(message);
-
+var webResult = await searchDuckDuckGo(message);
+if (!webResult) {
+    webResult = await askGroq(message);
+}
 
 setTimeout(function() {
     removeThinkingIndicator(typingId);
@@ -2538,6 +2539,22 @@ async function searchDuckDuckGo(query) {
         var data = await resp.json();
         if (data.answer && data.answer.length > 10) {
             return '🔍 ' + data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askGroq(message) {
+    try {
+        var resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
         }
     } catch(e) {}
     return null;

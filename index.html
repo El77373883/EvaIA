@@ -1144,11 +1144,10 @@ function generateResponse(input) {
             var yaPregunte = shortTermMemory.length > 0 && 
                 shortTermMemory[shortTermMemory.length - 1].eva.includes('¿En qué te puedo ayudar con');
             
-            if (yaPregunte) {
-                // Ya preguntamos, usar respuesta de contexto
-                var detected = detectContext(msg);
-                return getIntelligentResponse(msg, detected.context || 'programacion');
+                        if (yaPregunte) {
+                return 'Cuéntame más, ¿qué necesitas exactamente? Por ejemplo: "como hago un botón en HTML" o "tengo un error en Python". 😊';
             }
+
             
             var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';
             return '¿En qué te puedo ayudar con ' + topicLabel + '? 😊';

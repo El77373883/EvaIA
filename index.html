@@ -704,7 +704,6 @@ function generateContextualResponse(input, baseResponse) {
 }
 
 // ============ REEMPLAZAR sendMessage() ============
-var originalSendMessage = sendMessage;
 sendMessage = function() {
     if (isProcessing) return;
     var input = document.getElementById('chatInput');
@@ -713,7 +712,6 @@ sendMessage = function() {
     input.value = '';
     isProcessing = true;
     
-    // Aprender del input del usuario
     learnFromUserInput(message);
     
     document.getElementById('welcomeScreen').classList.add('hidden');
@@ -726,20 +724,18 @@ sendMessage = function() {
         var baseResponse = generateResponse(message);
         var contextualResponse = generateContextualResponse(message, baseResponse);
         
-        // Si es código, mostrarlo directo con resaltado
         if (contextualResponse.includes('```')) {
             showCodeResponse(contextualResponse, 'eva');
         } else {
             typewriterEffect(contextualResponse, 'eva');
         }
         
-        // Guardar en memoria a corto plazo
         addToShortTermMemory(message, contextualResponse);
-        
         saveChatHistory();
         isProcessing = false;
     }, 800 + Math.random() * 1200);
 };
+
 
 // ============ GUARDAR HISTORIAL DEL CHAT ============
 function saveChatHistory() {

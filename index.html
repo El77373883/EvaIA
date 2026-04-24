@@ -1660,7 +1660,7 @@ sendMessage = async function() {
             }
         }
         // 💻 CODE: Solo Groq (Llama)
-else if (currentModel === 'code') {
+        else if (currentModel === 'code') {
     var groqResult = await askGroq(message);
     if (groqResult) {
         baseResponse = groqResult;

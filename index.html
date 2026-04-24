@@ -309,63 +309,63 @@ function showCodeResponse(text, sender) {
     msgDiv.className = 'message ' + sender;
     msgDiv.style.whiteSpace = 'pre-wrap';
     msgDiv.style.wordBreak = 'break-word';
-msgDiv.style.background = '#F0F0F0';
-    
+    msgDiv.style.background = '#F0F0F0';
+    wrapper.appendChild(msgDiv);
+    chatArea.appendChild(wrapper);
+
     var parts = text.split(/(```[\s\S]*?```)/g);
-    var finalHTML = '';
-    
+    var allLines = [];
+
     parts.forEach(function(part) {
         if (part.startsWith('```') && part.endsWith('```')) {
             var lines = part.split('\n');
             var lang = lines[0].replace('```', '').trim();
             var codeLines = lines.slice(1, -1);
-            
-            var codeHTML = '<div style="background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:11px;line-height:1.8;color:#333;border:1px solid #e0e0e0;">';
 
+            var containerDiv = document.createElement('div');
+            containerDiv.style.cssText = 'background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:11px;line-height:1.8;color:#333;border:1px solid #e0e0e0;';
+            msgDiv.appendChild(containerDiv);
 
-            
             if (lang) {
-                codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
+                var langLabel = document.createElement('div');
+                langLabel.style.cssText = 'color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;';
+                langLabel.textContent = '📄 ' + lang.toUpperCase();
+                containerDiv.appendChild(langLabel);
             }
-            
+
             codeLines.forEach(function(line, i) {
                 var num = (i + 1).toString();
                 var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                
                 lineContent = lineContent
-.replace(/(".*?"|'.*?')/g, '<span style="color:#c3e88d;">$1</span>')
+                    .replace(/(".*?"|'.*?')/g, '<span style="color:#c3e88d;">$1</span>')
                     .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
                     .replace(/(\/?&gt;)/g, '<span style="color:#e94560;">$1</span>')
                     .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|def|print)\b/g, '<span style="color:#c792ea;">$1</span>')
                     .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
                     .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
 
-                
-                codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
+                var lineDiv = document.createElement('div');
+                lineDiv.innerHTML = '<span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent;
+                allLines.push({ container: containerDiv, el: lineDiv });
             });
-            
-            codeHTML += '</div>';
-            finalHTML += codeHTML;
-        } else {
-            finalHTML += '<span>' + part + '</span>';
+        } else if (part.trim()) {
+            var spanEl = document.createElement('span');
+            spanEl.textContent = part;
+            allLines.push({ container: msgDiv, el: spanEl });
         }
     });
-    
- msgDiv.innerHTML = '';
-    wrapper.appendChild(msgDiv);
-    var tempDiv = document.createElement('div');
-    tempDiv.innerHTML = finalHTML;
-    var children = Array.from(tempDiv.childNodes);
-    var ci = 0;
-    function addNext() {
-        if (ci < children.length) {
-            msgDiv.appendChild(children[ci++]);
+
+    var li = 0;
+    function addLine() {
+        if (li < allLines.length) {
+            allLines[li].container.appendChild(allLines[li].el);
             chatArea.scrollTop = chatArea.scrollHeight;
-            setTimeout(addNext, 18);
+            li++;
+            setTimeout(addLine, 40);
         }
     }
-    addNext();
-    
+    addLine();
+
     var copyBtn = document.createElement('div');
     copyBtn.className = 'copy-btn';
     copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
@@ -389,9 +389,9 @@ msgDiv.style.background = '#F0F0F0';
     actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
     actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
 
-    chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;
 }
+
 
 function typewriterEffect(text, sender) {
     var chatArea = document.getElementById('chatArea');

@@ -59,9 +59,9 @@
         .input-box input::placeholder { color: #888; }
         .action-icon { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; color: #555; cursor: pointer; }
         .voice-icon { background-color: #000; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .model-dropdown { display: none; position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; overflow: hidden; min-width: 160px; }
+      .model-dropdown { display: none; position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; overflow: hidden; min-width: 240px; max-height: 400px; overflow-y: auto; }
         .model-dropdown.active { display: block; }
-        .model-option { padding: 12px 20px; cursor: pointer; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+       .model-option { padding: 12px 16px; cursor: pointer; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
         .model-option:hover { background: #f5f5f5; }
         .model-option.selected { font-weight: 600; color: #2563EB; background: #f8faff; }
         .model-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
@@ -388,14 +388,36 @@ responses.push({
 }
 
 // ============ DROPDOWN ============
+// Descripciones de cada modelo
+var modelDescriptions = {
+    eva: 'Asistente general inteligente',
+    selene: 'Creatividad e ideas inspiradoras',
+    nyx: 'Reflexión profunda y consejos',
+    aria: 'Datos precisos y análisis lógico',
+    wiki: 'Búsqueda en Wikipedia',
+    code: 'Programación y código (Groq)',
+    qwen: 'Razonamiento lógico avanzado',
+    deepseek: 'Razonamiento profundo',
+    gemini: 'IA de Google',
+    mistral: 'IA europea rápida',
+    cloudflare: 'Modelo Llama ultrarrápido',
+    buscador: 'Búsqueda en tiempo real',
+    duck: 'Búsqueda DuckDuckGo sin API Key'
+};
+
 function buildModelDropdown() {
     var dropdown = document.getElementById('modelDropdown');
     dropdown.innerHTML = models.map(function(m) {
         var sel = m.modelId === currentModel ? 'selected' : '';
         var icon = icons[m.modelId] || '<circle cx="12" cy="12" r="10"/>';
+        var desc = modelDescriptions[m.modelId] || '';
         return '<div class="model-option ' + sel + '" data-model-id="' + m.modelId + '" data-model-name="' + m.name + '">'
             + '<span class="model-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></span>'
-            + m.name + '</div>';
+            + '<div style="display:flex;flex-direction:column;gap:2px;">'
+            + '<span style="font-weight:600;font-size:14px;">' + m.name + '</span>'
+            + '<span style="font-size:11px;color:#999;">' + desc + '</span>'
+            + '</div>'
+            + '</div>';
     }).join('');
 
     dropdown.querySelectorAll('.model-option').forEach(function(option) {

@@ -36,11 +36,94 @@
         .action-mini-btn.disliked { color: #EF4444; }
         .typing-indicator { display: flex; align-items: center; gap: 10px; align-self: flex-start; }
         .eva-thinking { width: 40px; height: 40px; position: relative; flex-shrink: 0; }
-        .eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c, #D48A72); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(212,138,114,0.4), 0 0 0 4px rgba(212,138,114,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
-        .eva-thinking .sphere::after { content: ''; position: absolute; top: 8px; left: 10px; width: 8px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 12px 4px 0 -2px rgba(255,255,255,0.6); }
-        .eva-thinking .sphere::before { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; animation: mouthTalk 0.6s ease-in-out infinite; }
-        @keyframes float3D { 0%,100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); } 25% { transform: translateY(-6px) rotateY(10deg) rotateX(5deg); } 50% { transform: translateY(-3px) rotateY(-5deg) rotateX(-3deg); } 75% { transform: translateY(-8px) rotateY(-10deg) rotateX(5deg); } }
-        @keyframes mouthTalk { 0%,100% { transform: translateX(-50%) scaleX(1); } 50% { transform: translateX(-50%) scaleX(0.4); } }
+.eva-thinking .sphere { 
+    width: 50px; 
+    height: 50px; 
+    border-radius: 50%; 
+    background: radial-gradient(circle at 30% 30%, #f5c4a8 0%, #e89870 15%, #D48A72 40%, #b85a3a 80%, #8a3520 100%); 
+    position: relative; 
+    animation: float3D_realista 3s ease-in-out infinite; 
+    box-shadow: 
+        0 0 30px rgba(212,138,114,0.6),
+        0 0 60px rgba(212,138,114,0.4),
+        0 0 90px rgba(212,138,114,0.2),
+        0 8px 25px rgba(0,0,0,0.4),
+        inset 0 -15px 25px rgba(0,0,0,0.4),
+        inset 0 10px 20px rgba(255,255,255,0.15),
+        inset 0 -5px 10px rgba(0,0,0,0.3);
+    transform-style: preserve-3d;
+    perspective: 100px;
+}
+
+/* Brillo especular principal */
+.eva-thinking .sphere::after { 
+    content: ''; 
+    position: absolute; 
+    top: 8px; 
+    left: 12px; 
+    width: 12px; 
+    height: 12px; 
+    background: rgba(255,255,255,0.9); 
+    border-radius: 50%; 
+    box-shadow: 
+        0 0 15px rgba(255,255,255,0.8),
+        0 0 30px rgba(255,255,255,0.4),
+        8px 2px 0 2px rgba(255,255,255,0.3),
+        15px 6px 0 1px rgba(255,255,255,0.2);
+    filter: blur(0.5px);
+    animation: brillo_move 3s ease-in-out infinite;
+}
+
+/* Sombra inferior + boca */
+.eva-thinking .sphere::before { 
+    content: ''; 
+    position: absolute; 
+    bottom: 10px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 20px; 
+    height: 4px; 
+    background: rgba(0,0,0,0.4); 
+    border-radius: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    animation: mouthTalk_realista 0.8s ease-in-out infinite; 
+}
+
+/* Animación 3D más realista */
+@keyframes float3D_realista { 
+    0% { 
+        transform: translateY(0) rotateY(0deg) rotateX(10deg); 
+        box-shadow: 0 0 30px rgba(212,138,114,0.6), 0 0 60px rgba(212,138,114,0.4), 0 8px 25px rgba(0,0,0,0.4);
+    } 
+    25% { 
+        transform: translateY(-8px) rotateY(20deg) rotateX(5deg); 
+        box-shadow: 0 -5px 40px rgba(212,138,114,0.8), 0 0 80px rgba(212,138,114,0.6), 0 15px 30px rgba(0,0,0,0.5);
+    } 
+    50% { 
+        transform: translateY(-4px) rotateY(-10deg) rotateX(-5deg); 
+        box-shadow: 0 0 35px rgba(212,138,114,0.7), 0 0 70px rgba(212,138,114,0.5), 0 10px 28px rgba(0,0,0,0.45);
+    } 
+    75% { 
+        transform: translateY(-10px) rotateY(-25deg) rotateX(8deg); 
+        box-shadow: 0 -8px 45px rgba(212,138,114,0.9), 0 0 90px rgba(212,138,114,0.7), 0 18px 35px rgba(0,0,0,0.55);
+    } 
+    100% { 
+        transform: translateY(0) rotateY(0deg) rotateX(10deg); 
+        box-shadow: 0 0 30px rgba(212,138,114,0.6), 0 0 60px rgba(212,138,114,0.4), 0 8px 25px rgba(0,0,0,0.4);
+    } 
+}
+
+/* Brillo que se mueve sutilmente */
+@keyframes brillo_move {
+    0%,100% { top: 8px; left: 12px; }
+    50% { top: 6px; left: 14px; }
+}
+
+/* Boca que se mueve más natural */
+@keyframes mouthTalk_realista { 
+    0%,100% { transform: translateX(-50%) scaleX(1.2); opacity: 0.6; } 
+    50% { transform: translateX(-50%) scaleX(0.3); opacity: 0.2; } 
+}
         .eva-particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
         .eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #D48A72; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
         .particle:nth-child(1) { left: -8px; top: 50%; animation-delay: 0s; }

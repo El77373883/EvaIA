@@ -1142,7 +1142,7 @@ function addToShortTermMemory(userMsg, evaMsg) {
         timestamp: Date.now(),
         sentiment: analyzeSentiment(userMsg)
     });
-    if (shortTermMemory.length > 15) shortTermMemory.shift();
+    if (shortTermMemory.length > 100000000) shortTermMemory.shift();
 }
 
 // ============ ANÁLISIS DE SENTIMIENTO ============

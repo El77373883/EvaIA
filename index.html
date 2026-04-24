@@ -1278,22 +1278,10 @@ function generateContextualResponse(input, baseResponse) {
         }
     }
     
-    // Sentimiento
-    if (sentiment === 'negativo') {
-        contextualAddon += ' Entiendo cómo te sientes.';
-    }
-    if (sentiment === 'positivo') {
-        contextualAddon += ' ¡Me alegra verte así!';
-    }
-    
-// Memoria (solo mencionar si no hay otra respuesta mejor)
-    // Desactivado para evitar confusión
-    
-    // Nombre
-    if (longTermMemory.userName && Math.random() > 0.9) {
-        contextualAddon = ' ' + longTermMemory.userName + ',' + contextualAddon;
-    }
-    
+
+// Memoria desactivada
+    // Nombre desactivado
+
     return baseResponse + contextualAddon;
 }
 

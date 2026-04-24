@@ -300,11 +300,101 @@ function sendMessage() {
     addMessage(message, 'user');
     var typingId = addThinkingIndicator();
     setTimeout(function() {
-        removeThinkingIndicator(typingId);
-        typewriterEffect(generateResponse(message), 'eva');
-        isProcessing = false;
-    }, 800 + Math.random() * 1200);
+    removeThinkingIndicator(typingId);
+    var baseResponse = generateResponse(message);
+    var contextualResponse = generateContextualResponse(message, baseResponse);
+    
+    // Si es código, mostrarlo directo con resaltado
+    if (contextualResponse.includes('```')) {
+        showCodeResponse(contextualResponse, 'eva');
+    } else {
+        typewriterEffect(contextualResponse, 'eva');
+    }
+    
+    addToShortTermMemory(message, contextualResponse);
+    saveChatHistory();
+    isProcessing = false;
+}, 800 + Math.random() * 1200);
+
+function showCodeResponse(text, sender) {
+    var chatArea = document.getElementById('chatArea');
+    var wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper ' + sender + '-wrapper';
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + sender;
+    msgDiv.style.whiteSpace = 'pre-wrap';
+    msgDiv.style.wordBreak = 'break-word';
+    msgDiv.style.background = '#F0F0F0';
+    wrapper.appendChild(msgDiv);
+
+    var parts = text.split(/(```[\s\S]*?```)/g);
+    var finalHTML = '';
+    
+    parts.forEach(function(part) {
+        if (part.startsWith('```') && part.endsWith('```')) {
+            var lines = part.split('\n');
+            var lang = lines[0].replace('```', '').trim();
+            var codeLines = lines.slice(1, -1);
+            
+            var codeHTML = '<div style="background:#1a1a2e;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:11px;line-height:1.8;color:#e0e0e0;">';
+            
+            if (lang) {
+                codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
+            }
+            
+            codeLines.forEach(function(line, i) {
+                var num = (i + 1).toString();
+                var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                lineContent = lineContent
+                    .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
+                    .replace(/(\/?&gt;)/g, '<span style="color:#e94560;">$1</span>')
+                    .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|def|print)\b/g, '<span style="color:#c792ea;">$1</span>')
+                    .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
+                    .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
+                    .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>')
+                    .replace(/(#.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+                
+                codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
+            });
+            
+            codeHTML += '</div>';
+            finalHTML += codeHTML;
+        } else {
+            finalHTML += '<span>' + part + '</span>';
+        }
+    });
+    
+    msgDiv.innerHTML = finalHTML;
+    
+    var copyBtn = document.createElement('div');
+    copyBtn.className = 'copy-btn';
+    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    copyBtn.onclick = function(e) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(text).then(function() {
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            setTimeout(function() { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'; }, 2000);
+        });
+    };
+    wrapper.appendChild(copyBtn);
+
+    var actionsDiv = document.createElement('div');
+    actionsDiv.className = 'message-actions';
+    actionsDiv.innerHTML = '<button class="action-mini-btn like-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>'
+        + '<button class="action-mini-btn dislike-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg></button>'
+        + '<button class="action-mini-btn refresh-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>';
+    wrapper.appendChild(actionsDiv);
+    actionsDiv.querySelector('.like-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('liked'); actionsDiv.querySelector('.dislike-action').classList.remove('disliked'); };
+    actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
+    actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
+
+    chatArea.appendChild(wrapper);
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
+
+function typewriterEffect(text, sender) {
 
 function typewriterEffect(text, sender) {
     var chatArea = document.getElementById('chatArea');

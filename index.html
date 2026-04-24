@@ -329,12 +329,12 @@ var icons = {
 
 // ============ DATOS BASE ============
 var models = [
-    { modelId: 'eva',    name: 'Eva 1.0',  greeting: 'Hola, soy Eva.\n' + (function(){ var h = new Date().getHours(); if(h>=6&&h<12) return '¿En qué puedo ayudarte?'; if(h>=12&&h<19) return '¿En qué puedo ayudarte?'; return '¿Qué haces despierto tan tarde? 🌙'; })() },
+    { modelId: 'eva',    name: 'Eva 1.0',  greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
     { modelId: 'selene', name: 'Selene',   greeting: 'Hola, soy Selene.\nVamos a crear algo?' },
     { modelId: 'nyx',    name: 'Nyx',      greeting: 'Nyx te escucha.\nQue inquietud traes?' },
-    { modelId: 'aria',   name: 'Aria',     greeting: 'Aria en linea.\nQue datos necesitas?' }
+    { modelId: 'aria',   name: 'Aria',     greeting: 'Aria en linea.\nQue datos necesitas?' },
+    { modelId: 'wiki',   name: '📚 Wiki',  greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' }
 ];
-
 var knowledge = [];
 
 var responses = [];
@@ -1646,6 +1646,9 @@ if (!webResult) {
 setTimeout(function() {
     removeThinkingIndicator(typingId);
 var baseResponse = generateResponse(message);
+if (currentModel === 'wiki' && webResult) {
+    baseResponse = webResult;
+}
     
     // Si el usuario mandó código suelto, lo envolvemos automáticamente
     if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {

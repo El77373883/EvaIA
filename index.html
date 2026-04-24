@@ -239,24 +239,44 @@ document.addEventListener('click', function(e) {
 // ============ SISTEMA DE INTELIGENCIA AVANZADA ============
 
 // Base de conocimiento para analizar temas
+var currentTopic = null; // tema actual de la conversación
+var waitingForCode = false; // esperando que manden código
+
 var knowledgeBase = {
     programacion: {
-        keywords: ['codigo', 'programar', 'html', 'css', 'javascript', 'python', 'function', 'error', 'bug', 'arreglar'],
+        keywords: ['codigo', 'programar', 'html', 'css', 'javascript', 'python', 'function', 'error', 'bug', 'arreglar', 'pagina web', 'pagina', 'web', 'app', 'aplicacion', 'desarrollar', 'developer', 'js', 'react', 'node'],
         context: 'programacion'
     },
     matematicas: {
-        keywords: ['calculo', 'suma', 'resta', 'multiplicar', 'dividir', 'numero', 'ecuacion'],
+        keywords: ['calculo', 'suma', 'resta', 'multiplicar', 'dividir', 'numero', 'ecuacion', 'porcentaje', 'fraccion', 'algebra', 'geometria', 'trigonometria'],
         context: 'matematicas'
     },
     consejos: {
-        keywords: ['consejo', 'recomendacion', 'que hago', 'ayuda', 'problema', 'necesito'],
+        keywords: ['consejo', 'recomendacion', 'que hago', 'ayuda', 'problema', 'necesito', 'opinion', 'que piensas', 'me ayudas', 'como hago'],
         context: 'consejo'
     },
     sentimiento: {
-        keywords: ['triste', 'feliz', 'enojado', 'cansado', 'estresado', 'mal', 'bien'],
+        keywords: ['triste', 'feliz', 'enojado', 'cansado', 'estresado', 'mal', 'bien', 'deprimido', 'ansioso', 'solo', 'aburrido', 'preocupado'],
         context: 'emocional'
+    },
+    ciencia: {
+        keywords: ['ciencia', 'fisica', 'quimica', 'biologia', 'universo', 'planeta', 'espacio', 'celula', 'adn', 'evolucion', 'gravedad'],
+        context: 'ciencia'
+    },
+    historia: {
+        keywords: ['historia', 'guerra', 'presidente', 'pais', 'cultura', 'civilizacion', 'siglo', 'revolucion', 'independencia'],
+        context: 'historia'
+    },
+    salud: {
+        keywords: ['salud', 'enfermedad', 'dolor', 'medicina', 'doctor', 'sintoma', 'ejercicio', 'dieta', 'comer', 'dormir', 'cansancio'],
+        context: 'salud'
+    },
+    entretenimiento: {
+        keywords: ['pelicula', 'serie', 'musica', 'cancion', 'juego', 'videojuego', 'libro', 'anime', 'netflix', 'spotify', 'youtube'],
+        context: 'entretenimiento'
     }
 };
+
 
 // Detectar el contexto de la conversación
 function detectContext(input) {
@@ -334,48 +354,102 @@ function analyzeCodeIntelligently(code, lang) {
 function getIntelligentResponse(input, context) {
     var msg = input.toLowerCase();
     
-    // Si pide que revise algo
-    if (msg.includes('revisa') || msg.includes('analiza') || msg.includes('checa') || msg.includes('esta bien')) {
-        return 'Dame el código y te digo si tiene errores. Soy buena encontrando bugs. 🔍';
+    // Detectar seguimiento de conversación
+    if (shortTermMemory.length > 0) {
+        var lastMsg = shortTermMemory[shortTermMemory.length - 1];
+        var lastContext = detectContext(lastMsg.user).context;
+        
+        // Si el mensaje es muy corto y hay contexto previo, continuarlo
+        if (msg.split(' ').length <= 3 && lastContext !== 'general' && context === 'general') {
+            context = lastContext;
+        }
+        
+        // Si estaba esperando código y llega algo largo
+        if (waitingForCode && msg.length > 30) {
+            waitingForCode = false;
+            return 'Revisando lo que me mandaste... 🔍\n\nSi es código pégalo con los tres backticks (```) para analizarlo mejor.';
+        }
     }
     
-    // Si pregunta cómo mejorar
-    if (msg.includes('mejora') || msg.includes('optimizar') || msg.includes('mejor')) {
-        return 'Claro, pásame el código y te sugiero mejoras. 💪';
+    // Actualizar tema actual
+    if (context !== 'general') currentTopic = context;
+    
+    // Respuestas a intenciones específicas
+    if (msg.includes('revisa') || msg.includes('analiza') || msg.includes('checa') || msg.includes('esta bien') || msg.includes('revísalo')) {
+        waitingForCode = true;
+        return 'Claro, pásame el código y lo reviso. 🔍 Pégalo aquí.';
+    }
+    if (msg.includes('mejora') || msg.includes('optimizar') || msg.includes('mejorar')) {
+        waitingForCode = true;
+        return 'Pásame el código y te digo cómo mejorarlo. 💪';
+    }
+    if (msg.includes('no entiendo') || msg.includes('no entendí') || msg.includes('explica') || msg.includes('explicame')) {
+        return 'Claro, te explico. ¿Qué parte exactamente no te queda clara?';
+    }
+    if (msg.includes('gracias') || msg.includes('grax') || msg.includes('ty')) {
+        return '¡De nada! 😊 Si necesitas algo más aquí estoy.';
+    }
+    if (msg.includes('no funciona') || msg.includes('no jala') || msg.includes('no sirve') || msg.includes('falla')) {
+        waitingForCode = true;
+        return 'Cuéntame más. ¿Qué error te sale? Si puedes, pega el código o el mensaje de error. 🐛';
+    }
+    if (msg.includes('como se hace') || msg.includes('como hago') || msg.includes('como puedo')) {
+        return '¡Buena pregunta! Dime más detalles y te explico paso a paso. 📋';
     }
     
-    // Respuestas por contexto
-    var responses = {
+    var respuestas = {
         programacion: [
-            'Vamos a programar. ¿Qué necesitas?',
-            'Háblame en código. Te entiendo.',
-            'Soy buena con la lógica. ¿En qué te ayudo?'
+            '¿En qué lenguaje vas? HTML, CSS, JavaScript, Python... dime. 💻',
+            'Vamos al código. ¿Qué necesitas hacer exactamente?',
+            'Dime qué quieres programar y lo resolvemos juntos. 🛠️',
+            '¿Tienes código ya o empezamos desde cero?'
         ],
         matematicas: [
-            'Los números son mi especialidad.',
-            'Dime el cálculo y lo resolvemos.',
-            'Matemáticas, ¡qué buena elección!'
+            'Dime la operación o el problema y lo resolvemos. 🔢',
+            'Los números son lo mío. ¿Qué necesitas calcular?',
+            'Escribe el problema completo para ayudarte mejor. ✏️'
         ],
         consejos: [
-            'Te escucho. Cuéntame más.',
-            'Estoy aquí para ayudarte.',
-            'Dime cuál es la situación.'
+            'Cuéntame más, quiero entender bien la situación. 👂',
+            'Estoy aquí. ¿Qué está pasando exactamente?',
+            'Dame los detalles y te doy mi opinión. 💬'
         ],
         emocional: [
-            'Te entiendo. ¿Quieres hablar de ello?',
-            'A veces solo necesitamos desahogarnos.',
-            'Estoy aquí para ti. Sin juicios.'
+            'Te escucho. ¿Quieres contarme qué pasó? 💙',
+            'Estoy aquí para ti. Sin juicios, sin prisas.',
+            'A veces solo necesitamos desahogarnos. Cuéntame. 🤍'
+        ],
+        ciencia: [
+            'Buena pregunta científica. ¿Qué quieres saber exactamente? 🔬',
+            'Me gusta el tema. Dame más detalles. 🌌',
+            'Interesante. ¿Es para una tarea o por curiosidad? 🧬'
+        ],
+        historia: [
+            '¿De qué época o lugar hablamos? 📜',
+            'La historia tiene mucho que contar. ¿Qué te interesa saber? 🏛️',
+            'Dame más contexto para responderte bien. ⚔️'
+        ],
+        salud: [
+            'Importante cuidarse. ¿Qué necesitas saber? 🏥',
+            'Cuéntame más, aunque recuerda consultar a un médico para cosas serias. 💊',
+            '¿Es algo que estás sintiendo o info general? 🩺'
+        ],
+        entretenimiento: [
+            '¡Buen tema! ¿Qué estás buscando exactamente? 🎬',
+            'Dime más, te puedo ayudar a encontrar algo bueno. 🎮',
+            '¿Tienes alguna preferencia de género o estilo? 🎵'
         ],
         general: [
-            'Cuéntame más, quiero entender mejor.',
+            'Cuéntame más, quiero entenderte bien. 🤔',
             'Interesante. Dame más detalles.',
-            'Sigue, te escucho.'
+            '¿Puedes ser más específico? Quiero ayudarte bien. 💬'
         ]
     };
     
-    var options = responses[context] || responses.general;
-    return options[Math.floor(Math.random() * options.length)];
+    var opciones = respuestas[context] || respuestas.general;
+    return opciones[Math.floor(Math.random() * opciones.length)];
 }
+
 
 // Aprender de correcciones del usuario
 function learnFromCorrection(userMsg, evaMsg) {

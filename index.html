@@ -1161,15 +1161,40 @@ function typewriterEffect(text, sender) {
 
         } else if (item.type === 'code') {
             var containerDiv = document.createElement('div');
-            containerDiv.style.cssText = 'background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#333;border:1px solid #e0e0e0;';
+            containerDiv.style.cssText = 'background:#0d1117;border-radius:12px;margin:10px 0;overflow:hidden;border:1px solid #30363d;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;';
             msgDiv.appendChild(containerDiv);
 
-            if (item.lang) {
-                var langLabel = document.createElement('div');
-                langLabel.style.cssText = 'color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;';
-                langLabel.textContent = '📄 ' + item.lang.toUpperCase();
-                containerDiv.appendChild(langLabel);
-            }
+            // Header profesional
+            var headerBar = document.createElement('div');
+            headerBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#161b22;border-bottom:1px solid #30363d;';
+            
+            var langBadge = document.createElement('span');
+            langBadge.style.cssText = 'font-size:11px;font-weight:600;color:#8b949e;font-family:-apple-system,sans-serif;text-transform:uppercase;letter-spacing:0.5px;';
+            langBadge.textContent = item.lang || 'code';
+            
+            var copyCodeBtn = document.createElement('button');
+            copyCodeBtn.style.cssText = 'background:transparent;border:1px solid #30363d;color:#8b949e;padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;transition:all 0.2s;';
+            copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+            
+            var codeContent = item.lines.join('\n');
+            copyCodeBtn.onclick = function() {
+                navigator.clipboard.writeText(codeContent).then(function() {
+                    copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> <span style="color:#3fb950;">Copiado</span>';
+                    setTimeout(function() {
+                        copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+                    }, 2000);
+                });
+            };
+            
+            headerBar.appendChild(langBadge);
+            headerBar.appendChild(copyCodeBtn);
+            containerDiv.appendChild(headerBar);
+            
+            // Área de código
+            var codeArea = document.createElement('div');
+            codeArea.style.cssText = 'padding:14px;overflow-x:auto;color:#e6edf3;';
+            containerDiv.appendChild(codeArea);
+
 
             var lineIdx = 0;
             function addLine() {
@@ -1184,9 +1209,9 @@ function typewriterEffect(text, sender) {
                         .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
                         .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
 
-                    var lineDiv = document.createElement('div');
-                    lineDiv.innerHTML = '<span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent;
-                    containerDiv.appendChild(lineDiv);
+                                        var lineDiv = document.createElement('div');
+                    lineDiv.innerHTML = '<span style="color:#484f58;margin-right:14px;user-select:none;display:inline-block;width:25px;text-align:right;font-size:11px;">' + num + '</span>' + lineContent;
+                    codeArea.appendChild(lineDiv);
                     chatArea.scrollTop = chatArea.scrollHeight;
                     lineIdx++;
                     typewriterTimers.push(setTimeout(addLine, 30));

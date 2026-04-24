@@ -731,7 +731,7 @@ function generateContextualResponse(input, baseResponse) {
     return baseResponse + contextualAddon;
 }
 
-// ============ REEMPLAZAR sendMessage() ============
+// // ============ REEMPLAZAR sendMessage() ============
 var originalSendMessage = sendMessage;
 sendMessage = function() {
     if (isProcessing) return;
@@ -753,12 +753,18 @@ sendMessage = function() {
         removeThinkingIndicator(typingId);
         var baseResponse = generateResponse(message);
         var contextualResponse = generateContextualResponse(message, baseResponse);
-        typewriterEffect(contextualResponse, 'eva');
+        
+        // Si es código, mostrarlo directo con resaltado
+        if (contextualResponse.includes('```')) {
+            showCodeResponse(contextualResponse, 'eva');
+        } else {
+            typewriterEffect(contextualResponse, 'eva');
+        }
         
         // Guardar en memoria a corto plazo
         addToShortTermMemory(message, contextualResponse);
         
-        saveChatHistory(); // si implementas historial
+        saveChatHistory();
         isProcessing = false;
     }, 800 + Math.random() * 1200);
 };

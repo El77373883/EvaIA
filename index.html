@@ -1494,15 +1494,17 @@ function addMessage(text, sender) {
     if (text.includes('![') && text.includes('](')) {
         var parts = text.split(/(!\[.*?\]\(.*?\))/);
         parts.forEach(function(part) {
-            if (part.startsWith('![') && part.includes('](')) {
-                var url = part.split('](')[1].split(')')[0];
-                var imgEl = document.createElement('img');
-                imgEl.src = url;
-imgEl.crossOrigin = 'anonymous';
-imgEl.referrerPolicy = 'no-referrer';
-                imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
-                imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
-                msgDiv.appendChild(imgEl);
+           if (part.startsWith('![') && part.includes('](')) {
+    var url = part.split('](')[1].split(')')[0];
+    var imgEl = document.createElement('img');
+    imgEl.src = url;
+    imgEl.crossOrigin = 'anonymous';
+    imgEl.referrerPolicy = 'no-referrer';
+    imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
+    imgEl.onerror = function() { this.style.display='none'; };
+    imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
+    msgDiv.appendChild(imgEl);
+}
             } else if (part.trim()) {
                 var textEl = document.createElement('div');
                 textEl.textContent = part;

@@ -5,19 +5,25 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: 'Falta mensaje' });
 
     try {
-        const response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: 'Responde en español de forma útil y clara: ' + message }] }]
-                })
-            }
-        );
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + process.env.GROQ_API_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    { role: 'system', content: 'Eres Gemini de Google. Responde en español de forma útil, creativa y clara.' },
+                    { role: 'user', content: message }
+                ],
+                max_tokens: 2000,
+                temperature: 0.7
+            })
+        });
 
         const data = await response.json();
-        const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        const answer = data.choices?.[0]?.message?.content || null;
         res.status(200).json({ answer });
     } catch (error) {
         res.status(200).json({ answer: null });

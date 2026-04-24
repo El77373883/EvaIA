@@ -1645,7 +1645,7 @@ if (!webResult) {
 
 setTimeout(function() {
     removeThinkingIndicator(typingId);
-    var baseResponse = webResult || generateResponse(message);
+var baseResponse = generateResponse(message);
     
     // Si el usuario mandó código suelto, lo envolvemos automáticamente
     if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {

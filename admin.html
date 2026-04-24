@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eva - Panel Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #FCFCFC; color: #333; padding: 20px; max-width: 700px; margin: 0 auto; }
+        h1 { font-family: Georgia, serif; font-size: 24px; margin-bottom: 4px; }
+        .subtitle { color: #999; font-size: 13px; margin-bottom: 24px; }
+        .section { background: #fff; border: 1px solid #eaeaea; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .section h2 { font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        label { font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 4px; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 8px; }
+        textarea { min-height: 60px; resize: vertical; }
+        .btn { padding: 10px 18px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: #2563EB; color: #fff; }
+        .btn-danger { background: #EF4444; color: #fff; font-size: 12px; padding: 6px 12px; }
+        .btn-outline { background: #fff; border: 1px solid #e0e0e0; }
+        .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .card { background: #f9f9f9; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .card-title { font-weight: 600; font-size: 14px; }
+        .card-subtitle { font-size: 12px; color: #888; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-eva { background: #FDE8E8; color: #D48A72; }
+        .badge-selene { background: #E8E0F0; color: #7C5CBF; }
+        .badge-nyx { background: #1a1a2e; color: #e0e0e0; }
+        .badge-aria { background: #E0F0F8; color: #3B82F6; }
+        .empty-state { text-align: center; color: #bbb; padding: 30px; font-size: 13px; }
+        .model-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .model-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid #e0e0e0; font-size: 13px; cursor: pointer; background: #fff; }
+        .model-tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+        .tag { display: inline-block; background: #f0f0f0; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin: 2px; }
+        hr { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+    </style>
+</head>
+<body>
+
+<h1>⚙️ Panel Admin - Eva Chat</h1>
+<p class="subtitle">Configura categorías y respuestas. Se guarda en tu navegador.</p>
+
+<!-- CATEGORÍAS -->
+<div class="section">
+    <h2>📁 Categorías <button class="btn btn-primary btn-sm" onclick="addCategory()">+ Nueva</button></h2>
+    <div id="categoriesList"></div>
+</div>
+
+<!-- RESPUESTAS -->
+<div class="section">
+    <h2>💬 Respuestas <button class="btn btn-primary btn-sm" onclick="addResponse()">+ Nueva</button></h2>
+    <div class="model-tabs" id="modelTabs"></div>
+    <div id="responsesList"></div>
+</div>
+
+<!-- EXPORTAR / IMPORTAR / RESET -->
+<div class="section">
+    <h2>🔧 Herramientas</h2>
+    <div class="row">
+        <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar JSON</button>
+        <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Reset todo</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+</div>
+
+<script>
+// ============ MODELOS ============
+var models = ['eva', 'selene', 'nyx', 'aria'];
+var currentFilterModel = 'all';
+
+// ============ CARGAR DATOS ============
+function getKnowledge() { return JSON.parse(localStorage.getItem('eva_knowledge') || '[]'); }
+function getResponses() { return JSON.parse(localStorage.getItem('eva_responses') || '[]'); }
+function saveKnowledge(data) { localStorage.setItem('eva_knowledge', JSON.stringify(data)); renderAll(); }
+function saveResponses(data) { localStorage.setItem('eva_responses', JSON.stringify(data)); renderAll(); }
+
+// ============ RENDER ============
+function renderAll() {
+    renderCategories();
+    renderModelTabs();
+    renderResponses();
+}
+
+function renderCategories() {
+    var knowledge = getKnowledge();
+    var list = document.getElementById('categoriesList');
+    if (knowledge.length === 0) { list.innerHTML = '<div class="empty-state">No hay categorías. Crea una nueva.</div>'; return; }
+    list.innerHTML = knowledge.map(function(k, i) {
+        var keywords = (k.keywords || []).join(', ');
+        return '<div class="card">'
+            + '<div class="card-header">'
+            + '<span class="card-title">' + escHtml(k.category) + '</span>'
+            + '<button class="btn btn-danger btn-sm" onclick="deleteCategory(' + i + ')">Eliminar</button>'
+            + '</div>'
+            + '<label>Keywords (separadas por coma)</label>'
+            + '<textarea onchange="updateCategory(' + i + ', \'keywords\', this.value)">' + escHtml(keywords) + '</textarea>'
+            + '</div>';
+    }).join('');
+}
+
+function renderModelTabs() {
+    var tabs = document.getElementById('modelTabs');
+    var allActive = currentFilterModel === 'all' ? 'active' : '';
+    var html = '<span class="model-tab ' + allActive + '" onclick="filterByModel(\'all\')">Todos</span>';
+    models.forEach(function(m) {
+        var active = currentFilterModel === m ? 'active' : '';
+        html += '<span class="model-tab ' + active + '" onclick="filterByModel(\'' + m + '\')">' + capFirst(m) + '</span>';
+    });
+    tabs.innerHTML = html;
+}
+
+function renderResponses() {
+    var responses = getResponses();
+    var knowledge = getKnowledge();
+    var list = document.getElementById('responsesList');
+    var filtered = currentFilterModel === 'all' ? responses : responses.filter(function(r) { return r.model === currentFilterModel; });
+    if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">No hay respuestas. Añade una.</div>'; return; }
+    list.innerHTML = filtered.map(function(r, i) {
+        var realIndex = responses.indexOf(r);
+        var catOptions = knowledge.map(function(k) {
+            var sel = k.category === r.category ? 'selected' : '';
+            return '<option value="' + escHtml(k.category) + '" ' + sel + '>' + escHtml(k.category) + '</option>';
+        }).join('');
+        var modelBadge = '<span class="badge badge-' + r.model + '">' + capFirst(r.model) + '</span>';
+        return '<div class="card">'
+            + '<div class="card-header">'
+            + '<span>' + modelBadge + ' <span class="card-subtitle">#' + (realIndex + 1) + '</span></span>'
+            + '<button class="btn btn-danger btn-sm" onclick="deleteResponse(' + realIndex + ')">Eliminar</button>'
+            + '</div>'
+            + '<label>Categoría</label>'
+            + '<select onchange="updateResponse(' + realIndex + ', \'category\', this.value)">' + catOptions + '</select>'
+            + '<label>Modelo</label>'
+            + '<select onchange="updateResponse(' + realIndex + ', \'model\', this.value)">'
+            + models.map(function(m) { var s = m === r.model ? 'selected' : ''; return '<option value="' + m + '" ' + s + '>' + capFirst(m) + '</option>'; }).join('')
+            + '</select>'
+            + '<label>Texto de respuesta</label>'
+            + '<textarea onchange="updateResponse(' + realIndex + ', \'text\', this.value)">' + escHtml(r.text) + '</textarea>'
+            + '</div>';
+    }).join('');
+}
+
+// ============ ACCIONES ============
+function addCategory() {
+    var knowledge = getKnowledge();
+    var name = prompt('Nombre de la categoría (ej: saludos, despedidas, programacion):');
+    if (!name || name.trim() === '') return;
+    name = name.trim().toLowerCase();
+    if (knowledge.some(function(k) { return k.category === name; })) { alert('Esa categoría ya existe.'); return; }
+    knowledge.push({ category: name, keywords: [] });
+    saveKnowledge(knowledge);
+}
+
+function deleteCategory(index) {
+    if (!confirm('¿Eliminar esta categoría? Las respuestas asociadas quedarán sin categoría.')) return;
+    var knowledge = getKnowledge();
+    knowledge.splice(index, 1);
+    saveKnowledge(knowledge);
+}
+
+function updateCategory(index, field, value) {
+    var knowledge = getKnowledge();
+    if (field === 'keywords') {
+        knowledge[index].keywords = value.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    }
+    saveKnowledge(knowledge);
+}
+
+function addResponse() {
+    var knowledge = getKnowledge();
+    if (knowledge.length === 0) { alert('Primero crea una categoría.'); return; }
+    var responses = getResponses();
+    responses.push({ category: knowledge[0].category, model: 'eva', text: 'Nueva respuesta' });
+    saveResponses(responses);
+}
+
+function deleteResponse(index) {
+    if (!confirm('¿Eliminar esta respuesta?')) return;
+    var responses = getResponses();
+    responses.splice(index, 1);
+    saveResponses(responses);
+}
+
+function updateResponse(index, field, value) {
+    var responses = getResponses();
+    responses[index][field] = value;
+    saveResponses(responses);
+}
+
+function filterByModel(model) {
+    currentFilterModel = model;
+    renderModelTabs();
+    renderResponses();
+}
+
+// ============ HERRAMIENTAS ============
+function exportData() {
+    var data = { knowledge: getKnowledge(), responses: getResponses() };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'eva_backup_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click(); URL.revokeObjectURL(url);
+}
+
+function importData() { document.getElementById('importFile').click(); }
+
+function handleImport(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = JSON.parse(e.target.result);
+            if (data.knowledge && data.responses) {
+                if (confirm('¿Sobrescribir datos actuales con el archivo importado?')) {
+                    localStorage.setItem('eva_knowledge', JSON.stringify(data.knowledge));
+                    localStorage.setItem('eva_responses', JSON.stringify(data.responses));
+                    renderAll();
+                    alert('Importado correctamente.');
+                }
+            } else { alert('Archivo inválido.'); }
+        } catch(ex) { alert('Error al leer el archivo.'); }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function resetAll() {
+    if (confirm('¿Borrar TODOS los datos personalizados? Esto no se puede deshacer.')) {
+        localStorage.removeItem('eva_knowledge');
+        localStorage.removeItem('eva_responses');
+        renderAll();
+    }
+}
+
+// ============ UTILS ============
+function escHtml(str) { var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// Init
+renderAll();
+</script>
+
+</body>
+</html>

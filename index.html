@@ -1631,7 +1631,7 @@ function generateContextualResponse(input, baseResponse) {
 }
 
 // ============ REEMPLAZAR sendMessage() ============
-sendMessage = async function() {
+async function sendMessage() {
     if (isProcessing) return;
     var input = document.getElementById('chatInput');
     var message = input.value.trim();

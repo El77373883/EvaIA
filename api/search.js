@@ -3,29 +3,33 @@ export default async function handler(req, res) {
     if (!q) return res.status(400).json({ error: 'Falta query' });
 
     try {
-        const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1&t=eva-ia`;
-        
+        const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`;
         const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; Eva-IA/1.0)',
-                'Accept': 'application/json'
-            }
+            headers: { 'User-Agent': 'Mozilla/5.0' }
         });
-        
         const data = await response.json();
         
-        let result = '';
-        if (data.AbstractText) result = data.AbstractText;
-        else if (data.Answer) result = data.Answer;
-        else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-            result = data.RelatedTopics[0].Text || '';
-        }
+        let result = data.AbstractText || data.Answer || '';
         
-        if (!result) {
-            return res.status(200).json({ answer: null });
+        if (!result && data.RelatedTopics) {
+            for (let t of data.RelatedTopics) {
+                if (t.Text && t.Text.length > 20) {
+                    result = t.Text;
+                    break;
+                }
+                if (t.Topics) {
+                    for (let sub of t.Topics) {
+                        if (sub.Text && sub.Text.length > 20) {
+                            result = sub.Text;
+                            break;
+                        }
+                    }
+                }
+                if (result) break;
+            }
         }
 
-        res.status(200).json({ answer: result, source: data.AbstractURL || '' });
+        res.status(200).json({ answer: result || null });
     } catch (error) {
         res.status(200).json({ answer: null });
     }

@@ -12,9 +12,9 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'qwen-qwq-32b',  // ← MODELO CORREGIDO
+                model: 'llama-3.3-70b-versatile',  // ← MISMO modelo que Code
                 messages: [
-                    { role: 'system', content: 'Eres Qwen, una IA experta en razonamiento. Responde en español claro y directo.' },
+                    { role: 'system', content: 'Eres Qwen, experto en razonamiento lógico y análisis. Respondes en español con estructura clara: primero analizas el problema, luego das la solución paso a paso.' },
                     { role: 'user', content: message }
                 ],
                 max_tokens: 2000,

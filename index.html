@@ -1144,9 +1144,22 @@ function generateResponse(input) {
             var yaPregunte = shortTermMemory.length > 0 && 
                 shortTermMemory[shortTermMemory.length - 1].eva.includes('¿En qué te puedo ayudar con');
             
-                        if (yaPregunte) {
-                return 'Cuéntame más, ¿qué necesitas exactamente? Por ejemplo: "como hago un botón en HTML" o "tengo un error en Python". 😊';
+                                  if (yaPregunte) {
+                var preguntas = [
+                    '¿Tienes un error o quieres aprender algo? 🐛',
+                    '¿Es HTML, CSS, JavaScript, Python u otro lenguaje? 💻',
+                    '¿Estás haciendo una página web, una app o un script? 🛠️',
+                    '¿Puedes darme más detalles de lo que necesitas? 🤔'
+                ];
+                // Rotar preguntas según cuántas veces ha preguntado
+                var idx = shortTermMemory.filter(function(m) {
+                    return m.eva.includes('¿Tienes un error') || 
+                           m.eva.includes('¿Es HTML') || 
+                           m.eva.includes('¿Estás haciendo');
+                }).length;
+                return preguntas[idx % preguntas.length];
             }
+
 
             
             var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';

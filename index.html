@@ -340,7 +340,8 @@ var models = [
 { modelId: 'gemini', name: '🌟 Gemini', greeting: 'Gemini en línea.\nIA de Google lista para ayudarte.' },
 { modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
 { modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' },
-{ modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' }
+{ modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
+{ modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
 ];
 var knowledge = [];
 
@@ -1698,6 +1699,12 @@ else if (currentModel === 'cloudflare') {
     else { baseResponse = 'Cloudflare AI no está disponible ahora. ☁️'; }
 }
 
+else if (currentModel === 'duck') {
+    var duckResult = await askDuck(message);
+    if (duckResult) { baseResponse = duckResult; }
+    else { baseResponse = 'No encontré resultados con DuckDuckGo. 🦆'; }
+}
+
 else if (currentModel === 'buscador') {
     var buscaResult = await askBuscador(message);
     if (buscaResult) { baseResponse = buscaResult; }
@@ -2683,6 +2690,15 @@ async function askBuscador(message) {
     return null;
 }
 
+
+async function askDuck(message) {
+    try {
+        var resp = await fetch('/api/search-web-pro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
 
 async function askGroq(message) {
     try {

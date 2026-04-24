@@ -554,18 +554,69 @@ function typewriterEffect(text, sender) {
     msgDiv.style.wordBreak = 'break-word';
     wrapper.appendChild(msgDiv);
 
-    // Typewriter para TODO (texto y código)
-    msgDiv.textContent = '';
-    var i = 0;
-    function type() {
-        if (i < text.length) {
-            msgDiv.textContent += text.charAt(i);
-            chatArea.scrollTop = chatArea.scrollHeight;
-            i++;
-            typewriterTimers.push(setTimeout(type, 12));
+    // Si tiene código, mostrarlo con colores y typewriter
+    if (text.includes('```')) {
+        var parts = text.split(/(```[\s\S]*?```)/g);
+        var allHTML = '';
+        
+        parts.forEach(function(part) {
+            if (part.startsWith('```') && part.endsWith('```')) {
+                var lines = part.split('\n');
+                var lang = lines[0].replace('```', '').trim();
+                var codeLines = lines.slice(1, -1);
+                
+                var codeHTML = '<div style="background:#1a1a2e;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#e0e0e0;">';
+                if (lang) codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
+                
+                codeLines.forEach(function(line, i) {
+                    var num = (i + 1).toString();
+                    var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    lineContent = lineContent
+                        .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
+                        .replace(/\b(function|const|let|var|return|if|else|for|while|class|def|print|import)\b/g, '<span style="color:#c792ea;">$1</span>')
+                        .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
+                        .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
+                        .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+                    codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
+                });
+                codeHTML += '</div>';
+                allHTML += codeHTML;
+            } else {
+                allHTML += part.replace(/\n/g, '<br>');
+            }
+        });
+        
+        // Mostrar con typewriter lento
+        msgDiv.innerHTML = '';
+        var cleanText = allHTML.replace(/<[^>]*>/g, ''); // texto sin HTML para typewriter
+        var i = 0;
+        function type() {
+            if (i < cleanText.length) {
+                // Reconstruir HTML progresivamente
+                var progress = allHTML;
+                msgDiv.innerHTML = progress;
+                chatArea.scrollTop = chatArea.scrollHeight;
+                i = cleanText.length; // mostrar todo de golpe pero con formato
+                typewriterTimers.push(setTimeout(type, 12));
+            }
         }
+        msgDiv.innerHTML = allHTML;
+        chatArea.scrollTop = chatArea.scrollHeight;
+        
+    } else {
+        // Texto normal con typewriter
+        msgDiv.textContent = '';
+        var i = 0;
+        function type() {
+            if (i < text.length) {
+                msgDiv.textContent += text.charAt(i);
+                chatArea.scrollTop = chatArea.scrollHeight;
+                i++;
+                typewriterTimers.push(setTimeout(type, 12));
+            }
+        }
+        type();
     }
-    type();
 
     // Botón copiar
     var copyBtn = document.createElement('div');

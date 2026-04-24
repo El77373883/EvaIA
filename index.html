@@ -189,12 +189,25 @@ function loadFromAdmin() {
                 keywords: entry.keywords
             });
             
-            responses.push({
-                category: catName,
-                model: entry.model || 'eva',
-                text: entry.response
-            });
-        });
+            var responseText = entry.response;
+if (!responseText.includes('```')) {
+    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+        responseText = '```html\n' + responseText + '\n```';
+    } else if (responseText.includes('function') || responseText.includes('const ') || responseText.includes('let ') || responseText.includes('var ')) {
+        responseText = '```javascript\n' + responseText + '\n```';
+    } else if (responseText.includes('def ') || responseText.includes('import ') || responseText.includes('print(')) {
+        responseText = '```python\n' + responseText + '\n```';
+    } else if (responseText.includes('{') && responseText.includes(':') && responseText.includes(';')) {
+        responseText = '```css\n' + responseText + '\n```';
+    }
+}
+responses.push({
+    category: catName,
+    model: entry.model || 'eva',
+    text: responseText
+});
+
+        }); // ← cierre del forEach
         
         console.log('✅ Entradas del admin cargadas: ' + entries.length);
     } catch(e) {

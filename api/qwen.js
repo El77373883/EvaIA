@@ -12,7 +12,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'qwen-2.5-32b',
+                model: 'qwen-qwq-32b',  // ← Modelo confirmado en Groq
                 messages: [
                     { role: 'system', content: 'Eres Qwen, una IA experta en razonamiento lógico y resolución de problemas. Respondes en español de forma clara, directa y bien estructurada.' },
                     { role: 'user', content: message }

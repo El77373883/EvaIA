@@ -1489,7 +1489,28 @@ function addMessage(text, sender) {
     wrapper.className = 'message-wrapper ' + sender + '-wrapper';
     var msgDiv = document.createElement('div');
     msgDiv.className = 'message ' + sender;
-    msgDiv.textContent = text;
+    
+    // Detectar si hay una imagen Markdown ![Imagen](url)
+    if (text.includes('![') && text.includes('](')) {
+        var parts = text.split(/(!\[.*?\]\(.*?\))/);
+        parts.forEach(function(part) {
+            if (part.startsWith('![') && part.includes('](')) {
+                var url = part.split('](')[1].split(')')[0];
+                var imgEl = document.createElement('img');
+                imgEl.src = url;
+                imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
+                imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
+                msgDiv.appendChild(imgEl);
+            } else if (part.trim()) {
+                var textEl = document.createElement('div');
+                textEl.textContent = part;
+                msgDiv.appendChild(textEl);
+            }
+        });
+    } else {
+        msgDiv.textContent = text;
+    }
+    
     wrapper.appendChild(msgDiv);
     chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;

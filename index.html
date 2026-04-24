@@ -1286,13 +1286,11 @@ function generateContextualResponse(input, baseResponse) {
         contextualAddon += ' ¡Me alegra verte así!';
     }
     
-    // Memoria
-    if (memoryResults.length > 0) {
-        contextualAddon += ' Por cierto, ' + memoryResults[0].content.toLowerCase() + '.';
-    }
+// Memoria (solo mencionar si no hay otra respuesta mejor)
+    // Desactivado para evitar confusión
     
     // Nombre
-    if (longTermMemory.userName && Math.random() > 0.7) {
+    if (longTermMemory.userName && Math.random() > 0.9) {
         contextualAddon = ' ' + longTermMemory.userName + ',' + contextualAddon;
     }
     

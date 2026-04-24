@@ -1922,7 +1922,12 @@ else {
 }
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
-        typewriterEffect(contextualResponse, 'eva');
+// Si la respuesta contiene una imagen, usar addMessage (sin typewriter)
+if (contextualResponse.includes('![') && contextualResponse.includes('](')) {
+    addMessage(contextualResponse, 'eva');
+} else {
+    typewriterEffect(contextualResponse, 'eva');
+}
         
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();

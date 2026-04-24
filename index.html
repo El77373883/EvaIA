@@ -1160,6 +1160,7 @@ function generateResponse(input) {
 
     
     // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
+
 if (matches.length > 0) {
     var bestMatch = matches[0];
     var k = knowledge[bestMatch.knowledgeIndex];
@@ -1169,16 +1170,7 @@ if (matches.length > 0) {
     
     var anyResp = responses.filter(function(r) { return r.category === k.category; });
     if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
-}   
-         
-        
-
-        
-        var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
-        if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
-        var anyResp = responses.filter(function(r) { return r.category === k.category; });
-        if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
-    }
+}
 
         
 

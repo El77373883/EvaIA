@@ -88,9 +88,8 @@
         .clear-all-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eaeaea; background: #fff; font-size: 13px; color: #999; cursor: pointer; }
         .clear-all-btn:active { background: #fee2e2; color: #EF4444; }
         .empty-chats { text-align: center; color: #bbb; padding: 40px 20px; font-size: 13px; }
-
-    .profile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400}
-
+        
+        .profile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400}
 .profile-overlay.active{display:block}
 .profile-modal{position:fixed;right:16px;top:70px;background:#fff;border-radius:20px;padding:24px 20px 20px;width:280px;z-index:500;box-shadow:0 12px 40px rgba(0,0,0,0.18);text-align:center;display:none}
 .profile-modal.active{display:block}
@@ -108,11 +107,8 @@
 .profile-btn{display:block;width:100%;padding:10px;margin-bottom:6px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-weight:600}
 .profile-btn.primary{background:#2563EB;color:#fff}
 .profile-btn.outline{background:#fff;border:1px solid #E5E7EB;color:#555}
-
-```
-</style>
-```
-
+        
+    </style>
 </head>
 <body>
 
@@ -178,6 +174,7 @@
     </div>
 </div>
 <div class="model-dropdown" id="modelDropdown"></div>
+
 
 <div class="chat-area" id="chatArea"></div>
 
@@ -1925,12 +1922,7 @@ else {
 }
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
-// Si la respuesta contiene una imagen, usar addMessage (sin typewriter)
-if (contextualResponse.includes('![') && contextualResponse.includes('](')) {
-    addMessage(contextualResponse, 'eva');
-} else {
-    typewriterEffect(contextualResponse, 'eva');
-}
+        typewriterEffect(contextualResponse, 'eva');
         
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();
@@ -2282,7 +2274,6 @@ function generatePageCode(data) {
     footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
     footer span { color: ${color}; }
   </style>
-
 </head>
 <body>
   <nav>
@@ -2308,11 +2299,8 @@ function generatePageCode(data) {
 </html>`;
     }
 
-```
-else if (type === 'login') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'login') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2348,11 +2336,8 @@ else if (type === 'login') {
 </html>`;
     }
 
-```
-else if (type === 'portfolio') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'portfolio') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2410,11 +2395,8 @@ else if (type === 'portfolio') {
 </html>`;
     }
 
-```
-else if (type === 'calculadora') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'calculadora') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2485,11 +2467,8 @@ else if (type === 'calculadora') {
 </html>`;
     }
 
-```
-else if (type === 'formulario') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'formulario') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2537,11 +2516,8 @@ else if (type === 'formulario') {
 </html>`;
     }
 
-```
-else if (type === 'dashboard') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'dashboard') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2606,12 +2582,10 @@ else if (type === 'dashboard') {
 </body>
 </html>`;
     }
-
-```
-else if (type === 'tienda') {
-    html = `<!DOCTYPE html>
-```
-
+    
+    
+    else if (type === 'tienda') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2655,11 +2629,8 @@ else if (type === 'tienda') {
 </html>`;
     }
 
-```
-else if (type === 'blog') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'blog') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2697,11 +2668,8 @@ else if (type === 'blog') {
 </html>`;
     }
 
-```
-else if (type === 'comingsoon') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'comingsoon') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2752,11 +2720,8 @@ else if (type === 'comingsoon') {
 </html>`;
     }
 
-```
-else if (type === 'todo') {
-    html = `<!DOCTYPE html>
-```
-
+    else if (type === 'todo') {
+        html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -2779,6 +2744,7 @@ else if (type === 'todo') {
     .task span.done { text-decoration: line-through; color: #bbb; }
     .delete-btn { background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 18px; }
     .footer { text-align: center; margin-top: 16px; font-size: 12px; color: #bbb; }
+    
 
   </style>
 </head>
@@ -2808,229 +2774,226 @@ else if (type === 'todo') {
 </html>`;
     }
 
-```
-    creationData = {};
-lastGeneratedHTML = html;
-creationState = 'ask_extras';
-return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n➕ ¿Quieres agregar algo más?\n\nEscribe: precios, galería, testimonios, equipo, faq, redes\nO escribe **listo** para terminar.';
-```
-
+        creationData = {};
+    lastGeneratedHTML = html;
+    creationState = 'ask_extras';
+    return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n➕ ¿Quieres agregar algo más?\n\nEscribe: precios, galería, testimonios, equipo, faq, redes\nO escribe **listo** para terminar.';
 }
 
 function shadeColor(color, percent) {
-var num = parseInt(color.replace(’#’,’’), 16);
-var amt = Math.round(2.55 * percent);
-var R = Math.min(255, Math.max(0, (num >> 16) + amt));
-var G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
-var B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
-return ‘#’ + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+    var num = parseInt(color.replace('#',''), 16);
+    var amt = Math.round(2.55 * percent);
+    var R = Math.min(255, Math.max(0, (num >> 16) + amt));
+    var G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+    var B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+    return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
 }
 
 async function searchDuckDuckGo(query) {
-try {
-var cleanQuery = query
-.replace(/que es /gi, ‘’)
-.replace(/quien es /gi, ‘’)
-.replace(/que son /gi, ‘’)
-.replace(/?/g, ‘’)
-.trim();
-if (cleanQuery.length < 3) return null;
-var resp = await fetch(’/api/search?q=’ + encodeURIComponent(cleanQuery));
-var data = await resp.json();
-if (data.answer && data.answer.length > 10) {
-return ’🔍 ’ + data.answer;
+    try {
+        var cleanQuery = query
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        if (cleanQuery.length < 3) return null;
+        var resp = await fetch('/api/search?q=' + encodeURIComponent(cleanQuery));
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 10) {
+            return '🔍 ' + data.answer;
+        }
+    } catch(e) {}
+    return null;
 }
-} catch(e) {}
-return null;
-}
+
 
 async function askQwen(message) {
-try {
-var resp = await fetch(’/api/qwen’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) {
-return data.answer;
-}
-} catch(e) {}
-return null;
+    try {
+        var resp = await fetch('/api/qwen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
 }
 
+
 async function askGemini(message) {
-try {
-var resp = await fetch(’/api/gemini’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) return data.answer;
-} catch(e) {}
-return null;
+    try {
+        var resp = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
 }
 
 async function askMistral(message) {
-try {
-var resp = await fetch(’/api/mistral’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) return data.answer;
-} catch(e) {}
-return null;
+    try {
+        var resp = await fetch('/api/mistral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
 }
 
 async function askCloudflareAI(message) {
-try {
-var resp = await fetch(’/api/cloudflare’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) return data.answer;
-} catch(e) {}
-return null;
+    try {
+        var resp = await fetch('/api/cloudflare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
 }
 
 async function askDeepSeek(message) {
-try {
-var resp = await fetch(’/api/deepseek’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) {
-return data.answer;
+    try {
+        var resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
 }
-} catch(e) {}
-return null;
-}
+
 
 async function askBuscador(message) {
-try {
-var resp = await fetch(’/api/search-web’, { method: ‘POST’, headers: { ‘Content-Type’: ‘application/json’ }, body: JSON.stringify({ message: message }) });
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) return data.answer;
-} catch(e) {}
-return null;
+    try {
+        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
 }
+
 
 async function askDuck(message) {
-try {
-var cleanQuery = message
-.replace(/busca en internet /gi, ‘’)
-.replace(/busca /gi, ‘’)
-.replace(/que es /gi, ‘’)
-.replace(/quien es /gi, ‘’)
-.replace(/que son /gi, ‘’)
-.replace(/?/g, ‘’)
-.trim();
-
-```
-    if (cleanQuery.length < 2) return 'Escribe una pregunta más específica. 🦆';
-    
-    // Intentar API JSON de DuckDuckGo
-    var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1';
-    
-    var resp = await fetch(url, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-    });
-    
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    
-    var data = await resp.json();
-    var answer = '';
-    
-    // Buscar en todos los campos posibles
-    if (data.Abstract && data.Abstract.length > 10) {
-        answer = '📚 ' + data.Abstract;
-        if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
-    } else if (data.AbstractText && data.AbstractText.length > 10) {
-        answer = '📚 ' + data.AbstractText;
-        if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
-    } else if (data.Answer && data.Answer.length > 2) {
-        answer = '💡 ' + data.Answer;
-    } else if (data.Definition && data.Definition.length > 2) {
-        answer = '📝 ' + data.Definition;
-        if (data.DefinitionSource) answer += '\n\n🔗 ' + data.DefinitionSource;
-    } else if (data.Heading && data.Heading.length > 2) {
-        answer = '📌 ' + data.Heading;
-    } else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-        answer = '🔍 Resultados:\n';
-        var count = 0;
-        for (var i = 0; i < data.RelatedTopics.length && count < 5; i++) {
-            var t = data.RelatedTopics[i];
-            if (t.Text && t.Text.length > 5) {
-                count++;
-                answer += '\n• ' + t.Text.split(' - ')[0].trim();
-                if (t.FirstURL) answer += '\n  🔗 ' + t.FirstURL;
+    try {
+        var cleanQuery = message
+            .replace(/busca en internet /gi, '')
+            .replace(/busca /gi, '')
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        
+        if (cleanQuery.length < 2) return 'Escribe una pregunta más específica. 🦆';
+        
+        // Intentar API JSON de DuckDuckGo
+        var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1';
+        
+        var resp = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        
+        var data = await resp.json();
+        var answer = '';
+        
+        // Buscar en todos los campos posibles
+        if (data.Abstract && data.Abstract.length > 10) {
+            answer = '📚 ' + data.Abstract;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.AbstractText && data.AbstractText.length > 10) {
+            answer = '📚 ' + data.AbstractText;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.Answer && data.Answer.length > 2) {
+            answer = '💡 ' + data.Answer;
+        } else if (data.Definition && data.Definition.length > 2) {
+            answer = '📝 ' + data.Definition;
+            if (data.DefinitionSource) answer += '\n\n🔗 ' + data.DefinitionSource;
+        } else if (data.Heading && data.Heading.length > 2) {
+            answer = '📌 ' + data.Heading;
+        } else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+            answer = '🔍 Resultados:\n';
+            var count = 0;
+            for (var i = 0; i < data.RelatedTopics.length && count < 5; i++) {
+                var t = data.RelatedTopics[i];
+                if (t.Text && t.Text.length > 5) {
+                    count++;
+                    answer += '\n• ' + t.Text.split(' - ')[0].trim();
+                    if (t.FirstURL) answer += '\n  🔗 ' + t.FirstURL;
+                }
             }
+        } else {
+            // Si no hay nada, sugerir búsqueda en Google
+            answer = 'No encontré resultados para "' + cleanQuery + '".\n\n🔍 Puedes buscar en Google: https://www.google.com/search?q=' + encodeURIComponent(cleanQuery);
         }
-    } else {
-        // Si no hay nada, sugerir búsqueda en Google
-        answer = 'No encontré resultados para "' + cleanQuery + '".\n\n🔍 Puedes buscar en Google: https://www.google.com/search?q=' + encodeURIComponent(cleanQuery);
+        
+        return answer || 'No encontré resultados. Intenta con otras palabras. 🦆';
+        
+    } catch(e) {
+        console.log('Error DuckDuckGo:', e.message);
+        
+        // Si falla la API, dar opción de buscar en Google
+        var fallbackQuery = message.replace(/\?/g, '').trim();
+return 'No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=' + encodeURIComponent(fallbackQuery);
     }
-    
-    return answer || 'No encontré resultados. Intenta con otras palabras. 🦆';
-    
-} catch(e) {
-    console.log('Error DuckDuckGo:', e.message);
-    
-    // Si falla la API, dar opción de buscar en Google
-    var fallbackQuery = message.replace(/\?/g, '').trim();
-```
-
-return ‘No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=’ + encodeURIComponent(fallbackQuery);
-}
 }
 
 async function askGroq(message) {
-try {
-var resp = await fetch(’/api/chat’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ message: message })
-});
-var data = await resp.json();
-if (data.answer && data.answer.length > 5) {
-return data.answer;
+    try {
+        var resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
 }
-} catch(e) {}
-return null;
-}
+
 
 // ============ INIT ============
-console.log(‘🧠 Eva: Sistema de memoria y razonamiento activado’);
-console.log(‘📝 Memoria a largo plazo cargada:’, longTermMemory);
+console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
+console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
 
 // Esperar a que cargue el DOM
-document.addEventListener(‘DOMContentLoaded’, function() {
-currentChatId = Date.now().toString();
-loadFromAdmin();
-loadLongTermMemory();
-loadChatHistory();
-buildModelDropdown();
-renderChatsList();
+document.addEventListener('DOMContentLoaded', function() {
+    currentChatId = Date.now().toString();
+    loadFromAdmin();
+    loadLongTermMemory();
+    loadChatHistory();
+    buildModelDropdown();
+    renderChatsList();
 
-```
-// Mensaje de bienvenida personalizado si ya conoce al usuario
-if (longTermMemory.userName) {
-    var welcome = document.getElementById('welcomeGreeting');
-    if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
-        welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+    // Mensaje de bienvenida personalizado si ya conoce al usuario
+    if (longTermMemory.userName) {
+        var welcome = document.getElementById('welcomeGreeting');
+        if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
+            welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+        }
     }
-}
-```
-
 });
+
 
 </script>
 

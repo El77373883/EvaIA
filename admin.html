@@ -60,7 +60,11 @@
     <div class="counter" id="keywordsCounter">0 keywords</div>
     
     <label>💬 Respuesta</label>
-    <textarea id="newResponse" class="code-area" rows="6" placeholder="Escribe aquí la respuesta... Puede ser larga, con código, saltos de línea, lo que necesites."></textarea>
+<div style="position:relative;">
+    <textarea id="newResponse" class="code-area" rows="10" placeholder="Pega aquí la respuesta. Si es código, se verá con color al guardar." oninput="updatePreview()"></textarea>
+    <button type="button" onclick="formatCode()" style="position:absolute;top:8px;right:8px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">🎨 Formatear</button>
+</div>
+<div id="codePreview" style="display:none;margin-top:8px;background:#1a1a2e;border-radius:10px;padding:15px;overflow-x:auto;font-family:'SF Mono','Menlo','Monaco',monospace;font-size:13px;line-height:1.6;color:#e0e0e0;max-height:300px;overflow-y:auto;"></div>
     <div class="counter" id="responseCounter">0 caracteres</div>
     
     <button class="btn btn-primary" onclick="addEntry()" style="margin-top:12px;width:100%;">✅ Agregar</button>
@@ -97,6 +101,7 @@ document.getElementById('newKeywords').addEventListener('input', function() {
 
 document.getElementById('newResponse').addEventListener('input', function() {
     document.getElementById('responseCounter').textContent = this.value.length + ' caracteres';
+    updatePreview();
 });
 
 // ============ AGREGAR ENTRADA ============
@@ -233,6 +238,68 @@ function escHtml(str) {
 
 // ============ INIT ============
 renderEntries();
+
+// ============ RESALTADO DE CÓDIGO ============
+function updatePreview() {
+    var text = document.getElementById('newResponse').value;
+    var preview = document.getElementById('codePreview');
+    
+    if (text.trim().startsWith('<') || text.includes('function') || text.includes('```') || text.includes('const ') || text.includes('let ') || text.includes('var ')) {
+        preview.style.display = 'block';
+        preview.innerHTML = highlightCode(text);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function formatCode() {
+    var textarea = document.getElementById('newResponse');
+    var text = textarea.value.trim();
+    
+    // Auto-detectar y formatear
+    if (text.includes('```')) {
+        // Ya tiene formato, no hacer nada
+        alert('✅ El código ya tiene bloques de código.');
+        return;
+    }
+    
+    if (text.includes('<html') || text.includes('<!DOCTYPE')) {
+        textarea.value = '```html\n' + text + '\n```';
+    } else if (text.includes('function') || text.includes('const ') || text.includes('let ') || text.includes('var ')) {
+        textarea.value = '```javascript\n' + text + '\n```';
+    } else if (text.includes('{') && text.includes(':')) {
+        textarea.value = '```css\n' + text + '\n```';
+    } else if (text.includes('def ') || text.includes('import ') || text.includes('print(')) {
+        textarea.value = '```python\n' + text + '\n```';
+    }
+    
+    updatePreview();
+    document.getElementById('responseCounter').textContent = textarea.value.length + ' caracteres';
+}
+
+function highlightCode(text) {
+    var lines = text.split('\n');
+    var result = '';
+    
+    lines.forEach(function(line, i) {
+        var num = (i + 1).toString();
+        var lineNum = '<span style="color:#555;margin-right:15px;user-select:none;">' + num + '</span>';
+        
+        // Colorear keywords
+        var colored = line
+            .replace(/(&lt;\/?[a-z]+[0-9]?)/gi, '<span style="color:#e94560;">$1</span>')
+            .replace(/(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await)/g, '<span style="color:#c792ea;">$1</span>')
+            .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
+            .replace(/(\d+)/g, '<span style="color:#f78c6c;">$1</span>')
+            .replace(/(\/\/.*)/g, '<span style="color:#546e7a;">$1</span>')
+            .replace(/\/\*[\s\S]*?\*\//g, '<span style="color:#546e7a;">$&</span>');
+        
+        result += '<div>' + lineNum + colored + '</div>';
+    });
+    
+    return result;
+}
+
 </script>
 
 </body>

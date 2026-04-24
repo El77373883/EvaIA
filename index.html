@@ -1085,6 +1085,31 @@ function generateResponse(input) {
     }
 
 
+// REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa
+    if (shortTermMemory.length > 0) {
+        var lastEvaMsg = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+        var msgWords = msg.trim().split(/\s+/);
+        
+        // Si Eva preguntó "en qué puedo ayudarte" y usuario responde palabra suelta
+        if ((lastEvaMsg.includes('en qué puedo ayudarte') || lastEvaMsg.includes('en que puedo ayudarte') || lastEvaMsg.includes('ayudarte hoy')) && msgWords.length <= 2) {
+            var topicResponses = {
+                'programacion': 'Veo que te interesa la programación 💻 ¿Quieres aprender, tienes un error que arreglar o necesitas crear algo?',
+                'matematicas': '¡Matemáticas! 🔢 Dime el problema o tema y te ayudo.',
+                'tareas': '¿Tienes tareas pendientes? 📚 Cuéntame de qué materia y te ayudo.',
+                'tarea': '¿Qué tarea necesitas hacer? 📚 Dime y te ayudo.',
+                'examen': '¿Examen cerca? 📝 Dime la materia y te ayudo a estudiar.',
+                'historia': '¿Sobre qué época o evento histórico quieres saber? 📜',
+                'ciencia': '¿Física, química o biología? 🔬 Dime qué tema necesitas.',
+                'ingles': '¿Necesitas traducir algo o practicar inglés? 🌎',
+                'consejo': 'Te escucho 💙 Cuéntame qué está pasando.',
+                'ayuda': '¿En qué necesitas ayuda exactamente? 🤝'
+            };
+            for (var key in topicResponses) {
+                if (msg.includes(key)) return topicResponses[key];
+            }
+        }
+    }
+
 
     // Buscar por SCORE: contar cuántas keywords de cada entrada coinciden
     var scored = [];

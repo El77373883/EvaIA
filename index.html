@@ -192,20 +192,31 @@ var responses = [
 // ============ CARGAR DEL ADMIN (localStorage) ============
 function loadFromAdmin() {
     try {
-        var adminKnowledge = JSON.parse(localStorage.getItem('eva_knowledge') || '[]');
-        var adminResponses = JSON.parse(localStorage.getItem('eva_responses') || '[]');
-
-        adminKnowledge.forEach(function(fbK) {
-            var idx = -1;
-            for (var i = 0; i < knowledge.length; i++) { if (knowledge[i].category === fbK.category) { idx = i; break; } }
-            if (idx >= 0) {
-                knowledge[idx].keywords = Array.from(new Set(knowledge[idx].keywords.concat(fbK.keywords || [])));
-            } else {
-                knowledge.push(fbK);
+        var entries = JSON.parse(localStorage.getItem('eva_entries') || '[]');
+        
+        entries.forEach(function(entry) {
+            // Agregar a knowledge
+            var categoryName = 'custom_' + entry.keywords.join('_').slice(0, 30);
+            var existingCat = null;
+            for (var i = 0; i < knowledge.length; i++) {
+                if (knowledge[i].category === categoryName) {
+                    existingCat = knowledge[i];
+                    break;
+                }
             }
+            if (existingCat) {
+                existingCat.keywords = Array.from(new Set(existingCat.keywords.concat(entry.keywords)));
+            } else {
+                knowledge.push({ category: categoryName, keywords: entry.keywords });
+            }
+            
+            // Agregar a responses
+            responses.push({
+                category: categoryName,
+                model: entry.model,
+                text: entry.response
+            });
         });
-
-        adminResponses.forEach(function(r) { responses.push(r); });
     } catch(e) {}
 }
 

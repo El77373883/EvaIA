@@ -1137,12 +1137,23 @@ function generateResponse(input) {
         
                 var k = knowledge[bestMatch.knowledgeIndex];
         
-        // Si el mensaje es muy corto (1-2 palabras), no asumir — preguntar qué quiere
+                // Si el mensaje es muy corto (1-2 palabras), no asumir — preguntar qué quiere
         var wordCount = msg.trim().split(/\s+/).length;
         if (wordCount <= 2) {
+            // Revisar si ya preguntamos esto antes para no repetir
+            var yaPregunte = shortTermMemory.length > 0 && 
+                shortTermMemory[shortTermMemory.length - 1].eva.includes('¿En qué te puedo ayudar con');
+            
+            if (yaPregunte) {
+                // Ya preguntamos, usar respuesta de contexto
+                var detected = detectContext(msg);
+                return getIntelligentResponse(msg, detected.context || 'programacion');
+            }
+            
             var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';
             return '¿En qué te puedo ayudar con ' + topicLabel + '? 😊';
         }
+
         
         var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
         if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;

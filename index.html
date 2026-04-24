@@ -339,7 +339,8 @@ var models = [
 { modelId: 'deepseek', name: '🧠 DeepSeek', greeting: 'DeepSeek en línea.\nRazonamiento profundo activado.' },
 { modelId: 'gemini', name: '🌟 Gemini', greeting: 'Gemini en línea.\nIA de Google lista para ayudarte.' },
 { modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
-{ modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' }
+{ modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' },
+{ modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' }
 ];
 var knowledge = [];
 
@@ -1697,6 +1698,12 @@ else if (currentModel === 'cloudflare') {
     else { baseResponse = 'Cloudflare AI no está disponible ahora. ☁️'; }
 }
 
+else if (currentModel === 'buscador') {
+    var buscaResult = await askBuscador(message);
+    if (buscaResult) { baseResponse = buscaResult; }
+    else { baseResponse = 'No encontré información. Intenta ser más específico. 🔍'; }
+}
+
 
 // 🧠 DEEPSEEK
 else if (currentModel === 'deepseek') {
@@ -2665,6 +2672,17 @@ async function askDeepSeek(message) {
     } catch(e) {}
     return null;
 }
+
+
+async function askBuscador(message) {
+    try {
+        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
 
 async function askGroq(message) {
     try {

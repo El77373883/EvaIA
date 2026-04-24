@@ -944,6 +944,27 @@ function generateResponse(input) {
     var msg = corregirTexto(input);
     var msgOriginal = input.toLowerCase().trim();
 
+    // Modo creación activo
+    if (creationState !== null) {
+        var creationResp = handleCreationMode(input);
+        if (creationResp) return creationResp;
+    }
+
+    // Detectar intención de crear
+    if (detectCreationIntent(msg)) {
+        var detectedType = detectPageType(msg);
+        if (detectedType) {
+            creationData = { type: detectedType };
+            creationState = 'ask_name';
+            return '¡Con gusto! Vamos a crear tu ' + pageTypes[detectedType] + ' 🚀\n\n¿Cómo se llama tu proyecto o negocio?';
+        } else {
+            creationState = 'ask_type';
+            return '¡Claro que sí! ¿Qué tipo de página quieres?\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
+        }
+    }
+
+
+
     // Buscar TODAS las coincidencias y ordenar por longitud de keyword
     var matches = [];
     
@@ -1647,6 +1668,460 @@ function loadChatHistory() {
         }
     } catch(e) {}
 }
+
+// ============ MODO CREACIÓN DE PÁGINAS ============
+var creationState = null;
+var creationData = {};
+
+var pageTypes = {
+    landing: 'Landing Page',
+    login: 'Página de Login',
+    portfolio: 'Portfolio',
+    calculadora: 'Calculadora',
+    formulario: 'Formulario de Contacto',
+    dashboard: 'Dashboard / Panel'
+};
+
+var creationKeywords = ['hazme', 'crea', 'genera', 'hacer una', 'quiero una', 'necesito una', 'diseña', 'arma', 'construye', 'haz una', 'haz un', 'crea un', 'hazme un'];
+
+function detectCreationIntent(msg) {
+    var lower = msg.toLowerCase();
+    for (var i = 0; i < creationKeywords.length; i++) {
+        if (lower.includes(creationKeywords[i])) return true;
+    }
+    return false;
+}
+
+function detectPageType(msg) {
+    var lower = msg.toLowerCase();
+    if (lower.includes('landing') || lower.includes('inicio') || lower.includes('presentacion')) return 'landing';
+    if (lower.includes('login') || lower.includes('iniciar sesion') || lower.includes('acceso')) return 'login';
+    if (lower.includes('portfolio') || lower.includes('portafolio')) return 'portfolio';
+    if (lower.includes('calculadora') || lower.includes('calcular')) return 'calculadora';
+    if (lower.includes('formulario') || lower.includes('contacto')) return 'formulario';
+    if (lower.includes('dashboard') || lower.includes('panel')) return 'dashboard';
+    return null;
+}
+
+function handleCreationMode(input) {
+    var msg = input.trim();
+
+    if (creationState === 'ask_type') {
+        var type = detectPageType(msg);
+        if (!type) {
+            // intentar por número
+            var opts = Object.keys(pageTypes);
+            var num = parseInt(msg) - 1;
+            if (num >= 0 && num < opts.length) type = opts[num];
+        }
+        if (!type) {
+            return '¿Qué tipo de página? Dime el número:\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
+        }
+        creationData.type = type;
+        creationState = 'ask_name';
+        return '¿Cómo se llama tu proyecto o negocio?';
+    }
+
+    if (creationState === 'ask_name') {
+        creationData.name = msg;
+        creationState = 'ask_color';
+        return '¿Qué color principal quieres?\n\nEjemplos: azul, rojo, negro, morado, verde\nO escribe "Eva elige" y yo decido 🎨';
+    }
+
+    if (creationState === 'ask_color') {
+        var colorMap = {
+            'azul': '#2563EB', 'rojo': '#EF4444', 'negro': '#111111',
+            'morado': '#7C3AED', 'verde': '#10B981', 'naranja': '#F97316',
+            'rosa': '#EC4899', 'amarillo': '#F59E0B', 'cyan': '#06B6D4',
+            'gris': '#6B7280'
+        };
+        var lower = msg.toLowerCase();
+        var color = '#2563EB';
+        if (lower === 'eva elige') {
+            var palettes = ['#2563EB','#7C3AED','#10B981','#EF4444','#F97316','#0F172A'];
+            color = palettes[Math.floor(Math.random() * palettes.length)];
+        } else {
+            for (var k in colorMap) {
+                if (lower.includes(k)) { color = colorMap[k]; break; }
+            }
+            if (msg.startsWith('#')) color = msg;
+        }
+        creationData.color = color;
+        creationState = 'ask_desc';
+        return '¿Una descripción corta de tu proyecto? (1 o 2 líneas)\n\nO escribe "sin descripción" para omitir.';
+    }
+
+    if (creationState === 'ask_desc') {
+        creationData.desc = (msg.toLowerCase() === 'sin descripcion' || msg.toLowerCase() === 'sin descripción') ? '' : msg;
+        creationState = null;
+        return generatePageCode(creationData);
+    }
+
+    return null;
+}
+
+function generatePageCode(data) {
+    var name = data.name || 'Mi Proyecto';
+    var color = data.color || '#2563EB';
+    var desc = data.desc || '';
+    var type = data.type || 'landing';
+
+    // Color oscuro para texto sobre fondo de color
+    var darkColor = shadeColor(color, -40);
+    var lightColor = shadeColor(color, 80);
+
+    var html = '';
+
+    if (type === 'landing') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #333; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid #eee; }
+    nav .logo { font-weight: 800; font-size: 22px; color: ${color}; }
+    nav a { text-decoration: none; color: #555; margin-left: 20px; font-size: 14px; }
+    .hero { text-align: center; padding: 100px 20px 80px; background: linear-gradient(135deg, ${lightColor} 0%, #fff 100%); }
+    .hero h1 { font-size: 48px; font-weight: 900; color: #111; margin-bottom: 20px; line-height: 1.1; }
+    .hero h1 span { color: ${color}; }
+    .hero p { font-size: 18px; color: #666; max-width: 520px; margin: 0 auto 40px; line-height: 1.6; }
+    .btn { display: inline-block; background: ${color}; color: #fff; padding: 16px 36px; border-radius: 50px; font-size: 16px; font-weight: 700; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 24px ${color}55; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px ${color}77; }
+    .features { display: flex; justify-content: center; gap: 32px; padding: 80px 40px; flex-wrap: wrap; }
+    .feature { background: #f9f9f9; border-radius: 20px; padding: 32px; max-width: 280px; text-align: center; }
+    .feature .icon { font-size: 40px; margin-bottom: 16px; }
+    .feature h3 { font-size: 18px; margin-bottom: 10px; }
+    .feature p { font-size: 14px; color: #777; line-height: 1.6; }
+    footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
+    footer span { color: ${color}; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">${name}</div>
+    <div>
+      <a href="#">Inicio</a>
+      <a href="#">Servicios</a>
+      <a href="#">Contacto</a>
+    </div>
+  </nav>
+  <section class="hero">
+    <h1>Bienvenido a <span>${name}</span></h1>
+    <p>${desc || 'Una experiencia increíble te espera. Descubre todo lo que tenemos para ti.'}</p>
+    <a href="#" class="btn">Comenzar ahora</a>
+  </section>
+  <section class="features">
+    <div class="feature"><div class="icon">⚡</div><h3>Rápido</h3><p>Resultados inmediatos sin esperas.</p></div>
+    <div class="feature"><div class="icon">🔒</div><h3>Seguro</h3><p>Tu información siempre protegida.</p></div>
+    <div class="feature"><div class="icon">🎯</div><h3>Preciso</h3><p>Exactamente lo que necesitas.</p></div>
+  </section>
+  <footer>© 2025 <span>${name}</span>. Todos los derechos reservados.</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'login') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: ${color}; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 24px 80px rgba(0,0,0,0.2); }
+    .logo { font-size: 26px; font-weight: 900; color: ${color}; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #999; font-size: 14px; margin-bottom: 36px; }
+    label { font-size: 12px; font-weight: 700; color: #555; display: block; margin-bottom: 6px; }
+    input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s; margin-bottom: 20px; }
+    input:focus { border-color: ${color}; }
+    .btn { width: 100%; padding: 16px; background: ${color}; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .footer-link { text-align: center; margin-top: 20px; font-size: 13px; color: #999; }
+    .footer-link a { color: ${color}; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">${name}</div>
+    <p class="subtitle">${desc || 'Inicia sesión para continuar'}</p>
+    <label>Correo electrónico</label>
+    <input type="email" placeholder="tu@correo.com">
+    <label>Contraseña</label>
+    <input type="password" placeholder="••••••••">
+    <button class="btn">Iniciar sesión</button>
+    <p class="footer-link">¿No tienes cuenta? <a href="#">Regístrate</a></p>
+  </div>
+</body>
+</html>`;
+    }
+
+    else if (type === 'portfolio') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #fff; }
+    header { padding: 40px; display: flex; justify-content: space-between; align-items: center; }
+    header .logo { font-weight: 900; font-size: 20px; color: ${color}; }
+    nav a { color: #888; text-decoration: none; margin-left: 24px; font-size: 14px; transition: color 0.2s; }
+    nav a:hover { color: ${color}; }
+    .hero { padding: 100px 40px; max-width: 800px; }
+    .tag { display: inline-block; background: ${color}22; color: ${color}; padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+    .hero h1 { font-size: 64px; font-weight: 900; line-height: 1.05; margin-bottom: 24px; }
+    .hero p { font-size: 18px; color: #888; line-height: 1.7; max-width: 520px; margin-bottom: 40px; }
+    .btns { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-main { background: ${color}; color: #fff; padding: 16px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; font-size: 15px; }
+    .btn-sec { background: transparent; color: #fff; padding: 16px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; font-size: 15px; border: 1px solid #333; }
+    .projects { padding: 80px 40px; }
+    .projects h2 { font-size: 32px; font-weight: 900; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .project-card { background: #1a1a1a; border-radius: 20px; padding: 32px; border: 1px solid #222; transition: border-color 0.2s; }
+    .project-card:hover { border-color: ${color}; }
+    .project-card h3 { font-size: 18px; margin-bottom: 10px; }
+    .project-card p { color: #888; font-size: 14px; line-height: 1.6; }
+    .project-tag { display: inline-block; background: #222; color: #aaa; padding: 4px 12px; border-radius: 50px; font-size: 11px; margin-top: 16px; margin-right: 6px; }
+    footer { text-align: center; padding: 60px 40px; border-top: 1px solid #222; color: #555; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">${name}</div>
+    <nav><a href="#">Sobre mí</a><a href="#">Proyectos</a><a href="#">Contacto</a></nav>
+  </header>
+  <section class="hero">
+    <div class="tag">✨ Disponible para proyectos</div>
+    <h1>Hola, soy<br>${name}</h1>
+    <p>${desc || 'Desarrollador creativo apasionado por construir experiencias digitales increíbles.'}</p>
+    <div class="btns">
+      <a href="#" class="btn-main">Ver proyectos</a>
+      <a href="#" class="btn-sec">Contactarme</a>
+    </div>
+  </section>
+  <section class="projects">
+    <h2>Proyectos</h2>
+    <div class="grid">
+      <div class="project-card"><h3>Proyecto Alpha</h3><p>Descripción breve del proyecto y su impacto.</p><span class="project-tag">HTML</span><span class="project-tag">CSS</span></div>
+      <div class="project-card"><h3>Proyecto Beta</h3><p>Otra aplicación o sitio web increíble.</p><span class="project-tag">JavaScript</span></div>
+      <div class="project-card"><h3>Proyecto Gamma</h3><p>Un tercer proyecto destacado aquí.</p><span class="project-tag">Firebase</span></div>
+    </div>
+  </section>
+  <footer>© 2025 ${name}. Hecho con 💙</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'calculadora') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Calculadora</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    h2 { color: ${color}; font-size: 18px; font-weight: 700; }
+    .calc { background: #1a1a1a; border-radius: 28px; padding: 24px; width: 320px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); }
+    .display { background: #111; border-radius: 16px; padding: 20px 20px 12px; margin-bottom: 20px; text-align: right; }
+    .display .expr { color: #555; font-size: 14px; min-height: 20px; word-break: break-all; }
+    .display .result { color: #fff; font-size: 40px; font-weight: 300; word-break: break-all; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button { padding: 20px 0; border: none; border-radius: 14px; font-size: 18px; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+    button:active { transform: scale(0.94); }
+    .btn-op { background: #2a2a2a; color: ${color}; font-weight: 700; }
+    .btn-num { background: #222; color: #fff; }
+    .btn-eq { background: ${color}; color: #fff; font-weight: 700; }
+    .btn-clear { background: #333; color: #fff; }
+    .btn-zero { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h2>${name}</h2>
+  <div class="calc">
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="result" id="result">0</div>
+    </div>
+    <div class="grid">
+      <button class="btn-clear" onclick="clearCalc()">AC</button>
+      <button class="btn-op" onclick="appendOp('%')">%</button>
+      <button class="btn-op" onclick="appendOp('**')">^</button>
+      <button class="btn-op" onclick="appendOp('/')">÷</button>
+      <button class="btn-num" onclick="appendNum('7')">7</button>
+      <button class="btn-num" onclick="appendNum('8')">8</button>
+      <button class="btn-num" onclick="appendNum('9')">9</button>
+      <button class="btn-op" onclick="appendOp('*')">×</button>
+      <button class="btn-num" onclick="appendNum('4')">4</button>
+      <button class="btn-num" onclick="appendNum('5')">5</button>
+      <button class="btn-num" onclick="appendNum('6')">6</button>
+      <button class="btn-op" onclick="appendOp('-')">−</button>
+      <button class="btn-num" onclick="appendNum('1')">1</button>
+      <button class="btn-num" onclick="appendNum('2')">2</button>
+      <button class="btn-num" onclick="appendNum('3')">3</button>
+      <button class="btn-op" onclick="appendOp('+')">+</button>
+      <button class="btn-num btn-zero" onclick="appendNum('0')">0</button>
+      <button class="btn-num" onclick="appendNum('.')">.</button>
+      <button class="btn-eq" onclick="calculate()">=</button>
+    </div>
+  </div>
+  <script>
+    var expr = '';
+    function appendNum(n) { expr += n; document.getElementById('result').textContent = expr; }
+    function appendOp(op) { if(expr) { expr += op; document.getElementById('expr').textContent = expr; document.getElementById('result').textContent = expr; } }
+    function clearCalc() { expr = ''; document.getElementById('result').textContent = '0'; document.getElementById('expr').textContent = ''; }
+    function calculate() {
+      try {
+        var r = Function('"use strict";return(' + expr + ')')();
+        document.getElementById('expr').textContent = expr + ' =';
+        document.getElementById('result').textContent = parseFloat(r.toFixed(10));
+        expr = String(r);
+      } catch(e) { document.getElementById('result').textContent = 'Error'; expr = ''; }
+    }
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'formulario') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Contacto</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, ${color}22, #fff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+    h1 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+    h1 span { color: ${color}; }
+    p { color: #999; font-size: 14px; margin-bottom: 32px; line-height: 1.6; }
+    label { font-size: 12px; font-weight: 700; color: #555; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, textarea { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s; margin-bottom: 20px; font-family: inherit; }
+    input:focus, textarea:focus { border-color: ${color}; }
+    textarea { resize: vertical; min-height: 120px; }
+    .btn { width: 100%; padding: 16px; background: ${color}; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .success { display: none; text-align: center; padding: 20px; color: #10B981; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Contacta a <span>${name}</span></h1>
+    <p>${desc || 'Déjanos tu mensaje y te responderemos lo antes posible.'}</p>
+    <label>Nombre</label>
+    <input type="text" placeholder="Tu nombre" id="nombre">
+    <label>Correo</label>
+    <input type="email" placeholder="tu@correo.com" id="correo">
+    <label>Mensaje</label>
+    <textarea placeholder="¿En qué podemos ayudarte?" id="mensaje"></textarea>
+    <button class="btn" onclick="enviar()">Enviar mensaje</button>
+    <div class="success" id="ok">✅ ¡Mensaje enviado! Te contactaremos pronto.</div>
+  </div>
+  <script>
+    function enviar() {
+      var n = document.getElementById('nombre').value;
+      var c = document.getElementById('correo').value;
+      var m = document.getElementById('mensaje').value;
+      if (!n || !c || !m) { alert('Por favor llena todos los campos.'); return; }
+      document.getElementById('ok').style.display = 'block';
+    }
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'dashboard') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f5f7; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: #111; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .sidebar .logo { color: ${color}; font-weight: 900; font-size: 18px; padding: 0 12px; margin-bottom: 28px; }
+    .sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; color: #888; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .sidebar a:hover, .sidebar a.active { background: #1f1f1f; color: #fff; }
+    .sidebar a.active { color: ${color}; }
+    .main { flex-grow: 1; padding: 32px; overflow-y: auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header h1 { font-size: 24px; font-weight: 800; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .stat { background: #fff; border-radius: 20px; padding: 24px; border-left: 4px solid ${color}; }
+    .stat .label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    .stat .value { font-size: 32px; font-weight: 900; color: #111; }
+    .stat .change { font-size: 12px; color: #10B981; margin-top: 4px; }
+    .table-card { background: #fff; border-radius: 20px; padding: 24px; }
+    .table-card h2 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; color: #999; font-weight: 700; text-transform: uppercase; padding: 0 0 12px; border-bottom: 1px solid #eee; }
+    td { padding: 14px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; background: ${color}22; color: ${color}; }
+    @media(max-width:600px){ .sidebar{display:none;} }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">${name}</div>
+    <a href="#" class="active">📊 Dashboard</a>
+    <a href="#">👥 Usuarios</a>
+    <a href="#">📦 Productos</a>
+    <a href="#">📈 Analytics</a>
+    <a href="#">⚙️ Config</a>
+  </div>
+  <div class="main">
+    <div class="header">
+      <h1>Dashboard</h1>
+      <div class="avatar">A</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="label">Usuarios</div><div class="value">1,284</div><div class="change">↑ +12% este mes</div></div>
+      <div class="stat"><div class="label">Ventas</div><div class="value">$8,430</div><div class="change">↑ +8% este mes</div></div>
+      <div class="stat"><div class="label">Pedidos</div><div class="value">342</div><div class="change">↑ +5% este mes</div></div>
+      <div class="stat"><div class="label">Activos</div><div class="value">97</div><div class="change">↑ +2 hoy</div></div>
+    </div>
+    <div class="table-card">
+      <h2>Actividad reciente</h2>
+      <table>
+        <tr><th>Usuario</th><th>Acción</th><th>Estado</th><th>Fecha</th></tr>
+        <tr><td>Carlos M.</td><td>Nuevo pedido</td><td><span class="badge">Activo</span></td><td>Hoy</td></tr>
+        <tr><td>Ana P.</td><td>Registro</td><td><span class="badge">Nuevo</span></td><td>Hoy</td></tr>
+        <tr><td>Luis R.</td><td>Pago completado</td><td><span class="badge">Listo</span></td><td>Ayer</td></tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    creationData = {};
+    return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n💡 Copia el código y guárdalo como `index.html`.';
+}
+
+function shadeColor(color, percent) {
+    var num = parseInt(color.replace('#',''), 16);
+    var amt = Math.round(2.55 * percent);
+    var R = Math.min(255, Math.max(0, (num >> 16) + amt));
+    var G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+    var B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+    return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+}
+
+
 
 // ============ INIT ============
 console.log('🧠 Eva: Sistema de memoria y razonamiento activado');

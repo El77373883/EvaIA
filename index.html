@@ -1724,11 +1724,8 @@ function searchMemory(query) {
 // ============ GENERAR RESPUESTA CONTEXTUAL ============
 function generateContextualResponse(input, baseResponse) {
     var msg = input.toLowerCase();
-    var sentiment = analyzeSentiment(msg);
-    var memoryResults = searchMemory(msg);
     var contextualAddon = '';
     
-// Analizar código si existe
     if (baseResponse.includes('```')) {
         var codeMatch = baseResponse.match(/```(\w+)?\n([\s\S]*?)```/);
         if (codeMatch) {
@@ -1737,10 +1734,8 @@ function generateContextualResponse(input, baseResponse) {
             var analysis = analyzeCodeIntelligently(code, lang);
             var lineCount = code.split('\n').length;
             
-            contextualAddon += '\n\n📋 **Análisis de tu código:**';
-            contextualAddon += '\n📄 Formato: **' + analysis.format + '**';
-            contextualAddon += '\n👀 Veo que es ' + analysis.description;
-            contextualAddon += '\n📏 ' + lineCount + ' líneas de código';
+            contextualAddon += '\n\n📋 **Análisis:**';
+            contextualAddon += '\n📏 ' + lineCount + ' líneas';
             
             if (analysis.issues.length > 0) {
                 contextualAddon += '\n\n🔍 **Errores:**\n' + analysis.issues.join('\n');
@@ -1749,14 +1744,12 @@ function generateContextualResponse(input, baseResponse) {
                 contextualAddon += '\n\n💡 **Ideas:**\n' + analysis.suggestions.join('\n');
             }
             if (analysis.issues.length === 0 && analysis.suggestions.length === 0) {
-                contextualAddon += '\n\n✅ ¡Sin errores! Buen trabajo.';
+                contextualAddon += '\n\n✅ ¡Sin errores!';
             }
         }
     }
-    
 
-// Memoria desactivada
-    // Nombre desactivado
+  
 
     return baseResponse + contextualAddon;
 }

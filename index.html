@@ -554,57 +554,18 @@ function typewriterEffect(text, sender) {
     msgDiv.style.wordBreak = 'break-word';
     wrapper.appendChild(msgDiv);
 
-    // Detectar si hay bloques de código
-    if (text.includes('```')) {
-        var parts = text.split(/(```[\s\S]*?```)/g);
-        var finalHTML = '';
-        
-        parts.forEach(function(part) {
-            if (part.startsWith('```') && part.endsWith('```')) {
-                var lines = part.split('\n');
-                var lang = lines[0].replace('```', '').trim();
-                var codeLines = lines.slice(1, -1);
-                
-                var codeHTML = '<div style="background:#1a1a2e;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#e0e0e0;">';
-                
-                if (lang) {
-                    codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;text-transform:uppercase;">📄 ' + lang + '</div>';
-                }
-                
-                codeLines.forEach(function(line, i) {
-                    var num = (i + 1).toString();
-                    var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    
-                    lineContent = lineContent
-                        .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
-                        .replace(/(\/?&gt;)/g, '<span style="color:#e94560;">$1</span>')
-                        .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|def|print|True|False|None|and|or|not|in|is)\b/g, '<span style="color:#c792ea;">$1</span>')
-                        .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
-                        .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
-                        .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>')
-                        .replace(/(#.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>')
-                        .replace(/(\.\w+)/g, '<span style="color:#82aaff;">$1</span>');
-                    
-                    codeHTML += '<div><span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
-                });
-                
-                codeHTML += '</div>';
-                finalHTML += codeHTML;
-            } else {
-                finalHTML += '<span>' + part + '</span>';
-            }
-        });
-        
-        msgDiv.innerHTML = finalHTML;
-    } else {
-        msgDiv.textContent = '';
-        var i = 0;
-        function type() {
-            if (i < text.length) { msgDiv.textContent += text.charAt(i++); chatArea.scrollTop = chatArea.scrollHeight; typewriterTimers.push(setTimeout(type, 18)); }
+    // Typewriter para TODO (texto y código)
+    msgDiv.textContent = '';
+    var i = 0;
+    function type() {
+        if (i < text.length) {
+            msgDiv.textContent += text.charAt(i);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            i++;
+            typewriterTimers.push(setTimeout(type, 12));
         }
-        type();
-
     }
+    type();
 
     // Botón copiar
     var copyBtn = document.createElement('div');
@@ -631,11 +592,7 @@ function typewriterEffect(text, sender) {
     actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
 
     chatArea.appendChild(wrapper);
-    if (!text.includes('```')) {
-        chatArea.scrollTop = chatArea.scrollHeight;
-    } else {
-        setTimeout(function() { chatArea.scrollTop = chatArea.scrollHeight; }, 100);
-    }
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 function addMessage(text, sender) {
@@ -1004,11 +961,8 @@ sendMessage = function() {
     
     var contextualResponse = generateContextualResponse(message, baseResponse);
     
-    if (contextualResponse.includes('```')) {
-        showCodeResponse(contextualResponse, 'eva');
-    } else {
-        typewriterEffect(contextualResponse, 'eva');
-    }
+    // Siempre usar typewriter, incluso con código
+    typewriterEffect(contextualResponse, 'eva');
     
     addToShortTermMemory(message, contextualResponse);
     saveChatHistory();

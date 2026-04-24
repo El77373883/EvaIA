@@ -1161,13 +1161,13 @@ function typewriterEffect(text, sender) {
 
         } else if (item.type === 'code') {
             var containerDiv = document.createElement('div');
-            containerDiv.style.cssText = 'background:#0d1117;border-radius:12px;margin:10px 0;overflow:hidden;border:1px solid #30363d;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;';
+            containerDiv.style.cssText = 'background:#f6f8fa;border-radius:12px;margin:10px 0;overflow:hidden;border:1px solid #e0e0e0;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;';
+
             msgDiv.appendChild(containerDiv);
 
             // Header profesional
             var headerBar = document.createElement('div');
-            headerBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#161b22;border-bottom:1px solid #30363d;';
-            
+              headerBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#f0f0f0;border-bottom:1px solid #e0e0e0;';
             var langBadge = document.createElement('span');
             langBadge.style.cssText = 'font-size:11px;font-weight:600;color:#8b949e;font-family:-apple-system,sans-serif;text-transform:uppercase;letter-spacing:0.5px;';
             langBadge.textContent = item.lang || 'code';
@@ -1192,7 +1192,7 @@ function typewriterEffect(text, sender) {
             
             // Área de código
             var codeArea = document.createElement('div');
-            codeArea.style.cssText = 'padding:14px;overflow-x:auto;color:#e6edf3;';
+             codeArea.style.cssText = 'padding:14px;overflow-x:auto;color:#333;';
             containerDiv.appendChild(codeArea);
 
 

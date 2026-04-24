@@ -988,20 +988,32 @@ sendMessage = function() {
     var typingId = addThinkingIndicator();
     
     setTimeout(function() {
-        removeThinkingIndicator(typingId);
-        var baseResponse = generateResponse(message);
-        var contextualResponse = generateContextualResponse(message, baseResponse);
-        
-        if (contextualResponse.includes('```')) {
-            showCodeResponse(contextualResponse, 'eva');
-        } else {
-            typewriterEffect(contextualResponse, 'eva');
-        }
-        
-        addToShortTermMemory(message, contextualResponse);
-        saveChatHistory();
-        isProcessing = false;
-    }, 800 + Math.random() * 1200);
+    removeThinkingIndicator(typingId);
+    var baseResponse = generateResponse(message);
+    
+    // Si el usuario mandó código suelto, lo envolvemos automáticamente
+    if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {
+        baseResponse = 'Veo que me mandaste código HTML. Analizándolo:\n\n```html\n' + message + '\n```';
+    } else if ((message.includes('function') || message.includes('const ') || message.includes('let ')) && !message.includes('```')) {
+        baseResponse = 'Veo que me mandaste código JavaScript. Analizándolo:\n\n```javascript\n' + message + '\n```';
+    } else if ((message.includes('def ') || message.includes('import ')) && !message.includes('```')) {
+        baseResponse = 'Veo que me mandaste código Python. Analizándolo:\n\n```python\n' + message + '\n```';
+    } else if ((message.includes('{') && message.includes(':') && message.includes(';')) && !message.includes('```') && !message.includes('function')) {
+        baseResponse = 'Veo que me mandaste código CSS. Analizándolo:\n\n```css\n' + message + '\n```';
+    }
+    
+    var contextualResponse = generateContextualResponse(message, baseResponse);
+    
+    if (contextualResponse.includes('```')) {
+        showCodeResponse(contextualResponse, 'eva');
+    } else {
+        typewriterEffect(contextualResponse, 'eva');
+    }
+    
+    addToShortTermMemory(message, contextualResponse);
+    saveChatHistory();
+    isProcessing = false;
+}, 800 + Math.random() * 1200);
 };
 
 

@@ -1639,9 +1639,7 @@ var typingId = addThinkingIndicator();
 
 var msg = corregirTexto(message);
 var webResult = null;
-if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('busca')) {
-    webResult = await searchDuckDuckGo(msg);
-}
+webResult = await searchDuckDuckGo(msg);
 
 setTimeout(function() {
     removeThinkingIndicator(typingId);
@@ -2528,7 +2526,14 @@ function shadeColor(color, percent) {
 
 async function searchDuckDuckGo(query) {
     try {
-        var resp = await fetch('/api/search?q=' + encodeURIComponent(query));
+        var cleanQuery = query
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        if (cleanQuery.length < 3) return null;
+        var resp = await fetch('/api/search?q=' + encodeURIComponent(cleanQuery));
         var data = await resp.json();
         if (data.answer && data.answer.length > 10) {
             return '🔍 ' + data.answer;
@@ -2536,6 +2541,7 @@ async function searchDuckDuckGo(query) {
     } catch(e) {}
     return null;
 }
+
 
 
 // ============ INIT ============

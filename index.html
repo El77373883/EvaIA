@@ -1083,6 +1083,28 @@ function generateResponse(input) {
             return '¡Claro que sí! ¿Qué tipo de página quieres?\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
         }
     }
+    
+    
+    // ===== GENERADOR DE IMÁGENES CON IA =====
+    if (msg.includes('imagen:') || msg.includes('imagen de') || msg.includes('genera una imagen') || msg.includes('crea una imagen') || msg.includes('dibuja') || msg.includes('generar imagen')) {
+        var prompt = msg.replace(/imagen:|imagen de|genera una imagen|crea una imagen|dibuja|generar imagen/gi, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Imagen generada!\n\n![Imagen](' + imageUrl + ')\n\nPrompt: ' + prompt + '\n\n¿Te gusta? Puedes pedir otra con más detalles.';
+    }
+    
+    // ===== GENERADOR DE IMÁGENES (palabra clave "imagen") =====
+    if (msg.startsWith('imagen ') || msg.startsWith('imagen:') || msg.startsWith('dibuja ')) {
+        var prompt = msg.replace(/^imagen[: ]|^dibuja /, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
+    }
+    
 
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
     var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];

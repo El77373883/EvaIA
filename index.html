@@ -1084,52 +1084,73 @@ function generateResponse(input) {
 
 
 
-    // Buscar TODAS las coincidencias y ordenar por longitud de keyword
-    var matches = [];
-    
+    // Buscar por SCORE: contar cuántas keywords de cada entrada coinciden
+    var scored = [];
+
     for (var i = 0; i < knowledge.length; i++) {
         var k = knowledge[i];
         var keywords = Array.isArray(k.keywords) ? k.keywords : [];
         
+        var score = 0;
+        var maxKwLen = 0;
+
         for (var j = 0; j < keywords.length; j++) {
-            if (msg.includes(keywords[j])) {
-                matches.push({
-                    keyword: keywords[j],
-                    keywordLength: keywords[j].split(' ').length,
-                    category: k.category,
-                    knowledgeIndex: i
-                });
+            var kw = keywords[j].toLowerCase();
+            if (msg.includes(kw)) {
+                var kwWords = kw.split(' ').length;
+                score += kwWords; // frases largas valen más
+                if (kwWords > maxKwLen) maxKwLen = kwWords;
             }
+            // Coincidencia exacta = bonus grande
+            if (msg.trim() === kw) score += 50;
+        }
+
+        if (score > 0) {
+            scored.push({
+                score: score,
+                maxKwLen: maxKwLen,
+                category: k.category,
+                knowledgeIndex: i
+            });
         }
     }
-    
-    // Ordenar: frases más largas primero
-    matches.sort(function(a, b) {
-        return b.keywordLength - a.keywordLength;
+
+    // Ordenar: mayor score primero, desempate por keyword más larga
+    scored.sort(function(a, b) {
+        if (b.score !== a.score) return b.score - a.score;
+        return b.maxKwLen - a.maxKwLen;
     });
+
+    var matches = scored; // compatibilidad con el código de abajo
+
     
     // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
-    if (matches.length === 0 && (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('cuando') || msg.includes('donde') || msg.includes('busca'))) {
-    }
-    
-      if (matches.length > 0) {
+       if (matches.length > 0) {
         var bestMatch = matches[0];
         
-        // Si la keyword es corta (1 palabra) y el mensaje es largo, verificar contexto
+        // Si el score es muy bajo (1 palabra corta) y el mensaje es largo, usar contexto
         var wordCount = msg.split(' ').filter(Boolean).length;
-        if (bestMatch.keywordLength === 1 && wordCount > 2) {
+        if (bestMatch.score <= 1 && wordCount > 2) {
             var detected = detectContext(msg);
-            if (detected.score > 0) {
-                return getIntelligentResponse(msg, detected.context);
-            }
+            if (detected.score > 0) return getIntelligentResponse(msg, detected.context);
         }
         
-        var k = knowledge[bestMatch.knowledgeIndex];
+                var k = knowledge[bestMatch.knowledgeIndex];
+        
+        // Si el mensaje es muy corto (1-2 palabras), no asumir — preguntar qué quiere
+        var wordCount = msg.trim().split(/\s+/).length;
+        if (wordCount <= 2) {
+            var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';
+            return '¿En qué te puedo ayudar con ' + topicLabel + '? 😊';
+        }
+        
         var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
         if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
         var anyResp = responses.filter(function(r) { return r.category === k.category; });
         if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
     }
+
+        
 
     if (msg.includes('hora')) return 'Son las ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
     if (msg.includes('fecha') || msg.includes('hoy') || (msg.includes('que') && msg.includes('dia'))) return 'Hoy es ' + new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.';

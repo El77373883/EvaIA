@@ -717,15 +717,25 @@ function generateResponse(input) {
         return b.keywordLength - a.keywordLength;
     });
     
-    if (matches.length > 0) {
+      if (matches.length > 0) {
         var bestMatch = matches[0];
-        var k = knowledge[bestMatch.knowledgeIndex];
         
+        // Si la keyword es corta (1 palabra) y el mensaje es largo, verificar contexto
+        var wordCount = msg.split(' ').filter(Boolean).length;
+        if (bestMatch.keywordLength === 1 && wordCount > 2) {
+            var detected = detectContext(msg);
+            if (detected.score > 0) {
+                return getIntelligentResponse(msg, detected.context);
+            }
+        }
+        
+        var k = knowledge[bestMatch.knowledgeIndex];
         var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
         if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
         var anyResp = responses.filter(function(r) { return r.category === k.category; });
         if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
     }
+
     if (msg.includes('hora')) return 'Son las ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
     if (msg.includes('fecha') || msg.includes('hoy') || (msg.includes('que') && msg.includes('dia'))) return 'Hoy es ' + new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.';
 

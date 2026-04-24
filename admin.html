@@ -75,7 +75,8 @@
     <div class="flex-between">
         <h2 style="font-size:16px;">📋 Entradas guardadas</h2>
         <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar</button>
-   <button class="btn btn-outline btn-sm" onclick="searchEntries()">🔍 Buscar</button>
+<button class="btn btn-outline btn-sm" onclick="searchEntries()">🔍 Buscar</button>
+<button class="btn btn-danger btn-sm" onclick="deleteByKeyword()">🗑 Borrar por palabra</button>
 <button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Agregar lote</button>
         <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar archivo</button>
         <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Borrar todo</button>
@@ -270,6 +271,35 @@ function resetAll() {
     }
 }
 
+// ============ ELIMINAR EN LOTE POR KEYWORD ============
+function deleteByKeyword() {
+    var keyword = prompt('🗑 Eliminar todas las entradas que contengan esta palabra (ej: trabajo, amigo, ex):');
+    if (!keyword || keyword.trim() === '') return;
+    
+    keyword = keyword.trim().toLowerCase();
+    var entries = getEntries();
+    var toDelete = [];
+    var toKeep = [];
+    
+    entries.forEach(function(entry) {
+        var keywordsStr = entry.keywords.join(', ').toLowerCase();
+        if (keywordsStr.includes(keyword)) {
+            toDelete.push(entry);
+        } else {
+            toKeep.push(entry);
+        }
+    });
+    
+    if (toDelete.length === 0) {
+        alert('✅ No hay entradas con la palabra: "' + keyword + '"');
+        return;
+    }
+    
+    if (confirm('⚠️ Se eliminarán ' + toDelete.length + ' entradas que contienen "' + keyword + '". ¿Continuar?')) {
+        saveEntries(toKeep);
+        alert('✅ Eliminadas ' + toDelete.length + ' entradas con "' + keyword + '".');
+    }
+}
 
 // ============ BUSCADOR DE ENTRADAS ============
 function searchEntries() {

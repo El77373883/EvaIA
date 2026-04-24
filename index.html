@@ -1498,6 +1498,8 @@ function addMessage(text, sender) {
                 var url = part.split('](')[1].split(')')[0];
                 var imgEl = document.createElement('img');
                 imgEl.src = url;
+imgEl.crossOrigin = 'anonymous';
+imgEl.referrerPolicy = 'no-referrer';
                 imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
                 imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
                 msgDiv.appendChild(imgEl);

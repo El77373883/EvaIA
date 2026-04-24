@@ -1719,76 +1719,7 @@ function searchMemory(query) {
     return results.slice(0, 3); // máximo 3 resultados
 }
 
-// ============ ANÁLISIS DE CÓDIGO ============
-function analyzeCodeIntelligently(code, lang) {
-    var issues = [];
-    var suggestions = [];
-    var description = '';
-    var format = lang || '';
-    
-    // Detectar formato si no viene
-    if (!format) {
-        if (code.includes('<!DOCTYPE') || code.includes('<html')) format = 'HTML';
-        else if (code.includes('function') || code.includes('const ') || code.includes('let ')) format = 'JavaScript';
-        else if (code.includes('def ') || code.includes('import ')) format = 'Python';
-        else if (code.includes('{') && code.includes(':') && code.includes(';')) format = 'CSS';
-        else format = 'desconocido';
-    }
-    
-    // HTML
-    if (format === 'html' || format === 'HTML') {
-        if (code.includes('<html') && code.includes('<body')) description = 'una página HTML completa';
-        else if (code.includes('<h1') || code.includes('<p')) description = 'elementos HTML sueltos';
-        else description = 'código HTML';
-        
-        if (!code.includes('<!DOCTYPE')) issues.push('❌ Falta DOCTYPE');
-        if (!code.includes('<meta charset=')) issues.push('⚠️ Falta meta charset');
-        if (!code.includes('<meta name="viewport"')) issues.push('⚠️ Falta viewport para responsive');
-        if (!code.includes('<title>')) suggestions.push('💡 Agrega <title> para la pestaña');
-        if (!code.includes('</html>')) issues.push('❌ Falta </html>');
-        if (!code.includes('</body>')) issues.push('❌ Falta </body>');
-        if (!code.includes('lang=')) suggestions.push('💡 Agrega lang="es" al HTML');
-        if (!code.includes('<link') && !code.includes('<style')) suggestions.push('💡 Agrega CSS para darle estilo');
-        if (code.includes('<img') && !code.includes('alt=')) suggestions.push('💡 Agrega alt a las imágenes');
-    }
-    
-    // JavaScript
-    if (format === 'javascript' || format === 'JavaScript') {
-        if (code.includes('function') && code.includes('return')) description = 'una función con retorno';
-        else if (code.includes('function')) description = 'una función JavaScript';
-        else description = 'código JavaScript';
-        
-        var oB = (code.match(/\{/g) || []).length;
-        var cB = (code.match(/\}/g) || []).length;
-        if (oB !== cB) issues.push('❌ Llaves: ' + oB + ' vs ' + cB);
-        
-        var pO = (code.match(/\(/g) || []).length;
-        var pC = (code.match(/\)/g) || []).length;
-        if (pO !== pC) issues.push('❌ Paréntesis desbalanceados');
-        
-        if (code.includes('var ')) suggestions.push('💡 Usa let o const en vez de var');
-        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === para comparación estricta');
-        if (code.includes('function') && !code.includes('return') && !code.includes('console.log')) suggestions.push('💡 La función no retorna ni muestra nada');
-    }
-    
-    // Python
-    if (format === 'python' || format === 'Python') {
-        description = code.includes('def ') ? 'una función Python' : 'código Python';
-        if (code.includes('print ') && !code.includes('(')) issues.push('❌ print necesita paréntesis');
-        if (code.includes('def ') && !code.includes('return') && !code.includes('print')) suggestions.push('💡 La función no retorna ni imprime');
-    }
-    
-    // CSS
-    if (format === 'css' || format === 'CSS') {
-        description = 'estilos CSS';
-        var oC = (code.match(/\{/g) || []).length;
-        var cC = (code.match(/\}/g) || []).length;
-        if (oC !== cC) issues.push('❌ Llaves CSS: ' + oC + ' vs ' + cC);
-        if (!code.includes('box-sizing')) suggestions.push('💡 Agrega box-sizing: border-box');
-    }
-    
-    return { format: format, description: description, issues: issues, suggestions: suggestions };
-}
+
 
 // ============ GENERAR RESPUESTA CONTEXTUAL ============
 function generateContextualResponse(input, baseResponse) {

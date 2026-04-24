@@ -565,7 +565,7 @@ function typewriterEffect(text, sender) {
                 var lang = lines[0].replace('```', '').trim();
                 var codeLines = lines.slice(1, -1);
                 
-                var codeHTML = '<div style="background:#1a1a2e;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#e0e0e0;">';
+                var codeHTML = '<div style="background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#333;border:1px solid #e0e0e0;">';
                 if (lang) codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
                 
                 codeLines.forEach(function(line, i) {
@@ -577,7 +577,7 @@ function typewriterEffect(text, sender) {
                         .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
                         .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
                         .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
-                    codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
+                    codeHTML += '<div><span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
                 });
                 codeHTML += '</div>';
                 allHTML += codeHTML;

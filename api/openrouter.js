@@ -5,18 +5,16 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: 'Falta mensaje' });
 
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + (process.env.OPENROUTER_API_KEY || 'sk-or-v1-default'),
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://eva-ia.vercel.app',
-                'X-Title': 'Eva Chat'
+                'Authorization': 'Bearer ' + (process.env.DEEPSEEK_API_KEY || 'sk-xxx'),
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'google/gemini-flash-1.5:free',
+                model: 'deepseek-chat',
                 messages: [
-                    { role: 'system', content: 'Responde en español de forma útil y clara.' },
+                    { role: 'system', content: 'Eres DeepSeek, un asistente útil. Responde en español.' },
                     { role: 'user', content: message }
                 ],
                 max_tokens: 1500

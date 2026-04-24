@@ -5,24 +5,20 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: 'Falta mensaje' });
 
     try {
-        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + (process.env.DEEPSEEK_API_KEY || 'sk-xxx'),
+                'Authorization': 'Bearer ' + (process.env.HF_API_KEY || 'hf_xxx'),
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'deepseek-chat',
-                messages: [
-                    { role: 'system', content: 'Eres DeepSeek, un asistente útil. Responde en español.' },
-                    { role: 'user', content: message }
-                ],
-                max_tokens: 1500
+                inputs: `<s>[INST] Responde en español: ${message} [/INST]`,
+                parameters: { max_new_tokens: 500 }
             })
         });
 
         const data = await response.json();
-        const answer = data.choices?.[0]?.message?.content || null;
+        const answer = data[0]?.generated_text || null;
         res.status(200).json({ answer });
     } catch (error) {
         res.status(200).json({ answer: null });

@@ -1639,7 +1639,8 @@ var typingId = addThinkingIndicator();
 
 var msg = corregirTexto(message);
 var webResult = null;
-webResult = await searchDuckDuckGo(msg);
+webResult = await searchDuckDuckGo(message);
+
 
 setTimeout(function() {
     removeThinkingIndicator(typingId);

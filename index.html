@@ -154,27 +154,9 @@ var models = [
     { modelId: 'aria',   name: 'Aria',     greeting: 'Aria en linea.\nQue datos necesitas?' }
 ];
 
-var knowledge = [
-    { category: 'saludos',         keywords: ['hola','holaa','hey','buenas','saludos','que tal','como estas','buenos dias','buenas tardes','buenas noches','holi'] },
-    { category: 'despedidas',      keywords: ['adios','chao','bye','hasta luego','nos vemos','me voy'] },
-    { category: 'agradecimientos', keywords: ['gracias','te agradezco','muchas gracias'] },
-    { category: 'ayuda',           keywords: ['ayuda','help','que puedes hacer'] }
-];
+var knowledge = [];
 
-var responses = [
-    { category: 'saludos', model: 'eva',    text: '¡Hola! Soy Eva. ¿En qué necesitas ayuda?' },
-    { category: 'saludos', model: 'selene', text: '¡Saludos! Selene al habla. ¿Qué creamos hoy?' },
-    { category: 'saludos', model: 'nyx',    text: 'Desde la oscuridad te saludo. ¿Qué inquietud traes?' },
-    { category: 'saludos', model: 'aria',   text: 'Saludos. Aria en línea. ¿Qué datos necesitas?' },
-    { category: 'despedidas', model: 'eva',    text: '¡Nos vemos! Aquí estaré cuando vuelvas.' },
-    { category: 'despedidas', model: 'selene', text: 'Que la inspiración te acompañe. Hasta pronto.' },
-    { category: 'despedidas', model: 'nyx',    text: 'La noche te guarde. Vuelve cuando quieras.' },
-    { category: 'despedidas', model: 'aria',   text: 'Cierre de sesión. Hasta luego.' },
-    { category: 'agradecimientos', model: 'eva',  text: '¡De nada! Para eso está Eva.' },
-    { category: 'agradecimientos', model: 'aria', text: 'De nada. Consulta resuelta.' },
-    { category: 'ayuda', model: 'eva',  text: 'Puedo chatear, hacer cálculos, contar chistes, recordar cosas sobre ti y mucho más.' },
-    { category: 'ayuda', model: 'aria', text: 'Análisis lógico, cálculos precisos, respuestas directas.' }
-];
+var responses = [];
 
 // ============ CARGAR DEL ADMIN (localStorage) ============
 function loadFromAdmin() {

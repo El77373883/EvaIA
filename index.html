@@ -1631,48 +1631,50 @@ sendMessage = async function() {
     input.value = '';
     isProcessing = true;
     
-learnFromUserInput(message);
+    learnFromUserInput(message);
 
-document.getElementById('welcomeScreen').classList.add('hidden');
-document.getElementById('chatArea').classList.add('active');
-addMessage(message, 'user');
-var typingId = addThinkingIndicator();
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('chatArea').classList.add('active');
+    addMessage(message, 'user');
+    var typingId = addThinkingIndicator();
 
-var msg = corregirTexto(message);
-var webResult = null;
-if (currentModel === 'wiki') {
-    webResult = await searchDuckDuckGo(message);
-} else if (currentModel === 'code') {
-    webResult = await askGroq(message);
-}
-
-setTimeout(function() {
-    removeThinkingIndicator(typingId);
-var baseResponse = generateResponse(message);
-if ((currentModel === 'wiki' || currentModel === 'code') && webResult && baseResponse.includes('Dame mas contexto')) {
-    baseResponse = webResult;
-}
+    var delay = 800 + Math.random() * 1200;
     
-    // Si el usuario mandó código suelto, lo envolvemos automáticamente
-    if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {
-        baseResponse = 'Veo que me mandaste código HTML. Analizándolo:\n\n```html\n' + message + '\n```';
-    } else if ((message.includes('function') || message.includes('const ') || message.includes('let ')) && !message.includes('```')) {
-        baseResponse = 'Veo que me mandaste código JavaScript. Analizándolo:\n\n```javascript\n' + message + '\n```';
-    } else if ((message.includes('def ') || message.includes('import ')) && !message.includes('```')) {
-        baseResponse = 'Veo que me mandaste código Python. Analizándolo:\n\n```python\n' + message + '\n```';
-    } else if ((message.includes('{') && message.includes(':') && message.includes(';')) && !message.includes('```') && !message.includes('function')) {
-        baseResponse = 'Veo que me mandaste código CSS. Analizándolo:\n\n```css\n' + message + '\n```';
-    }
-    
-    var contextualResponse = generateContextualResponse(message, baseResponse);
-    
-    // Siempre usar typewriter, incluso con código
-    typewriterEffect(contextualResponse, 'eva');
-    
-    addToShortTermMemory(message, contextualResponse);
-    saveChatHistory();
-    isProcessing = false;
-}, 800 + Math.random() * 1200);
+    setTimeout(async function() {
+        removeThinkingIndicator(typingId);
+        
+        var baseResponse = '';
+        
+        // 🌐 WIKI: Solo Wikipedia
+        if (currentModel === 'wiki') {
+            var wikiResult = await searchDuckDuckGo(message);
+            if (wikiResult) {
+                baseResponse = '📚 **Wikipedia:**\n\n' + wikiResult;
+            } else {
+                baseResponse = 'No encontré nada en Wikipedia sobre eso. 🤔';
+            }
+        }
+        // 💻 CODE: Solo Groq
+        else if (currentModel === 'code') {
+            var groqResult = await askGroq(message);
+            if (groqResult) {
+                baseResponse = groqResult;
+            } else {
+                baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
+            }
+        }
+        // 🤖 RESTO: Eva, Selene, Nyx, Aria
+        else {
+            baseResponse = generateResponse(message);
+        }
+        
+        var contextualResponse = generateContextualResponse(message, baseResponse);
+        typewriterEffect(contextualResponse, 'eva');
+        
+        addToShortTermMemory(message, contextualResponse);
+        saveChatHistory();
+        isProcessing = false;
+    }, delay);
 };
 
 

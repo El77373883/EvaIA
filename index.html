@@ -253,6 +253,157 @@ document.addEventListener('click', function(e) {
     }
 });
 
+
+// ============ SISTEMA DE INTELIGENCIA AVANZADA ============
+
+// Base de conocimiento para analizar temas
+var knowledgeBase = {
+    programacion: {
+        keywords: ['codigo', 'programar', 'html', 'css', 'javascript', 'python', 'function', 'error', 'bug', 'arreglar'],
+        context: 'programacion'
+    },
+    matematicas: {
+        keywords: ['calculo', 'suma', 'resta', 'multiplicar', 'dividir', 'numero', 'ecuacion'],
+        context: 'matematicas'
+    },
+    consejos: {
+        keywords: ['consejo', 'recomendacion', 'que hago', 'ayuda', 'problema', 'necesito'],
+        context: 'consejo'
+    },
+    sentimiento: {
+        keywords: ['triste', 'feliz', 'enojado', 'cansado', 'estresado', 'mal', 'bien'],
+        context: 'emocional'
+    }
+};
+
+// Detectar el contexto de la conversación
+function detectContext(input) {
+    var msg = input.toLowerCase();
+    var scores = {};
+    
+    for (var context in knowledgeBase) {
+        scores[context] = 0;
+        knowledgeBase[context].keywords.forEach(function(kw) {
+            if (msg.includes(kw)) scores[context]++;
+        });
+    }
+    
+    var bestContext = 'general';
+    var bestScore = 0;
+    for (var c in scores) {
+        if (scores[c] > bestScore) {
+            bestScore = scores[c];
+            bestContext = c;
+        }
+    }
+    
+    return { context: bestContext, score: bestScore };
+}
+
+// Analizar errores en código
+function analyzeCodeIntelligently(code, lang) {
+    var issues = [];
+    var suggestions = [];
+    
+    if (lang === 'html' || code.includes('<html')) {
+        if (!code.includes('<!DOCTYPE html>')) issues.push('❌ Falta DOCTYPE al inicio');
+        if (!code.includes('<meta charset="UTF-8">')) issues.push('⚠️ Falta meta charset UTF-8');
+        if (!code.includes('<meta name="viewport"')) issues.push('⚠️ Falta viewport para móviles');
+        if (!code.includes('</html>')) issues.push('❌ Falta etiqueta de cierre </html>');
+        if (!code.includes('</body>')) issues.push('❌ Falta etiqueta de cierre </body>');
+        if (!code.includes('lang=')) issues.push('⚠️ Falta atributo lang en <html>');
+        
+        if (code.includes('<img') && !code.includes('alt=')) suggestions.push('💡 Agrega atributo alt a las imágenes');
+        if (code.includes('<a ') && !code.includes('href=')) suggestions.push('💡 Los enlaces necesitan href');
+    }
+    
+    if (lang === 'javascript' || code.includes('function')) {
+        var opens = (code.match(/\{/g) || []).length;
+        var closes = (code.match(/\}/g) || []).length;
+        if (opens !== closes) issues.push('❌ Llaves desbalanceadas: ' + opens + ' abiertas vs ' + closes + ' cerradas');
+        
+        var parensOpen = (code.match(/\(/g) || []).length;
+        var parensClose = (code.match(/\)/g) || []).length;
+        if (parensOpen !== parensClose) issues.push('❌ Paréntesis desbalanceados');
+        
+        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === en vez de == para comparación estricta');
+        if (code.includes('var ')) suggestions.push('💡 Cambia var por let o const');
+        if (code.includes('console.log') && code.includes('//')) suggestions.push('💡 No olvides quitar console.log en producción');
+    }
+    
+    if (lang === 'css' || (code.includes('{') && code.includes(':') && !code.includes('function'))) {
+        var cssOpens = (code.match(/\{/g) || []).length;
+        var cssCloses = (code.match(/\}/g) || []).length;
+        if (cssOpens !== cssCloses) issues.push('❌ Llaves CSS desbalanceadas');
+        if (code.includes('px') && code.includes('px px')) issues.push('⚠️ Valor duplicado en px');
+        if (!code.includes('* {') && !code.includes('box-sizing')) suggestions.push('💡 Agrega box-sizing: border-box al reset');
+    }
+    
+    if (lang === 'python' || code.includes('def ')) {
+        if (code.includes('    ') && code.includes('\t')) issues.push('❌ Mezcla de tabs y espacios');
+        if (code.includes('print ') && !code.includes('(')) issues.push('❌ En Python 3, print necesita paréntesis');
+        if (code.includes('def ') && !code.includes(':')) issues.push('❌ Falta : después de def');
+    }
+    
+    return { issues: issues, suggestions: suggestions };
+}
+
+// Respuesta inteligente según contexto
+function getIntelligentResponse(input, context) {
+    var msg = input.toLowerCase();
+    
+    // Si pide que revise algo
+    if (msg.includes('revisa') || msg.includes('analiza') || msg.includes('checa') || msg.includes('esta bien')) {
+        return 'Dame el código y te digo si tiene errores. Soy buena encontrando bugs. 🔍';
+    }
+    
+    // Si pregunta cómo mejorar
+    if (msg.includes('mejora') || msg.includes('optimizar') || msg.includes('mejor')) {
+        return 'Claro, pásame el código y te sugiero mejoras. 💪';
+    }
+    
+    // Respuestas por contexto
+    var responses = {
+        programacion: [
+            'Vamos a programar. ¿Qué necesitas?',
+            'Háblame en código. Te entiendo.',
+            'Soy buena con la lógica. ¿En qué te ayudo?'
+        ],
+        matematicas: [
+            'Los números son mi especialidad.',
+            'Dime el cálculo y lo resolvemos.',
+            'Matemáticas, ¡qué buena elección!'
+        ],
+        consejos: [
+            'Te escucho. Cuéntame más.',
+            'Estoy aquí para ayudarte.',
+            'Dime cuál es la situación.'
+        ],
+        emocional: [
+            'Te entiendo. ¿Quieres hablar de ello?',
+            'A veces solo necesitamos desahogarnos.',
+            'Estoy aquí para ti. Sin juicios.'
+        ],
+        general: [
+            'Cuéntame más, quiero entender mejor.',
+            'Interesante. Dame más detalles.',
+            'Sigue, te escucho.'
+        ]
+    };
+    
+    var options = responses[context] || responses.general;
+    return options[Math.floor(Math.random() * options.length)];
+}
+
+// Aprender de correcciones del usuario
+function learnFromCorrection(userMsg, evaMsg) {
+    if (userMsg.includes('no es') || userMsg.includes('corrige') || userMsg.includes('mal')) {
+        longTermMemory.learnedInfo.push('El usuario me corrigió sobre: ' + userMsg);
+        if (longTermMemory.learnedInfo.length > 50) longTermMemory.learnedInfo = longTermMemory.learnedInfo.slice(-30);
+        saveLongTermMemory();
+    }
+}
+
 // ============ GENERAR RESPUESTA ============
 function generateResponse(input) {
     var msg = input.toLowerCase().trim();
@@ -695,6 +846,40 @@ function searchMemory(query) {
     return results.slice(0, 3); // máximo 3 resultados
 }
 
+// ============ ANÁLISIS DE CÓDIGO ============
+function analyzeCodeIntelligently(code, lang) {
+    var issues = [];
+    var suggestions = [];
+    
+    if (lang === 'html' || code.includes('<html')) {
+        if (!code.includes('<!DOCTYPE')) issues.push('❌ Falta DOCTYPE');
+        if (!code.includes('<meta charset=')) issues.push('⚠️ Falta meta charset');
+        if (!code.includes('lang=')) issues.push('⚠️ Falta lang en <html>');
+        if (!code.includes('</html>')) issues.push('❌ Falta </html>');
+        if (!code.includes('</body>')) issues.push('❌ Falta </body>');
+    }
+    
+    if (lang === 'javascript' || code.includes('function') || code.includes('const ')) {
+        var oB = (code.match(/\{/g) || []).length;
+        var cB = (code.match(/\}/g) || []).length;
+        if (oB !== cB) issues.push('❌ Llaves: ' + oB + ' abiertas vs ' + cB + ' cerradas');
+        if (code.includes('var ')) suggestions.push('💡 Usa let o const en vez de var');
+        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === para comparación estricta');
+    }
+    
+    if (lang === 'python' || code.includes('def ')) {
+        if (code.includes('print ') && !code.includes('(')) issues.push('❌ print necesita paréntesis');
+    }
+    
+    if (lang === 'css' || (code.includes('{') && code.includes(':') && !code.includes('function'))) {
+        var oC = (code.match(/\{/g) || []).length;
+        var cC = (code.match(/\}/g) || []).length;
+        if (oC !== cC) issues.push('❌ Llaves CSS desbalanceadas');
+    }
+    
+    return { issues: issues, suggestions: suggestions };
+}
+
 // ============ GENERAR RESPUESTA CONTEXTUAL ============
 function generateContextualResponse(input, baseResponse) {
     var msg = input.toLowerCase();
@@ -702,28 +887,40 @@ function generateContextualResponse(input, baseResponse) {
     var memoryResults = searchMemory(msg);
     var contextualAddon = '';
     
-    // Respuesta basada en sentimiento
-    if (sentiment === 'negativo') {
-        var comfort = ['Entiendo cómo te sientes.', 'A veces las cosas son difíciles.', 'Estoy aquí para escucharte.', '¿Quieres hablar más sobre eso?'];
-        contextualAddon += ' ' + comfort[Math.floor(Math.random() * comfort.length)];
-    }
-    
-    if (sentiment === 'positivo') {
-        var cheer = ['¡Me alegra verte así!', '¡Qué bueno!', 'Esa energía me gusta.', '¡Vamos por más!'];
-        contextualAddon += ' ' + cheer[Math.floor(Math.random() * cheer.length)];
-    }
-    
-    // Agregar contexto de memoria si hay resultados
-    if (memoryResults.length > 0) {
-        var memRef = memoryResults[0];
-        if (memRef.type === 'reciente') {
-            contextualAddon += ' Por cierto, ' + memRef.content.toLowerCase() + '.';
-        } else if (memRef.type === 'usuario') {
-            contextualAddon += ' Basado en lo que sé de ti, ' + memRef.content.toLowerCase() + '.';
+    // Analizar código si existe
+    if (baseResponse.includes('```')) {
+        var codeMatch = baseResponse.match(/```(\w+)?\n([\s\S]*?)```/);
+        if (codeMatch) {
+            var lang = codeMatch[1] || '';
+            var code = codeMatch[2];
+            var analysis = analyzeCodeIntelligently(code, lang);
+            
+            if (analysis.issues.length > 0) {
+                contextualAddon += '\n\n🔍 **Análisis:**\n' + analysis.issues.join('\n');
+            }
+            if (analysis.suggestions.length > 0) {
+                contextualAddon += '\n\n💡 **Sugerencias:**\n' + analysis.suggestions.join('\n');
+            }
+            if (analysis.issues.length === 0 && analysis.suggestions.length === 0) {
+                contextualAddon += '\n\n✅ Código sin errores.';
+            }
         }
     }
     
-    // Usar nombre del usuario si lo sabe
+    // Sentimiento
+    if (sentiment === 'negativo') {
+        contextualAddon += ' Entiendo cómo te sientes.';
+    }
+    if (sentiment === 'positivo') {
+        contextualAddon += ' ¡Me alegra verte así!';
+    }
+    
+    // Memoria
+    if (memoryResults.length > 0) {
+        contextualAddon += ' Por cierto, ' + memoryResults[0].content.toLowerCase() + '.';
+    }
+    
+    // Nombre
     if (longTermMemory.userName && Math.random() > 0.7) {
         contextualAddon = ' ' + longTermMemory.userName + ',' + contextualAddon;
     }

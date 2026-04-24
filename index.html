@@ -325,7 +325,7 @@ var icons = {
     selene: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
     nyx:    '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/>',
     aria:   '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
-duck: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>'
+    duck:   '<circle cx="12" cy="12" r="10"/><path d="M8 7h8v3H8zM8 12h8v1H8zM10 14h4v3h-4z"/><circle cx="8" cy="8" r="1.5" fill="#fff"/><circle cx="16" cy="8" r="1.5" fill="#fff"/>'
 };
 
 // ============ DATOS BASE ============
@@ -342,7 +342,7 @@ var models = [
 { modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
 { modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' },
 { modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
-{ modelId: 'duck', name: '🔍 Buscador Pro', greeting: 'Búsqueda en tiempo real activada.\nResultados de Google con Serper.' }
+{ modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
 ];
 var knowledge = [];
 
@@ -2755,9 +2755,8 @@ async function askDuck(message) {
         
         // Si falla la API, dar opción de buscar en Google
         var fallbackQuery = message.replace(/\?/g, '').trim();
-        return 'No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=' + encodeURIComponent(fallbackQuery);
+return 'No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=' + encodeURIComponent(fallbackQuery);
     }
-}
 }
 
 async function askGroq(message) {
@@ -2779,21 +2778,24 @@ async function askGroq(message) {
 // ============ INIT ============
 console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
 console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
-currentChatId = Date.now().toString();
-loadFromAdmin();
-loadLongTermMemory();
-loadChatHistory();
-buildModelDropdown();
-renderChatsList();
 
+// Esperar a que cargue el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    currentChatId = Date.now().toString();
+    loadFromAdmin();
+    loadLongTermMemory();
+    loadChatHistory();
+    buildModelDropdown();
+    renderChatsList();
 
-// Mensaje de bienvenida personalizado si ya conoce al usuario
-if (longTermMemory.userName) {
-    var welcome = document.getElementById('welcomeGreeting');
-    if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
-        welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+    // Mensaje de bienvenida personalizado si ya conoce al usuario
+    if (longTermMemory.userName) {
+        var welcome = document.getElementById('welcomeGreeting');
+        if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
+            welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+        }
     }
-}
+});
 </script>
 
 </body>

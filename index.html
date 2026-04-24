@@ -1707,6 +1707,9 @@ else if (currentModel === 'deepseek') {
         baseResponse = 'DeepSeek no está disponible ahora. 🧠';
     }
 }
+else {
+    baseResponse = generateResponse(message);
+}
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
         typewriterEffect(contextualResponse, 'eva');

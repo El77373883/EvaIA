@@ -1639,8 +1639,10 @@ addMessage(message, 'user');
 var typingId = addThinkingIndicator();
 
 var msg = corregirTexto(message);
-var webResult = await searchDuckDuckGo(message);
-if (!webResult) {
+var webResult = null;
+if (currentModel === 'wiki') {
+    webResult = await searchDuckDuckGo(message);
+} else if (currentModel === 'code') {
     webResult = await askGroq(message);
 }
 

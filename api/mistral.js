@@ -11,7 +11,10 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          { role: 'system', content: 'Responde siempre en español. Eres Mistral, una IA experta.' },
+          { role: 'user', content: message }
+        ],
         max_tokens: 1500
       })
     });

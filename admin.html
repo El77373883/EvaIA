@@ -75,7 +75,8 @@
     <div class="flex-between">
         <h2 style="font-size:16px;">📋 Entradas guardadas</h2>
         <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar</button>
-        <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar</button>
+        <button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Agregar lote</button>
+        <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar archivo</button>
         <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Borrar todo</button>
     </div>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
@@ -103,6 +104,45 @@ document.getElementById('newResponse').addEventListener('input', function() {
     document.getElementById('responseCounter').textContent = this.value.length + ' caracteres';
     updatePreview();
 });
+
+// ============ AGREGAR LOTE DESDE JSON ============
+function addBatchFromJSON() {
+    var jsonText = prompt('📋 Pega aquí el JSON con las entradas (formato [{...},{...}]):');
+    if (!jsonText || jsonText.trim() === '') return;
+    
+    try {
+        var newEntries = JSON.parse(jsonText);
+        if (!Array.isArray(newEntries)) {
+            alert('❌ El JSON debe ser un array [...]');
+            return;
+        }
+        
+        var validEntries = [];
+        for (var i = 0; i < newEntries.length; i++) {
+            var e = newEntries[i];
+            if (e.keywords && e.response) {
+                validEntries.push({
+                    keywords: Array.isArray(e.keywords) ? e.keywords : e.keywords.split(',').map(function(k){return k.trim().toLowerCase();}),
+                    response: e.response,
+                    model: e.model || 'eva',
+                    created: new Date().toISOString()
+                });
+            }
+        }
+        
+        if (validEntries.length === 0) {
+            alert('❌ No se encontraron entradas válidas.');
+            return;
+        }
+        
+        var entries = getEntries();
+        entries = entries.concat(validEntries);
+        saveEntries(entries);
+        alert('✅ ' + validEntries.length + ' entradas agregadas correctamente.');
+    } catch(ex) {
+        alert('❌ Error al leer el JSON. Revisa el formato.\n\n' + ex.message);
+    }
+}
 
 // ============ AGREGAR ENTRADA ============
 function addEntry() {

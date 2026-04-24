@@ -320,7 +320,7 @@ msgDiv.style.background = '#F0F0F0';
             var lang = lines[0].replace('```', '').trim();
             var codeLines = lines.slice(1, -1);
             
-            var codeHTML = '<div style="background:#1a1a2e;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:11px;line-height:1.8;color:#e0e0e0;">';
+            var codeHTML = '<div style="background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:11px;line-height:1.8;color:#333;border:1px solid #e0e0e0;
             
             if (lang) {
                 codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
@@ -420,7 +420,7 @@ function typewriterEffect(text, sender) {
                         .replace(/(#.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>')
                         .replace(/(\.\w+)/g, '<span style="color:#82aaff;">$1</span>');
                     
-                    codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
+                    codeHTML += '<div><span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;
                 });
                 
                 codeHTML += '</div>';
@@ -435,7 +435,7 @@ function typewriterEffect(text, sender) {
         msgDiv.textContent = '';
         var i = 0;
         function type() {
-            if (i < text.length) { msgDiv.textContent += text.charAt(i++); chatArea.scrollTop = chatArea.scrollHeight; typewriterTimers.push(setTimeout(type, 25)); }
+            if (i < text.length) { msgDiv.textContent += text.charAt(i++); chatArea.scrollTop = chatArea.scrollHeight; typewriterTimers.push(setTimeout(type, 18));
         }
         type();
     }

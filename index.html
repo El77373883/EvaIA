@@ -1630,21 +1630,22 @@ sendMessage = async function() {
     input.value = '';
     isProcessing = true;
     
-    learnFromUserInput(message);
-    
-    document.getElementById('welcomeScreen').classList.add('hidden');
-    document.getElementById('chatArea').classList.add('active');
-    addMessage(message, 'user');
-    var msg = corregirTexto(message);
+learnFromUserInput(message);
+
+document.getElementById('welcomeScreen').classList.add('hidden');
+document.getElementById('chatArea').classList.add('active');
+addMessage(message, 'user');
+var typingId = addThinkingIndicator();
+
+var msg = corregirTexto(message);
 var webResult = null;
 if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('busca')) {
     webResult = await searchDuckDuckGo(msg);
 }
-    var typingId = addThinkingIndicator();
-    
-    setTimeout(function() {
+
+setTimeout(function() {
     removeThinkingIndicator(typingId);
-var baseResponse = webResult || generateResponse(message);
+    var baseResponse = webResult || generateResponse(message);
     
     // Si el usuario mandó código suelto, lo envolvemos automáticamente
     if ((message.includes('<html') || message.includes('<body') || message.includes('<head') || message.includes('<h1') || message.includes('<div') || message.includes('<p>')) && !message.includes('```')) {

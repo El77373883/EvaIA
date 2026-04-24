@@ -10,13 +10,13 @@ export default async function handler(req, res) {
             headers: {
                 'Authorization': 'Bearer ' + (process.env.OPENROUTER_API_KEY || 'sk-or-v1-default'),
                 'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://eva-chat.vercel.app',
+                'HTTP-Referer': 'https://eva-ia.vercel.app',
                 'X-Title': 'Eva Chat'
             },
             body: JSON.stringify({
-                model: 'qwen/qwen-2-7b-instruct:free',  // ← MODELO CORREGIDO
+                model: 'google/gemini-flash-1.5:free',
                 messages: [
-                    { role: 'system', content: 'Eres Qwen, una IA asistente. Respondes en español de forma útil y amigable.' },
+                    { role: 'system', content: 'Responde en español de forma útil y clara.' },
                     { role: 'user', content: message }
                 ],
                 max_tokens: 1500

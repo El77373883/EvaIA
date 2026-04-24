@@ -351,8 +351,20 @@ msgDiv.style.background = '#F0F0F0';
         }
     });
     
-        msgDiv.innerHTML = finalHTML;
+ msgDiv.innerHTML = '';
     wrapper.appendChild(msgDiv);
+    var tempDiv = document.createElement('div');
+    tempDiv.innerHTML = finalHTML;
+    var children = Array.from(tempDiv.childNodes);
+    var ci = 0;
+    function addNext() {
+        if (ci < children.length) {
+            msgDiv.appendChild(children[ci++]);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            setTimeout(addNext, 18);
+        }
+    }
+    addNext();
     
     var copyBtn = document.createElement('div');
     copyBtn.className = 'copy-btn';

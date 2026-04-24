@@ -553,98 +553,113 @@ function typewriterEffect(text, sender) {
     msgDiv.style.whiteSpace = 'pre-wrap';
     msgDiv.style.wordBreak = 'break-word';
     wrapper.appendChild(msgDiv);
+    chatArea.appendChild(wrapper);
 
-    // Si tiene código, mostrarlo con colores y typewriter
-    if (text.includes('```')) {
-        var parts = text.split(/(```[\s\S]*?```)/g);
-        var allHTML = '';
-        
-        parts.forEach(function(part) {
-            if (part.startsWith('```') && part.endsWith('```')) {
-                var lines = part.split('\n');
-                var lang = lines[0].replace('```', '').trim();
-                var codeLines = lines.slice(1, -1);
-                
-                var codeHTML = '<div style="background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#333;border:1px solid #e0e0e0;">';
-                if (lang) codeHTML += '<div style="color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;">📄 ' + lang.toUpperCase() + '</div>';
-                
-                codeLines.forEach(function(line, i) {
-                    var num = (i + 1).toString();
+    var parts = text.split(/(```[\s\S]*?```)/g);
+    var queue = []; // { type: 'text'|'code', content }
+
+    parts.forEach(function(part) {
+        if (part.startsWith('```') && part.endsWith('```')) {
+            var lines = part.split('\n');
+            var lang = lines[0].replace('```', '').trim();
+            var codeLines = lines.slice(1, -1);
+            queue.push({ type: 'code', lang: lang, lines: codeLines });
+        } else if (part.trim()) {
+            queue.push({ type: 'text', content: part });
+        }
+    });
+
+    function processQueue(qIdx) {
+        if (qIdx >= queue.length) {
+            finalize();
+            return;
+        }
+        var item = queue[qIdx];
+
+        if (item.type === 'text') {
+            var span = document.createElement('span');
+            msgDiv.appendChild(span);
+            var i = 0;
+            function typeChar() {
+                if (i < item.content.length) {
+                    span.textContent += item.content.charAt(i);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                    i++;
+                    typewriterTimers.push(setTimeout(typeChar, 18));
+                } else {
+                    processQueue(qIdx + 1);
+                }
+            }
+            typeChar();
+
+        } else if (item.type === 'code') {
+            var containerDiv = document.createElement('div');
+            containerDiv.style.cssText = 'background:#f8f8f8;border-radius:12px;padding:15px;margin:10px 0;overflow-x:auto;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;color:#333;border:1px solid #e0e0e0;';
+            msgDiv.appendChild(containerDiv);
+
+            if (item.lang) {
+                var langLabel = document.createElement('div');
+                langLabel.style.cssText = 'color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;';
+                langLabel.textContent = '📄 ' + item.lang.toUpperCase();
+                containerDiv.appendChild(langLabel);
+            }
+
+            var lineIdx = 0;
+            function addLine() {
+                if (lineIdx < item.lines.length) {
+                    var line = item.lines[lineIdx];
+                    var num = (lineIdx + 1).toString();
                     var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     lineContent = lineContent
                         .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
-                        .replace(/\b(function|const|let|var|return|if|else|for|while|class|def|print|import)\b/g, '<span style="color:#c792ea;">$1</span>')
+                        .replace(/\b(function|const|let|var|return|if|else|for|while|class|def|print|import|export|from|async|await)\b/g, '<span style="color:#c792ea;">$1</span>')
                         .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
                         .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
                         .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
-                    codeHTML += '<div><span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
-                });
-                codeHTML += '</div>';
-                allHTML += codeHTML;
-            } else {
-                allHTML += part.replace(/\n/g, '<br>');
+
+                    var lineDiv = document.createElement('div');
+                    lineDiv.innerHTML = '<span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent;
+                    containerDiv.appendChild(lineDiv);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                    lineIdx++;
+                    typewriterTimers.push(setTimeout(addLine, 30));
+                } else {
+                    processQueue(qIdx + 1);
+                }
             }
-        });
-        
-        // Mostrar con typewriter lento
-        msgDiv.innerHTML = '';
-        var cleanText = allHTML.replace(/<[^>]*>/g, ''); // texto sin HTML para typewriter
-        var i = 0;
-        function type() {
-            if (i < cleanText.length) {
-                // Reconstruir HTML progresivamente
-                var progress = allHTML;
-                msgDiv.innerHTML = progress;
-                chatArea.scrollTop = chatArea.scrollHeight;
-                i = cleanText.length; // mostrar todo de golpe pero con formato
-                typewriterTimers.push(setTimeout(type, 12));
-            }
+            addLine();
         }
-        msgDiv.innerHTML = allHTML;
-        chatArea.scrollTop = chatArea.scrollHeight;
-        
-    } else {
-        // Texto normal con typewriter
-        msgDiv.textContent = '';
-        var i = 0;
-        function type() {
-            if (i < text.length) {
-                msgDiv.textContent += text.charAt(i);
-                chatArea.scrollTop = chatArea.scrollHeight;
-                i++;
-                typewriterTimers.push(setTimeout(type, 12));
-            }
-        }
-        type();
     }
 
-    // Botón copiar
-    var copyBtn = document.createElement('div');
-    copyBtn.className = 'copy-btn';
-    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-    copyBtn.onclick = function(e) {
-        e.stopPropagation();
-        navigator.clipboard.writeText(text).then(function() {
-            copyBtn.classList.add('copied');
-            copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-            setTimeout(function() { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'; }, 2000);
-        });
-    };
-    wrapper.appendChild(copyBtn);
+    function finalize() {
+        var copyBtn = document.createElement('div');
+        copyBtn.className = 'copy-btn';
+        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        copyBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigator.clipboard.writeText(text).then(function() {
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(function() { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'; }, 2000);
+            });
+        };
+        wrapper.appendChild(copyBtn);
 
-    var actionsDiv = document.createElement('div');
-    actionsDiv.className = 'message-actions';
-    actionsDiv.innerHTML = '<button class="action-mini-btn like-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>'
-        + '<button class="action-mini-btn dislike-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg></button>'
-        + '<button class="action-mini-btn refresh-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>';
-    wrapper.appendChild(actionsDiv);
-    actionsDiv.querySelector('.like-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('liked'); actionsDiv.querySelector('.dislike-action').classList.remove('disliked'); };
-    actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
-    actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
+        var actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
+        actionsDiv.innerHTML = '<button class="action-mini-btn like-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>'
+            + '<button class="action-mini-btn dislike-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg></button>'
+            + '<button class="action-mini-btn refresh-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>';
+        wrapper.appendChild(actionsDiv);
+        actionsDiv.querySelector('.like-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('liked'); actionsDiv.querySelector('.dislike-action').classList.remove('disliked'); };
+        actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
+        actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
 
-    chatArea.appendChild(wrapper);
-    chatArea.scrollTop = chatArea.scrollHeight;
+    processQueue(0);
 }
+
 
 function addMessage(text, sender) {
     var chatArea = document.getElementById('chatArea');

@@ -400,9 +400,283 @@ function startVoice() {
     } else { document.getElementById('chatInput').focus(); }
 }
 
+// ============ NUEVO: SISTEMA DE MEMORIA Y RAZONAMIENTO ============
+
+// Memoria a corto plazo (últimas 15 interacciones)
+var shortTermMemory = [];
+
+// Memoria a largo plazo (datos aprendidos sobre el usuario)
+var longTermMemory = {
+    userName: '',
+    userTopics: [],        // temas que le interesan
+    userFacts: [],         // datos que ha compartido
+    emotionalHistory: [],  // historial emocional
+    learnedInfo: [],       // información nueva que Eva ha aprendido
+    conversationCount: 0
+};
+
+// Cargar memoria a largo plazo de localStorage
+function loadLongTermMemory() {
+    try {
+        var saved = JSON.parse(localStorage.getItem('eva_long_term_memory'));
+        if (saved) {
+            longTermMemory = saved;
+        }
+    } catch(e) {}
+}
+
+// Guardar memoria a largo plazo
+function saveLongTermMemory() {
+    try {
+        // Limitar tamaño para no sobrecargar localStorage
+        if (longTermMemory.userFacts.length > 100) longTermMemory.userFacts = longTermMemory.userFacts.slice(-50);
+        if (longTermMemory.learnedInfo.length > 100) longTermMemory.learnedInfo = longTermMemory.learnedInfo.slice(-50);
+        if (longTermMemory.emotionalHistory.length > 50) longTermMemory.emotionalHistory = longTermMemory.emotionalHistory.slice(-25);
+        localStorage.setItem('eva_long_term_memory', JSON.stringify(longTermMemory));
+    } catch(e) {}
+}
+
+// Agregar a memoria a corto plazo
+function addToShortTermMemory(userMsg, evaMsg) {
+    shortTermMemory.push({
+        user: userMsg,
+        eva: evaMsg,
+        timestamp: Date.now(),
+        sentiment: analyzeSentiment(userMsg)
+    });
+    if (shortTermMemory.length > 15) shortTermMemory.shift();
+}
+
+// ============ ANÁLISIS DE SENTIMIENTO ============
+function analyzeSentiment(text) {
+    var msg = text.toLowerCase();
+    
+    var positiveWords = ['gracias', 'genial', 'excelente', 'bueno', 'feliz', 'amor', 'increíble', 'perfecto', 'bien', 'gusta', 'hermoso', 'divertido', 'genio', 'crack', 'uff', 'jaja', 'jeje', ':D', ':)', '❤️', '💪'];
+    var negativeWords = ['mal', 'triste', 'enojado', 'furioso', 'odio', 'horrible', 'terrible', 'estresado', 'cansado', 'harto', 'decepcion', 'miedo', 'ansiedad', ':(', ':/'];
+    var questionWords = ['?', 'por qué', 'como', 'cuando', 'donde', 'quien', 'que es', 'cual', 'puedes', 'podrias', 'explica', 'dime'];
+    
+    var positiveScore = 0;
+    var negativeScore = 0;
+    var questionScore = 0;
+    
+    positiveWords.forEach(function(w) { if (msg.includes(w)) positiveScore++; });
+    negativeWords.forEach(function(w) { if (msg.includes(w)) negativeScore++; });
+    questionWords.forEach(function(w) { if (msg.includes(w)) questionScore++; });
+    
+    if (positiveScore > negativeScore && positiveScore > questionScore) return 'positivo';
+    if (negativeScore > positiveScore && negativeScore > questionScore) return 'negativo';
+    if (questionScore > 0) return 'curioso';
+    return 'neutral';
+}
+
+// ============ RECOPILAR INFORMACIÓN NUEVA ============
+function learnFromUserInput(input) {
+    var msg = input.toLowerCase();
+    
+    // Detectar nombre del usuario
+    var namePatterns = [
+        /me llamo (\w+)/i,
+        /soy (\w+)/i,
+        /mi nombre es (\w+)/i,
+        /puedes llamarme (\w+)/i
+    ];
+    
+    namePatterns.forEach(function(pattern) {
+        var match = msg.match(pattern);
+        if (match && !longTermMemory.userName) {
+            longTermMemory.userName = match[1];
+            longTermMemory.userFacts.push('Nombre: ' + match[1]);
+        }
+    });
+    
+    // Detectar temas de interés
+    var interestPatterns = [
+        /me gusta (\w+)/gi,
+        /me interesa (\w+)/gi,
+        /estudio (\w+)/gi,
+        /trabajo en (\w+)/gi,
+        /soy (programador|doctor|estudiante|ingeniero|diseñador|artista|músico|profesor)/gi
+    ];
+    
+    interestPatterns.forEach(function(pattern) {
+        var matches = msg.match(pattern);
+        if (matches) {
+            matches.forEach(function(m) {
+                var topic = m.replace(/me gusta |me interesa |estudio |trabajo en |soy /gi, '').trim();
+                if (topic && longTermMemory.userTopics.indexOf(topic) === -1) {
+                    longTermMemory.userTopics.push(topic);
+                }
+            });
+        }
+    });
+    
+    // Aprender datos nuevos (patrón: "X es Y" o "X significa Y")
+    var factPatterns = [
+        /(\w+) es ([\w\s]+)/gi,
+        /(\w+) significa ([\w\s]+)/gi,
+        /sabias que ([\w\s]+)/gi
+    ];
+    
+    factPatterns.forEach(function(pattern) {
+        var matches = msg.match(pattern);
+        if (matches) {
+            matches.forEach(function(m) {
+                if (longTermMemory.learnedInfo.length < 50 && longTermMemory.learnedInfo.indexOf(m) === -1) {
+                    longTermMemory.learnedInfo.push(m);
+                }
+            });
+        }
+    });
+    
+    longTermMemory.conversationCount++;
+    saveLongTermMemory();
+}
+
+// ============ BUSCAR EN MEMORIA ============
+function searchMemory(query) {
+    var msg = query.toLowerCase();
+    var results = [];
+    
+    // Buscar en memoria a corto plazo
+    shortTermMemory.forEach(function(item) {
+        if (item.user.toLowerCase().includes(msg) || item.eva.toLowerCase().includes(msg)) {
+            results.push({ type: 'reciente', content: 'Hablamos de: "' + item.user + '"' });
+        }
+    });
+    
+    // Buscar en datos del usuario
+    longTermMemory.userFacts.forEach(function(fact) {
+        if (fact.toLowerCase().includes(msg)) {
+            results.push({ type: 'usuario', content: 'Sé que ' + fact });
+        }
+    });
+    
+    // Buscar en información aprendida
+    longTermMemory.learnedInfo.forEach(function(info) {
+        if (info.toLowerCase().includes(msg)) {
+            results.push({ type: 'aprendido', content: 'Aprendí: ' + info });
+        }
+    });
+    
+    return results.slice(0, 3); // máximo 3 resultados
+}
+
+// ============ GENERAR RESPUESTA CONTEXTUAL ============
+function generateContextualResponse(input, baseResponse) {
+    var msg = input.toLowerCase();
+    var sentiment = analyzeSentiment(msg);
+    var memoryResults = searchMemory(msg);
+    var contextualAddon = '';
+    
+    // Respuesta basada en sentimiento
+    if (sentiment === 'negativo') {
+        var comfort = ['Entiendo cómo te sientes.', 'A veces las cosas son difíciles.', 'Estoy aquí para escucharte.', '¿Quieres hablar más sobre eso?'];
+        contextualAddon += ' ' + comfort[Math.floor(Math.random() * comfort.length)];
+    }
+    
+    if (sentiment === 'positivo') {
+        var cheer = ['¡Me alegra verte así!', '¡Qué bueno!', 'Esa energía me gusta.', '¡Vamos por más!'];
+        contextualAddon += ' ' + cheer[Math.floor(Math.random() * cheer.length)];
+    }
+    
+    // Agregar contexto de memoria si hay resultados
+    if (memoryResults.length > 0) {
+        var memRef = memoryResults[0];
+        if (memRef.type === 'reciente') {
+            contextualAddon += ' Por cierto, ' + memRef.content.toLowerCase() + '.';
+        } else if (memRef.type === 'usuario') {
+            contextualAddon += ' Basado en lo que sé de ti, ' + memRef.content.toLowerCase() + '.';
+        }
+    }
+    
+    // Usar nombre del usuario si lo sabe
+    if (longTermMemory.userName && Math.random() > 0.7) {
+        contextualAddon = ' ' + longTermMemory.userName + ',' + contextualAddon;
+    }
+    
+    return baseResponse + contextualAddon;
+}
+
+// ============ REEMPLAZAR sendMessage() ============
+var originalSendMessage = sendMessage;
+sendMessage = function() {
+    if (isProcessing) return;
+    var input = document.getElementById('chatInput');
+    var message = input.value.trim();
+    if (!message) return;
+    input.value = '';
+    isProcessing = true;
+    
+    // Aprender del input del usuario
+    learnFromUserInput(message);
+    
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('chatArea').classList.add('active');
+    addMessage(message, 'user');
+    var typingId = addThinkingIndicator();
+    
+    setTimeout(function() {
+        removeThinkingIndicator(typingId);
+        var baseResponse = generateResponse(message);
+        var contextualResponse = generateContextualResponse(message, baseResponse);
+        typewriterEffect(contextualResponse, 'eva');
+        
+        // Guardar en memoria a corto plazo
+        addToShortTermMemory(message, contextualResponse);
+        
+        saveChatHistory(); // si implementas historial
+        isProcessing = false;
+    }, 800 + Math.random() * 1200);
+};
+
+// ============ GUARDAR HISTORIAL DEL CHAT ============
+function saveChatHistory() {
+    try {
+        var messages = [];
+        document.querySelectorAll('#chatArea .message-wrapper').forEach(function(w) {
+            var msg = w.querySelector('.message');
+            if (msg) {
+                messages.push({
+                    text: msg.textContent,
+                    sender: msg.classList.contains('user') ? 'user' : 'eva'
+                });
+            }
+        });
+        // Solo guardar últimos 50 mensajes para no saturar
+        if (messages.length > 50) messages = messages.slice(-50);
+        localStorage.setItem('eva_chat_history', JSON.stringify(messages));
+    } catch(e) {}
+}
+
+// Cargar historial al iniciar
+function loadChatHistory() {
+    try {
+        var data = JSON.parse(localStorage.getItem('eva_chat_history') || '[]');
+        if (data.length > 0) {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('chatArea').classList.add('active');
+            data.forEach(function(m) {
+                addMessage(m.text, m.sender);
+            });
+        }
+    } catch(e) {}
+}
+
 // ============ INIT ============
+console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
+console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
 loadFromAdmin();
+loadLongTermMemory();
+loadChatHistory();
 buildModelDropdown();
+
+// Mensaje de bienvenida personalizado si ya conoce al usuario
+if (longTermMemory.userName) {
+    var welcome = document.getElementById('welcomeGreeting');
+    if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
+        welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+    }
+}
 </script>
 
 </body>

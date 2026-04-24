@@ -334,9 +334,9 @@ var models = [
     { modelId: 'nyx',    name: 'Nyx',        greeting: 'Nyx te escucha.\nQue inquietud traes?' },
     { modelId: 'aria',   name: 'Aria',       greeting: 'Aria en linea.\nQue datos necesitas?' },
     { modelId: 'wiki',   name: '📚 Wiki',    greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' },
-    {{ modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
+{ modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
 { modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
-{ modelId: 'openrouter', name: '🌐 OpenRouter', greeting: 'OpenRouter conectado.\nModo gratuito ilimitado.' }
+{ modelId: 'openrouter', name: '🌐 OpenRouter', greeting: 'OpenRouter conectado.\nModo gratuito activado.' }
 ];
 var knowledge = [];
 
@@ -2617,7 +2617,6 @@ async function askGroq(message) {
     } catch(e) {}
     return null;
 }
-
 
 
 // ============ INIT ============

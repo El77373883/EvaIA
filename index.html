@@ -1100,7 +1100,8 @@ function generateResponse(input) {
         var prompt = msg.replace(/^imagen[: ]|^dibuja /, '').trim();
         if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
         
-        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true&nologo=true';
+
         
         return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
     }
@@ -1494,17 +1495,19 @@ function addMessage(text, sender) {
     if (text.includes('![') && text.includes('](')) {
         var parts = text.split(/(!\[.*?\]\(.*?\))/);
         parts.forEach(function(part) {
-           if (part.startsWith('![') && part.includes('](')) {
+      if (part.startsWith('![') && part.includes('](')) {
     var url = part.split('](')[1].split(')')[0];
     var imgEl = document.createElement('img');
     imgEl.src = url;
     imgEl.crossOrigin = 'anonymous';
     imgEl.referrerPolicy = 'no-referrer';
-    imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
+    imgEl.loading = 'lazy';
+    imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;min-height:200px;background:#f0f0f0;';
     imgEl.onerror = function() { this.style.display='none'; };
-    imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
+    imgEl.onload = function() { this.style.minHeight='auto'; this.style.background='none'; chatArea.scrollTop = chatArea.scrollHeight; };
     msgDiv.appendChild(imgEl);
 }
+
             } else if (part.trim()) {
                 var textEl = document.createElement('div');
                 textEl.textContent = part;

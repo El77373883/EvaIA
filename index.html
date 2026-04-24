@@ -942,6 +942,11 @@ function corregirTexto(texto) {
 // ============ GENERAR RESPUESTA ============
 function generateResponse(input) {
     var msg = corregirTexto(input);
+    // Buscar en internet si es una pregunta que Eva no puede responder
+    if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('capital de') || msg.includes('cuanto mide') || msg.includes('donde queda') || msg.includes('cuando fue') || msg.includes('busca en internet') || msg.includes('googlea') || msg.includes('busca')) {
+        var searchResult = searchDuckDuckGo(msg);
+        if (searchResult) return searchResult;
+    }
     var msgOriginal = input.toLowerCase().trim();
 
     // Modo creación activo

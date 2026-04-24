@@ -75,7 +75,8 @@
     <div class="flex-between">
         <h2 style="font-size:16px;">📋 Entradas guardadas</h2>
         <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar</button>
-        <button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Agregar lote</button>
+   <button class="btn btn-outline btn-sm" onclick="searchEntries()">🔍 Buscar</button>
+<button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Agregar lote</button>
         <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar archivo</button>
         <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Borrar todo</button>
     </div>
@@ -267,6 +268,37 @@ function resetAll() {
         localStorage.removeItem('eva_entries');
         renderEntries();
     }
+}
+
+
+// ============ BUSCADOR DE ENTRADAS ============
+function searchEntries() {
+    var searchTerm = prompt('🔍 Buscar keyword (ej: trabajo, amigo, ex):');
+    if (!searchTerm || searchTerm.trim() === '') return;
+    
+    searchTerm = searchTerm.trim().toLowerCase();
+    var entries = getEntries();
+    var found = [];
+    
+    entries.forEach(function(entry, index) {
+        var keywordsStr = entry.keywords.join(', ');
+        if (keywordsStr.includes(searchTerm)) {
+            found.push({ index: index, keywords: keywordsStr, response: entry.response.slice(0, 50) });
+        }
+    });
+    
+    if (found.length === 0) {
+        alert('✅ No se encontraron entradas con: "' + searchTerm + '"');
+        return;
+    }
+    
+    var message = '🔍 ' + found.length + ' entradas con "' + searchTerm + '":\n\n';
+    found.forEach(function(f) {
+        message += '#' + (f.index + 1) + ': [' + f.keywords + ']\n📝 ' + f.response + '...\n\n';
+    });
+    message += '📋 Copia los números y bórralos manualmente.';
+    
+    alert(message);
 }
 
 // ============ UTILIDADES ============

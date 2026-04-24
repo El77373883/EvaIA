@@ -13,8 +13,29 @@ export default async function handler(req, res) {
       .replace(/busca en internet|busca|que es|quien es|que son|\?/gi, '')
       .trim();
 
-    const r = await fetch('https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1');
-    const d = await r.json();
+    const r = await fetch(
+      'https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1',
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; EvaIA/1.0)',
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    // Leer como texto primero, luego parsear
+    const text = await r.text();
+    if (!text || text.trim().length === 0) {
+      return res.status(200).json({ answer: 'No encontré resultados para esa búsqueda.' });
+    }
+
+    let d;
+    try {
+      d = JSON.parse(text);
+    } catch {
+      return res.status(200).json({ answer: 'No encontré resultados para esa búsqueda.' });
+    }
+
     let answer = '';
 
     if (d.Abstract && d.Abstract.length > 10) {
@@ -28,11 +49,13 @@ export default async function handler(req, res) {
         if (t.Text) answer += '\n- ' + t.Text.split(' - ')[0].trim();
       });
     } else {
-      answer = 'No encontré resultados.';
+      answer = 'No encontré resultados para esa búsqueda.';
     }
 
     res.status(200).json({ answer });
+
   } catch (e) {
-    res.status(200).json({ answer: 'Error de conexión con DuckDuckGo. Intenta de nuevo en unos segundos.' });
+    console.error('DDG error:', e.message);
+    res.status(200).json({ answer: 'No pude conectarme a DuckDuckGo. Intenta con otra pregunta.' });
   }
 }

@@ -1674,15 +1674,11 @@ else if (currentModel === 'qwen') {
         baseResponse = 'Qwen no está disponible ahora. 🧠';
     }
 }
-// 🧠 DEEPSEEK (usando Groq)
+// 🧠 DEEPSEEK
 else if (currentModel === 'deepseek') {
-    var deepseekResult = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message + ' (responde como DeepSeek, con razonamiento profundo y paso a paso)' })
-    }).then(r => r.json());
-    if (deepseekResult && deepseekResult.answer) {
-        baseResponse = deepseekResult.answer;
+    var deepseekResult = await askDeepSeek(message);
+    if (deepseekResult) {
+        baseResponse = deepseekResult;
     } else {
         baseResponse = 'DeepSeek no está disponible ahora. 🧠';
     }

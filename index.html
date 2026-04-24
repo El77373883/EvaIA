@@ -336,7 +336,7 @@ var models = [
     { modelId: 'wiki',   name: '📚 Wiki',    greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' },
 { modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
 { modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
-{ modelId: 'openrouter', name: '🌐 OpenRouter', greeting: 'OpenRouter conectado.\nModo gratuito activado.' }
+{ modelId: 'deepseek', name: '🧠 DeepSeek', greeting: 'DeepSeek en línea.\nRazonamiento profundo activado.' }
 ];
 var knowledge = [];
 
@@ -1674,18 +1674,14 @@ else if (currentModel === 'qwen') {
         baseResponse = 'Qwen no está disponible ahora. 🧠';
     }
 }
-// 🌐 OPENROUTER: OpenRouter con Qwen
-else if (currentModel === 'openrouter') {
-    var openRouterResult = await askOpenRouter(message);
-    if (openRouterResult) {
-        baseResponse = openRouterResult;
+// 🧠 DEEPSEEK
+else if (currentModel === 'deepseek') {
+    var deepseekResult = await askDeepSeek(message);
+    if (deepseekResult) {
+        baseResponse = deepseekResult;
     } else {
-        baseResponse = 'OpenRouter no responde. 🌐';
+        baseResponse = 'DeepSeek no está disponible ahora. 🧠';
     }
-}
-// 🤖 RESTO: Eva, Selene, Nyx, Aria
-else {
-    baseResponse = generateResponse(message);
 }
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
@@ -2588,9 +2584,9 @@ async function askQwen(message) {
     return null;
 }
 
-async function askOpenRouter(message) {
+async function askDeepSeek(message) {
     try {
-        var resp = await fetch('/api/openrouter', {
+        var resp = await fetch('/api/deepseek', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: message })

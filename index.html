@@ -1160,29 +1160,18 @@ function generateResponse(input) {
 
     
     // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
-       if (matches.length > 0) {
-        var bestMatch = matches[0];
+if (matches.length > 0) {
+    var bestMatch = matches[0];
+    var k = knowledge[bestMatch.knowledgeIndex];
+    
+    var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
+    if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
+    
+    var anyResp = responses.filter(function(r) { return r.category === k.category; });
+    if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
+}   
+         
         
-        // Si el score es muy bajo (1 palabra corta) y el mensaje es largo, usar contexto
-        var wordCount = msg.split(' ').filter(Boolean).length;
-        if (bestMatch.score <= 1 && wordCount > 2) {
-            var detected = detectContext(msg);
-            if (detected.score > 0) return getIntelligentResponse(msg, detected.context);
-        }
-        
-                var k = knowledge[bestMatch.knowledgeIndex];
-        
-                // Si el mensaje es muy corto (1-2 palabras), no asumir — preguntar qué quiere
-        var wordCount = msg.trim().split(/\s+/).length;
-                if (wordCount <= 2) {
-            if (lastAskedTopic === k.category) {
-                lastAskedTopic = null;
-                return '¿Puedes contarme más sobre lo que necesitas? 😊';
-            }
-            lastAskedTopic = k.category;
-            var topicLabel = k.keywords && k.keywords[0] ? k.keywords[0] : 'eso';
-            return '¿En qué te puedo ayudar con ' + topicLabel + '? 😊';
-        }
 
         
         var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });

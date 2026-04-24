@@ -1268,6 +1268,22 @@ function typewriterEffect(text, sender) {
         actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
         actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
         chatArea.scrollTop = chatArea.scrollHeight;
+
+        // Botón preview si hay HTML generado
+        if (lastGeneratedHTML) {
+            var previewBtn = document.createElement('button');
+            previewBtn.textContent = '👁 Ver Preview';
+            previewBtn.style.cssText = 'margin-top:10px;padding:10px 20px;background:#2563EB;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:block;transition:all 0.2s;';
+            previewBtn.onmouseenter = function(){ this.style.opacity='0.85'; };
+            previewBtn.onmouseleave = function(){ this.style.opacity='1'; };
+            previewBtn.onclick = function() {
+                var blob = new Blob([lastGeneratedHTML], { type: 'text/html' });
+                var url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            };
+            wrapper.appendChild(previewBtn);
+            lastGeneratedHTML = '';
+        }
     }
 
     processQueue(0);
@@ -1672,6 +1688,8 @@ function loadChatHistory() {
 // ============ MODO CREACIÓN DE PÁGINAS ============
 var creationState = null;
 var creationData = {};
+var lastGeneratedHTML = '';
+
 
 var pageTypes = {
     landing: 'Landing Page',
@@ -1746,15 +1764,185 @@ function handleCreationMode(input) {
             }
             if (msg.startsWith('#')) color = msg;
         }
-        creationData.color = color;
+        creationData.lastColor = color;
         creationState = 'ask_desc';
         return '¿Una descripción corta de tu proyecto? (1 o 2 líneas)\n\nO escribe "sin descripción" para omitir.';
     }
 
-    if (creationState === 'ask_desc') {
+        if (creationState === 'ask_desc') {
         creationData.desc = (msg.toLowerCase() === 'sin descripcion' || msg.toLowerCase() === 'sin descripción') ? '' : msg;
         creationState = null;
         return generatePageCode(creationData);
+    }
+
+    if (creationState === 'ask_extras') {
+        var lower = msg.toLowerCase().trim();
+        
+        if (lower === 'listo' || lower === 'ya' || lower === 'no' || lower === 'no gracias') {
+            creationState = null;
+            lastGeneratedHTML = '';
+            return '¡Perfecto! Tu página está lista. 🎉 Cópiala y guárdala como `index.html`.';
+        }
+
+        var extraHTML = '';
+        var color = creationData.lastColor || '#2563EB';
+
+        if (lower.includes('precio')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#f9f9f9;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:12px;">Precios</h2>
+  <p style="color:#999;margin-bottom:48px;">Elige el plan que mejor se adapte a ti.</p>
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+    <div style="background:#fff;border-radius:20px;padding:36px 28px;width:260px;border:2px solid #eee;">
+      <div style="font-size:13px;font-weight:700;color:#999;margin-bottom:12px;">BÁSICO</div>
+      <div style="font-size:48px;font-weight:900;color:#111;">$9<span style="font-size:16px;color:#999;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#555;font-size:14px;line-height:2;">
+        <li>✅ 1 proyecto</li><li>✅ 5 GB almacenamiento</li><li>❌ Soporte prioritario</li>
+      </ul>
+      <a href="#" style="display:block;background:#f0f0f0;color:#333;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Empezar</a>
+    </div>
+    <div style="background:#111;border-radius:20px;padding:36px 28px;width:260px;border:2px solid ${color};transform:scale(1.05);">
+      <div style="font-size:13px;font-weight:700;color:${color};margin-bottom:12px;">PRO ⭐</div>
+      <div style="font-size:48px;font-weight:900;color:#fff;">$29<span style="font-size:16px;color:#888;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#aaa;font-size:14px;line-height:2;">
+        <li>✅ Proyectos ilimitados</li><li>✅ 50 GB almacenamiento</li><li>✅ Soporte prioritario</li>
+      </ul>
+      <a href="#" style="display:block;background:${color};color:#fff;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Empezar</a>
+    </div>
+    <div style="background:#fff;border-radius:20px;padding:36px 28px;width:260px;border:2px solid #eee;">
+      <div style="font-size:13px;font-weight:700;color:#999;margin-bottom:12px;">EMPRESA</div>
+      <div style="font-size:48px;font-weight:900;color:#111;">$99<span style="font-size:16px;color:#999;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#555;font-size:14px;line-height:2;">
+        <li>✅ Todo ilimitado</li><li>✅ 1 TB almacenamiento</li><li>✅ Manager dedicado</li>
+      </ul>
+      <a href="#" style="display:block;background:#f0f0f0;color:#333;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Contactar</a>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('testimonio')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#fff;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;">Lo que dicen nuestros clientes</h2>
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"Increíble servicio. Superó todas mis expectativas. Lo recomiendo 100%."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">A</div>
+        <div><div style="font-weight:700;font-size:14px;">Ana García</div><div style="font-size:12px;color:#999;">Cliente desde 2023</div></div>
+      </div>
+    </div>
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"El mejor producto que he usado. Simple, rápido y efectivo."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">C</div>
+        <div><div style="font-weight:700;font-size:14px;">Carlos López</div><div style="font-size:12px;color:#999;">CEO en StartupX</div></div>
+      </div>
+    </div>
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"Atención al cliente de 10. Resolvieron todo en minutos."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">M</div>
+        <div><div style="font-weight:700;font-size:14px;">María Torres</div><div style="font-size:12px;color:#999;">Diseñadora freelance</div></div>
+      </div>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('equipo')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#f9f9f9;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:12px;">Nuestro Equipo</h2>
+  <p style="color:#999;margin-bottom:48px;">Las personas detrás del proyecto.</p>
+  <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👩</div>
+      <div style="font-weight:700;font-size:16px;">Laura M.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">CEO & Fundadora</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👨</div>
+      <div style="font-weight:700;font-size:16px;">Pedro R.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">CTO</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👩</div>
+      <div style="font-weight:700;font-size:16px;">Sofía K.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">Diseño UX</div>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('faq') || lower.includes('preguntas')) {
+            extraHTML = `
+<section style="padding:80px 40px;max-width:700px;margin:0 auto;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;text-align:center;">Preguntas Frecuentes</h2>
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Cómo puedo empezar?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Es muy sencillo. Solo regístrate, elige tu plan y listo. El proceso toma menos de 2 minutos.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Puedo cancelar en cualquier momento?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Sí, sin contratos ni penalizaciones. Cancela cuando quieras desde tu panel.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Tienen soporte en español?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">¡Por supuesto! Nuestro equipo habla español y está disponible 24/7.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Es seguro pagar aquí?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Sí, usamos encriptación SSL y procesadores de pago certificados.</p>
+    </details>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('redes') || lower.includes('social')) {
+            extraHTML = `
+<section style="padding:60px 40px;background:#111;text-align:center;">
+  <h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">Síguenos</h2>
+  <p style="color:#888;font-size:14px;margin-bottom:32px;">Estamos en todas las redes</p>
+  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#1877F2;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">📘 Facebook</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">📸 Instagram</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#1DA1F2;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">🐦 Twitter</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#FF0000;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">▶️ YouTube</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('galeria') || lower.includes('galería') || lower.includes('fotos')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#fff;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;">Galería</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto;">
+    <div style="background:linear-gradient(135deg,${color}44,${color}22);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}33,${color}11);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}55,${color}33);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}22,${color}44);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}44,${color}11);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}11,${color}55);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+  </div>
+</section>`;
+        }
+
+        else {
+            return 'No reconocí eso. Puedes escribir: **precios, galería, testimonios, equipo, faq, redes**\nO escribe **listo** para terminar.';
+        }
+
+        if (extraHTML && lastGeneratedHTML) {
+            lastGeneratedHTML = lastGeneratedHTML.replace('</body>', extraHTML + '\n</body>');
+        }
+
+        return '✅ Sección agregada. ¿Quieres agregar algo más?\n\nprecios / galería / testimonios / equipo / faq / redes\nO escribe **listo** para terminar.';
     }
 
     return null;
@@ -2108,8 +2296,10 @@ function generatePageCode(data) {
 </html>`;
     }
 
-    creationData = {};
-    return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n💡 Copia el código y guárdalo como `index.html`.';
+        creationData = {};
+    lastGeneratedHTML = html;
+    creationState = 'ask_extras';
+    return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n➕ ¿Quieres agregar algo más?\n\nEscribe: precios, galería, testimonios, equipo, faq, redes\nO escribe **listo** para terminar.';
 }
 
 function shadeColor(color, percent) {

@@ -331,13 +331,13 @@ msgDiv.style.background = '#F0F0F0';
                 var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 
                 lineContent = lineContent
+.replace(/(".*?"|'.*?')/g, '<span style="color:#c3e88d;">$1</span>')
                     .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
                     .replace(/(\/?&gt;)/g, '<span style="color:#e94560;">$1</span>')
                     .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|def|print)\b/g, '<span style="color:#c792ea;">$1</span>')
-                    .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
                     .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
-                    .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>')
-                    .replace(/(#.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+                    .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+
                 
                 codeHTML += '<div><span style="color:#555;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent + '</div>';
             });

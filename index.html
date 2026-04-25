@@ -558,18 +558,27 @@ if (flow.mode === 'keyword') {
         activeFlowStep = matchedStepIdx;
         return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
     }
-    if (msg.trim().split(' ').length <= 3) {
-        var nextIdx = activeFlowStep + 1;
-        if (nextIdx < flow.steps.length) {
-            activeFlowStep = nextIdx;
-            return getFlowResponse(flow, activeFlowStep);
-        }
+    // Palabras cortas de confirmacion siempre avanzan al siguiente paso
+var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop','simón','simon'];
+var esMsgCorto = msg.trim().split(' ').length <= 2;
+var esConfirmacion = confirmaciones.some(function(c){ return msg.trim() === c || msg.trim().startsWith(c + ' '); });
+
+if (esMsgCorto || esConfirmacion) {
+    var nextIdx = activeFlowStep + 1;
+    if (nextIdx < flow.steps.length) {
+        activeFlowStep = nextIdx;
+        return getFlowResponse(flow, activeFlowStep);
     }
     activeFlow = null;
     activeFlowStep = 0;
     return null;
 }
 
+// Si no encontró nada, terminar el flujo
+activeFlow = null;
+activeFlowStep = 0;
+return null;
+}
 
 
 

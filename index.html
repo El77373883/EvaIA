@@ -522,24 +522,27 @@ function checkFlows(input) {
     var flows = loadFlows();
 
     if (activeFlow !== null && activeFlow.mode !== 'keyword') {
-        var flow = activeFlow;
-        var nextStepIndex = activeFlowStep + 1;
-        if (nextStepIndex < flow.steps.length) {
-            var nextStep = flow.steps[nextStepIndex];
-            if (!nextStep.keyword || msg.includes(nextStep.keyword)) {
-                activeFlowStep = nextStepIndex;
-                var resp = getFlowResponse(flow, activeFlowStep);
-                if (activeFlowStep >= flow.steps.length - 1) {
-                    activeFlow = null;
-                    activeFlowStep = 0;
-                }
-                return resp;
+    var flow = activeFlow;
+    var nextStepIndex = activeFlowStep + 1;
+    if (nextStepIndex < flow.steps.length) {
+        var nextStep = flow.steps[nextStepIndex];
+        var stepKws = nextStep.keyword ? nextStep.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean) : [];
+        var stepMatch = stepKws.length === 0 || stepKws.some(function(kw){ return msg.includes(kw); });
+        if (stepMatch) {
+            activeFlowStep = nextStepIndex;
+            var resp = getFlowResponse(flow, activeFlowStep);
+            if (activeFlowStep >= flow.steps.length - 1) {
+                activeFlow = null;
+                activeFlowStep = 0;
             }
-        } else {
-            activeFlow = null;
-            activeFlowStep = 0;
+            return resp;
         }
+    } else {
+        activeFlow = null;
+        activeFlowStep = 0;
     }
+}
+
 
     for (var i = 0; i < flows.length; i++) {
         var flow = flows[i];

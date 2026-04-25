@@ -444,6 +444,7 @@ var models = [
 { modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
 { modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
 ];
+var lastResponseIndex = {};
 var knowledge = [];
 
 var responses = [];
@@ -1173,11 +1174,30 @@ scoredFirst.sort(function(a, b) { return b.score - a.score; });
 if (scoredFirst.length > 0) {
     var bestCat = scoredFirst[0].category;
     var catResp = responses.filter(function(r) { return r.category === bestCat && r.model === currentModel; });
-    if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
-    var anyResp = responses.filter(function(r) { return r.category === bestCat; });
-    if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
+    if (catResp.length > 0) {
+    var lastIdx = lastResponseIndex[bestCat] !== undefined ? lastResponseIndex[bestCat] : -1;
+    var idx;
+    if (catResp.length === 1) {
+        idx = 0;
+    } else {
+        do { idx = Math.floor(Math.random() * catResp.length); } while (idx === lastIdx);
+    }
+    lastResponseIndex[bestCat] = idx;
+    return catResp[idx].text;
 }
-
+var anyResp = responses.filter(function(r) { return r.category === bestCat; });
+if (anyResp.length > 0) {
+    var lastIdx2 = lastResponseIndex[bestCat + '_any'] !== undefined ? lastResponseIndex[bestCat + '_any'] : -1;
+    var idx2;
+    if (anyResp.length === 1) {
+        idx2 = 0;
+    } else {
+        do { idx2 = Math.floor(Math.random() * anyResp.length); } while (idx2 === lastIdx2);
+    }
+    lastResponseIndex[bestCat + '_any'] = idx2;
+    return anyResp[idx2].text;
+  }
+}
 
 
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)

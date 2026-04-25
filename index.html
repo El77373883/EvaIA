@@ -1336,49 +1336,111 @@ if (conversacionales.indexOf(msgParaChequear) !== -1) {
 }
 
 
-// BUSCAR EN ADMIN PRIMERO (tiene prioridad sobre todo)
+// ============ BUSCAR EN ADMIN PRIMERO (PRIORIDAD MÁXIMA) ============
+// Busca tanto en el mensaje corregido como en el original
+var searchText = msg; // texto corregido
+var searchTextOriginal = input.toLowerCase().trim(); // texto original sin corregir
+
 var scoredFirst = [];
 for (var i = 0; i < knowledge.length; i++) {
     var k = knowledge[i];
     var keywords = Array.isArray(k.keywords) ? k.keywords : [];
     var score = 0;
+    var bestKwLen = 0;
+    
     for (var j = 0; j < keywords.length; j++) {
-        var kw = keywords[j].toLowerCase();
-// No puntuar keywords conversacionales si el mensaje es corto
-var esCorto = msg.trim().split(' ').length <= 3;
-var esConvKw = conversacionales.indexOf(kw) !== -1;
-if (msg.includes(kw) && !(esCorto && esConvKw)) score += kw.split(' ').length;
-        if (msg.trim() === kw) score += 50;
+        var kw = keywords[j].toLowerCase().trim();
+        var kwLen = kw.split(' ').length;
+        
+        // Buscar en texto corregido
+        if (searchText.includes(kw)) {
+            score += kwLen * 10; // frases largas valen mucho más
+            if (kwLen > bestKwLen) bestKwLen = kwLen;
+        }
+        
+        // Buscar en texto original (sin corregir)
+        if (searchTextOriginal.includes(kw)) {
+            score += kwLen * 8;
+            if (kwLen > bestKwLen) bestKwLen = kwLen;
+        }
+        
+        // Coincidencia exacta = bonus masivo
+        if (searchText.trim() === kw || searchTextOriginal.trim() === kw) {
+            score += 100;
+        }
+        
+        // Si la frase está al inicio del mensaje = bonus
+        if (searchText.startsWith(kw) || searchTextOriginal.startsWith(kw)) {
+            score += 20;
+        }
     }
-    if (score > 0) scoredFirst.push({ score: score, category: k.category, knowledgeIndex: i });
+    
+    if (score > 0) {
+        scoredFirst.push({ 
+            score: score, 
+            category: k.category, 
+            knowledgeIndex: i,
+            bestKwLen: bestKwLen
+        });
+    }
 }
-scoredFirst.sort(function(a, b) { return b.score - a.score; });
+
+// Ordenar por score, luego por longitud de keyword
+scoredFirst.sort(function(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    return b.bestKwLen - a.bestKwLen;
+});
+
+// DEBUG - Para ver qué encuentra en consola (F12)
+if (scoredFirst.length > 0) {
+    var debugInfo = scoredFirst.slice(0, 3).map(function(s) {
+        var k = knowledge[s.knowledgeIndex];
+        return '  Score:' + s.score + ' | ' + k.keywords.join(', ');
+    });
+    console.log('🔍 Coincidencias encontradas:\n' + debugInfo.join('\n'));
+}
+
 if (scoredFirst.length > 0) {
     var bestCat = scoredFirst[0].category;
-    var catResp = responses.filter(function(r) { return r.category === bestCat && r.model === currentModel; });
+    
+    // Buscar respuesta del modelo actual
+    var catResp = responses.filter(function(r) { 
+        return r.category === bestCat && r.model === currentModel; 
+    });
+    
     if (catResp.length > 0) {
-    var lastIdx = lastResponseIndex[bestCat] !== undefined ? lastResponseIndex[bestCat] : -1;
-    var idx;
-    if (catResp.length === 1) {
-        idx = 0;
-    } else {
-        do { idx = Math.floor(Math.random() * catResp.length); } while (idx === lastIdx);
+        var lastIdx = lastResponseIndex[bestCat] !== undefined ? lastResponseIndex[bestCat] : -1;
+        var idx;
+        if (catResp.length === 1) {
+            idx = 0;
+        } else {
+            do { 
+                idx = Math.floor(Math.random() * catResp.length); 
+            } while (idx === lastIdx && catResp.length > 1);
+        }
+        lastResponseIndex[bestCat] = idx;
+        console.log('✅ Respuesta (modelo ' + currentModel + '):', catResp[idx].text.slice(0, 80));
+        return catResp[idx].text;
     }
-    lastResponseIndex[bestCat] = idx;
-    return catResp[idx].text;
-}
-var anyResp = responses.filter(function(r) { return r.category === bestCat; });
-if (anyResp.length > 0) {
-    var lastIdx2 = lastResponseIndex[bestCat + '_any'] !== undefined ? lastResponseIndex[bestCat + '_any'] : -1;
-    var idx2;
-    if (anyResp.length === 1) {
-        idx2 = 0;
-    } else {
-        do { idx2 = Math.floor(Math.random() * anyResp.length); } while (idx2 === lastIdx2);
+    
+    // Si no hay del modelo actual, buscar cualquier modelo
+    var anyResp = responses.filter(function(r) { return r.category === bestCat; });
+    if (anyResp.length > 0) {
+        var lastIdx2 = lastResponseIndex[bestCat + '_any'] !== undefined ? lastResponseIndex[bestCat + '_any'] : -1;
+        var idx2;
+        if (anyResp.length === 1) {
+            idx2 = 0;
+        } else {
+            do { 
+                idx2 = Math.floor(Math.random() * anyResp.length); 
+            } while (idx2 === lastIdx2 && anyResp.length > 1);
+        }
+        lastResponseIndex[bestCat + '_any'] = idx2;
+        console.log('✅ Respuesta (cualquier modelo):', anyResp[idx2].text.slice(0, 80));
+        return anyResp[idx2].text;
     }
-    lastResponseIndex[bestCat + '_any'] = idx2;
-    return anyResp[idx2].text;
-  }
+    
+    console.log('⚠️ Categoría encontrada pero sin respuestas:', bestCat);
 }
 
 // RESPUESTAS CONTEXTUALES (todo bien, bien, ok, etc)

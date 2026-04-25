@@ -527,7 +527,9 @@ function checkFlows(input) {
     if (nextStepIndex < flow.steps.length) {
         var nextStep = flow.steps[nextStepIndex];
         var stepKws = nextStep.keyword ? nextStep.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean) : [];
-        var stepMatch = stepKws.length === 0 || stepKws.some(function(kw){ return msg.includes(kw); });
+var stepMatch = stepKws.length === 0 || stepKws.some(function(kw){
+    return msg.includes(kw);
+});
         if (stepMatch) {
             activeFlowStep = nextStepIndex;
             var resp = getFlowResponse(flow, activeFlowStep);
@@ -547,7 +549,8 @@ function checkFlows(input) {
     for (var i = 0; i < flows.length; i++) {
         var flow = flows[i];
         if (flow.model && flow.model !== currentModel) continue;
-        if (msg.includes(flow.keyword) || msg === flow.keyword) {
+var flowKws = flow.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+if (flowKws.some(function(kw){ return msg.includes(kw); })) {
             if (flow.mode === 'keyword') {
                 var matchedStep = null;
                 for (var s = 0; s < flow.steps.length; s++) {

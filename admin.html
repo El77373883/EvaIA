@@ -835,6 +835,9 @@ function updateGroupCounter() {
 }
 
 function addGroupBatch() {
+    // Evitar abrir múltiples modales
+    if (document.querySelector('.modal-overlay')) return;
+    
     var modal = document.createElement('div');
     modal.className = 'modal-overlay active';
     modal.innerHTML = '<div class="modal">'
@@ -846,6 +849,7 @@ function addGroupBatch() {
         + '</div>';
     document.body.appendChild(modal);
 }
+
 
 function processBatchGroup() {
     var text = document.getElementById('batchGroupInput').value.trim();
@@ -878,9 +882,13 @@ function processBatchGroup() {
     });
     
     updateGroupCounter();
-    document.querySelector('.modal-overlay').remove();
+    
+    // Cerrar TODOS los modales abiertos
+    document.querySelectorAll('.modal-overlay').forEach(function(m) { m.remove(); });
+    
     showToast('✅ ' + lines.length + ' respuestas agregadas', 'success');
 }
+
 
 
 // ============ DATOS ============

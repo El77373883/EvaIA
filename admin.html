@@ -17,6 +17,7 @@
             --green: #00D68F;
             --red: #FF6B6B;
             --yellow: #FFD93D;
+            --orange: #F59E0B;
             --radius: 16px;
             --radius-sm: 10px;
             --shadow: 0 4px 24px rgba(0,0,0,0.3);
@@ -33,7 +34,6 @@
             overflow-x: hidden;
         }
         
-        /* OVERLAY para móviles */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -43,11 +43,8 @@
             backdrop-filter: blur(2px);
         }
         
-        .sidebar-overlay.active {
-            display: block;
-        }
+        .sidebar-overlay.active { display: block; }
         
-        /* SIDEBAR */
         .sidebar {
             position: fixed;
             left: 0; top: 0; bottom: 0;
@@ -147,7 +144,6 @@
         .stat-mini-val { font-weight: 700; font-size: 18px; color: var(--accent2); }
         .stat-mini-lbl { font-size: 11px; color: var(--text2); }
         
-        /* MAIN */
         .main {
             margin-left: 260px;
             padding: 32px;
@@ -186,7 +182,6 @@
             color: var(--text);
         }
         
-        /* GRID */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -221,9 +216,7 @@
         .stat-icon { font-size: 28px; margin-bottom: 12px; }
         .stat-value { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
         .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
-        .stat-change { font-size: 11px; margin-top: 8px; color: var(--green); }
         
-        /* CARDS */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -244,7 +237,6 @@
         .card-title { font-size: 16px; font-weight: 700; }
         .card-subtitle { font-size: 12px; color: var(--text2); }
         
-        /* FORM */
         .form-row { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-end; }
         .form-group { flex: 1; }
         
@@ -279,7 +271,6 @@
         textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
         select { cursor: pointer; font-family: 'Inter', sans-serif; }
         
-        /* BUTTONS */
         .btn {
             padding: 10px 20px;
             border-radius: var(--radius-sm);
@@ -297,6 +288,7 @@
         .btn:active { transform: scale(0.95); }
         .btn-accent { background: var(--accent); color: #fff; }
         .btn-accent:hover { background: #7C6FF7; }
+        .btn-orange { background: var(--orange); color: #000; font-weight: 700; }
         .btn-green { background: #059669; color: #fff; }
         .btn-red { background: var(--red); color: #fff; }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
@@ -308,7 +300,6 @@
         .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; }
         .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
         
-        /* TAGS */
         .tag {
             display: inline-flex;
             align-items: center;
@@ -329,7 +320,6 @@
         }
         .tag-keyword:hover { background: var(--accent); color: #fff; }
         
-        /* LIST */
         .entry-card {
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -375,17 +365,9 @@
         
         .entry-card:hover .entry-actions { opacity: 1; }
         
-        /* SEARCH */
-        .search-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
+        .search-container { position: relative; margin-bottom: 20px; }
         
-        .search-input {
-            padding-left: 44px;
-            font-size: 15px;
-            height: 48px;
-        }
+        .search-input { padding-left: 44px; font-size: 15px; height: 48px; }
         
         .search-icon {
             position: absolute;
@@ -396,7 +378,6 @@
             color: var(--text2);
         }
         
-        /* MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -418,6 +399,7 @@
             max-width: 700px;
             max-height: 85vh;
             overflow-y: auto;
+            position: relative;
         }
         
         .modal-close {
@@ -437,7 +419,6 @@
             justify-content: center;
         }
         
-        /* TOAST */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -464,15 +445,9 @@
             to { transform: translateX(100%); opacity: 0; }
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text2);
-        }
-        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
         .empty-icon { font-size: 64px; margin-bottom: 16px; }
         
-        /* AI SUGGESTIONS */
         .ai-suggestions {
             background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(167,139,250,0.05));
             border: 1px solid rgba(108,92,231,0.3);
@@ -508,7 +483,6 @@
             color: #fff;
         }
         
-        /* TABS */
         .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
         .tab {
             flex: 1;
@@ -525,13 +499,7 @@
         }
         .tab.active { background: var(--accent); color: #fff; }
         
-        /* ANALYTICS SECTION */
-        .keyword-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 16px 0;
-        }
+        .keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; }
         
         .keyword-cloud-item {
             padding: 6px 14px;
@@ -546,20 +514,25 @@
         .keyword-cloud-item.large { font-size: 16px; font-weight: 700; padding: 8px 18px; }
         .keyword-cloud-item.medium { font-size: 13px; font-weight: 600; }
         
-        /* RESPONSIVE */
+        .edit-banner {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid var(--orange);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange);
+        }
+        
         @media (max-width: 900px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .sidebar-close {
-                display: flex;
-            }
-            .sidebar-overlay.active {
-                display: block;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-close { display: flex; }
+            .sidebar-overlay.active { display: block; }
             .main { margin-left: 0; padding: 20px; }
             .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
             .form-row { flex-direction: column; }
@@ -572,7 +545,6 @@
             .header h1 { font-size: 22px; }
         }
         
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -580,10 +552,8 @@
 </head>
 <body>
 
-<!-- OVERLAY PARA CERRAR SIDEBAR -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
     <button class="sidebar-close" onclick="closeSidebar()" title="Cerrar menú">✕</button>
     
@@ -627,9 +597,7 @@
     </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
-    <!-- HEADER -->
     <div class="header">
         <div style="display:flex;align-items:center;gap:12px;">
             <button class="menu-btn" onclick="openSidebar()" title="Abrir menú">☰</button>
@@ -643,31 +611,14 @@
         </div>
     </div>
 
-    <!-- DASHBOARD SECTION -->
+    <!-- DASHBOARD -->
     <section id="section-dashboard">
         <div class="dashboard-grid">
-            <div class="stat-card">
-                <div class="stat-icon">📝</div>
-                <div class="stat-value" id="dashTotal">0</div>
-                <div class="stat-label">Entradas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔑</div>
-                <div class="stat-value" id="dashKeywords">0</div>
-                <div class="stat-label">Keywords</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🎲</div>
-                <div class="stat-value" id="dashGroups">0</div>
-                <div class="stat-label">Grupos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">💬</div>
-                <div class="stat-value" id="dashAvg">0</div>
-                <div class="stat-label">Resp x Grupo</div>
-            </div>
+            <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="dashTotal">0</div><div class="stat-label">Entradas</div></div>
+            <div class="stat-card"><div class="stat-icon">🔑</div><div class="stat-value" id="dashKeywords">0</div><div class="stat-label">Keywords</div></div>
+            <div class="stat-card"><div class="stat-icon">🎲</div><div class="stat-value" id="dashGroups">0</div><div class="stat-label">Grupos</div></div>
+            <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-value" id="dashAvg">0</div><div class="stat-label">Resp x Grupo</div></div>
         </div>
-        
         <div class="card">
             <div class="card-header">
                 <span class="card-title">📈 Últimas Entradas</span>
@@ -682,8 +633,8 @@
         <div class="card">
             <div class="card-header">
                 <div>
-                    <span class="card-title">➕ Crear Nueva Entrada</span>
-                    <p class="card-subtitle">Define keywords y respuestas para tu IA</p>
+                    <span class="card-title" id="formTitle">➕ Crear Nueva Entrada</span>
+                    <p class="card-subtitle" id="formSubtitle">Define keywords y respuestas para tu IA</p>
                 </div>
                 <select id="modelSelect" style="width:auto;">
                     <option value="eva">🤖 Eva</option>
@@ -693,9 +644,14 @@
                 </select>
             </div>
             
+            <!-- BANNER DE EDICIÓN -->
+            <div class="edit-banner" id="editBanner" style="display:none;">
+                ✏️ <span id="editBannerText">Editando entrada</span>
+            </div>
+            
             <div class="tabs" id="modeTabs">
-                <button class="tab active" onclick="setMode('single')">📄 Respuesta Única</button>
-                <button class="tab" onclick="setMode('group')">🎲 Grupo de Respuestas</button>
+                <button class="tab active" id="tabSingle" onclick="setMode('single')">📄 Respuesta Única</button>
+                <button class="tab" id="tabGroup" onclick="setMode('group')">🎲 Grupo de Respuestas</button>
             </div>
             
             <div class="form-group">
@@ -704,7 +660,6 @@
                 <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="keywordsCounter">0 keywords</div>
             </div>
             
-            <!-- SUGERENCIAS IA -->
             <div class="ai-suggestions" id="aiSuggestions" style="display:none;">
                 <h4>🧠 Sugerencias de keywords relacionadas:</h4>
                 <div id="suggestionChips"></div>
@@ -732,9 +687,20 @@
                 </div>
             </div>
             
-            <button class="btn btn-accent btn-full" onclick="addEntry()">
-                ✅ Guardar Entrada
-            </button>
+            <!-- BOTONES DE GUARDAR/CANCELAR -->
+            <div id="saveButtons">
+                <button class="btn btn-accent btn-full" id="saveBtn" onclick="addEntry()">
+                    ✅ Guardar Entrada
+                </button>
+            </div>
+            <div id="editButtons" style="display:none;">
+                <button class="btn btn-orange btn-full" onclick="updateEntry()">
+                    💾 Actualizar Entrada
+                </button>
+                <button class="btn btn-outline btn-full" onclick="cancelEdit()" style="margin-top:8px;">
+                    ❌ Cancelar Edición
+                </button>
+            </div>
         </div>
     </section>
 
@@ -749,15 +715,12 @@
                     <button class="btn btn-red btn-sm" onclick="resetAll()">🗑 Borrar Todo</button>
                 </div>
             </div>
-            
             <div class="search-container">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="Buscar por keyword, respuesta o modelo..." oninput="liveSearch()">
                 <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="searchInfo"></div>
             </div>
-            
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
-            
             <div id="entriesList"></div>
         </div>
     </section>
@@ -765,13 +728,9 @@
     <!-- ANALYTICS SECTION -->
     <section id="section-analytics" style="display:none;">
         <div class="card">
-            <div class="card-header">
-                <span class="card-title">📈 Analíticas de Conocimiento</span>
-            </div>
-            
+            <div class="card-header"><span class="card-title">📈 Analíticas de Conocimiento</span></div>
             <h4 style="font-size:13px;color:var(--text2);margin-bottom:12px;">☁️ Nube de Keywords más usadas:</h4>
             <div class="keyword-cloud" id="keywordCloud"></div>
-            
             <h4 style="font-size:13px;color:var(--text2);margin:24px 0 12px;">📊 Distribución por Modelo:</h4>
             <div id="modelDistribution"></div>
         </div>
@@ -782,36 +741,17 @@
         <div class="card">
             <div class="card-header"><span class="card-title">🔧 Herramientas</span></div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
-                <button class="btn btn-outline" onclick="exportData()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">📤</span>
-                    <span>Exportar JSON</span>
-                </button>
-                <button class="btn btn-outline" onclick="importData()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">📥</span>
-                    <span>Importar JSON</span>
-                </button>
-                <button class="btn btn-outline" onclick="addBatchFromJSON()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">📋</span>
-                    <span>Lote JSON</span>
-                </button>
-                <button class="btn btn-outline" onclick="sortEntries()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">🔤</span>
-                    <span>Ordenar A-Z</span>
-                </button>
-                <button class="btn btn-outline" onclick="detectDuplicates()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">🔍</span>
-                    <span>Detectar Duplicados</span>
-                </button>
-                <button class="btn btn-red" onclick="resetAll()" style="flex-direction:column;padding:20px;text-align:center;">
-                    <span style="font-size:32px;">🗑</span>
-                    <span>Borrar Todo</span>
-                </button>
+                <button class="btn btn-outline" onclick="exportData()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📤</span><span>Exportar JSON</span></button>
+                <button class="btn btn-outline" onclick="importData()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📥</span><span>Importar JSON</span></button>
+                <button class="btn btn-outline" onclick="addBatchFromJSON()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📋</span><span>Lote JSON</span></button>
+                <button class="btn btn-outline" onclick="sortEntries()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🔤</span><span>Ordenar A-Z</span></button>
+                <button class="btn btn-outline" onclick="detectDuplicates()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🔍</span><span>Detectar Duplicados</span></button>
+                <button class="btn btn-red" onclick="resetAll()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🗑</span><span>Borrar Todo</span></button>
             </div>
         </div>
     </section>
 </main>
 
-<!-- TOAST -->
 <div id="toast" class="toast" style="display:none;"></div>
 
 <script>
@@ -819,6 +759,7 @@
 var isGroupMode = false;
 var currentSearchTerm = '';
 var currentSection = 'dashboard';
+var editingIndex = -1; // -1 = creando nuevo, >=0 = editando
 
 // ============ SIDEBAR ============
 function openSidebar() {
@@ -846,6 +787,11 @@ function showSection(section) {
     if (section === 'dashboard') updateDashboard();
     if (section === 'entries') renderAll();
     if (section === 'analytics') renderAnalytics();
+    
+    // Si no estamos editando y vamos a "add", resetear el formulario
+    if (section === 'add' && editingIndex === -1) {
+        resetFormToCreateMode();
+    }
 }
 
 // ============ TOAST ============
@@ -890,10 +836,36 @@ function saveEntries(data) {
     updateStats();
     updateDashboard();
     if (currentSection === 'analytics') renderAnalytics();
-    showToast('✅ Datos guardados correctamente', 'success');
 }
 
-// ============ AGREGAR ============
+// ============ RESETEAR FORMULARIO ============
+function resetFormToCreateMode() {
+    editingIndex = -1;
+    document.getElementById('newKeywords').value = '';
+    document.getElementById('newResponse').value = '';
+    document.getElementById('keywordsCounter').textContent = '0 keywords';
+    document.getElementById('responseCounter').textContent = '0 caracteres';
+    document.getElementById('aiSuggestions').style.display = 'none';
+    document.getElementById('modelSelect').value = 'eva';
+    
+    // Limpiar grupo
+    var fields = document.getElementById('groupFields');
+    fields.innerHTML = '<div class="form-row" style="margin-bottom:8px;"><textarea class="group-response" placeholder="Respuesta 1" style="flex:1;"></textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button></div>';
+    updateGroupCounter();
+    
+    // Modo único por defecto
+    setMode('single');
+    
+    // Mostrar botones de crear
+    document.getElementById('saveButtons').style.display = 'block';
+    document.getElementById('editButtons').style.display = 'none';
+    document.getElementById('editBanner').style.display = 'none';
+    document.getElementById('formTitle').textContent = '➕ Crear Nueva Entrada';
+    document.getElementById('formSubtitle').textContent = 'Define keywords y respuestas para tu IA';
+    document.getElementById('saveBtn').onclick = addEntry;
+}
+
+// ============ AGREGAR NUEVA ENTRADA ============
 function addEntry() {
     var keywordsRaw = document.getElementById('newKeywords').value.trim();
     var model = document.getElementById('modelSelect').value;
@@ -901,9 +873,8 @@ function addEntry() {
     if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
     
     var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
-    
-    // Validar duplicados
     var entries = getEntries();
+    
     var existingEntry = entries.find(function(e) {
         return e.keywords.some(function(k) { return keywords.includes(k); });
     });
@@ -912,6 +883,13 @@ function addEntry() {
         return;
     }
     
+    var newEntry = {
+        keywords: keywords,
+        model: model,
+        created: new Date().toISOString(),
+        usageCount: 0
+    };
+    
     if (isGroupMode) {
         var responses = [];
         document.querySelectorAll('.group-response').forEach(function(ta) {
@@ -919,34 +897,135 @@ function addEntry() {
             if (r) responses.push(r);
         });
         if (responses.length === 0) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
-        entries.push({
-            keywords: keywords,
-            responses: responses,
-            model: model,
-            isGroup: true,
-            created: new Date().toISOString(),
-            usageCount: 0
-        });
+        newEntry.responses = responses;
+        newEntry.isGroup = true;
         document.querySelectorAll('.group-response').forEach(function(ta) { ta.value = ''; });
     } else {
         var responseText = document.getElementById('newResponse').value.trim();
         if (!responseText) { showToast('⚠️ Escribe la respuesta', 'error'); return; }
-        entries.push({
-            keywords: keywords,
-            response: responseText,
-            model: model,
-            created: new Date().toISOString(),
-            usageCount: 0
-        });
+        newEntry.response = responseText;
         document.getElementById('newResponse').value = '';
     }
     
+    entries.push(newEntry);
     saveEntries(entries);
-    document.getElementById('newKeywords').value = '';
-    document.getElementById('keywordsCounter').textContent = '0 keywords';
-    document.getElementById('responseCounter').textContent = '0 caracteres';
-    document.getElementById('aiSuggestions').style.display = 'none';
+    resetFormToCreateMode();
     showToast('✅ Entrada creada exitosamente', 'success');
+}
+
+// ============ EDITAR ENTRADA ============
+function editEntry(index) {
+    var entries = getEntries();
+    var entry = entries[index];
+    
+    editingIndex = index;
+    
+    // Cambiar a sección add
+    showSection('add');
+    
+    // Cargar keywords
+    document.getElementById('newKeywords').value = entry.keywords.join(', ');
+    document.getElementById('keywordsCounter').textContent = entry.keywords.length + ' keywords';
+    generateKeywordSuggestions();
+    
+    // Cargar modelo
+    document.getElementById('modelSelect').value = entry.model || 'eva';
+    
+    if (entry.isGroup && entry.responses) {
+        // Cargar grupo
+        setMode('group');
+        var fields = document.getElementById('groupFields');
+        fields.innerHTML = '';
+        entry.responses.forEach(function(r, i) {
+            var div = document.createElement('div');
+            div.className = 'form-row';
+            div.style.marginBottom = '8px';
+            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + escHtml(r) + '</textarea>'
+                + '<button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
+            fields.appendChild(div);
+        });
+        updateGroupCounter();
+    } else {
+        // Cargar respuesta única
+        setMode('single');
+        document.getElementById('newResponse').value = entry.response || '';
+        document.getElementById('responseCounter').textContent = (entry.response || '').length + ' caracteres';
+    }
+    
+    // Cambiar UI a modo edición
+    document.getElementById('saveButtons').style.display = 'none';
+    document.getElementById('editButtons').style.display = 'block';
+    document.getElementById('editBanner').style.display = 'flex';
+    document.getElementById('editBannerText').textContent = 'Editando entrada #' + (index + 1) + ' - ' + entry.keywords.slice(0, 3).join(', ');
+    document.getElementById('formTitle').textContent = '✏️ Editar Entrada';
+    document.getElementById('formSubtitle').textContent = 'Modifica y presiona Actualizar para guardar';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('✏️ Editando entrada. Modifica y presiona Actualizar.', 'success');
+}
+
+// ============ ACTUALIZAR ENTRADA ============
+function updateEntry() {
+    var keywordsRaw = document.getElementById('newKeywords').value.trim();
+    var model = document.getElementById('modelSelect').value;
+    
+    if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
+    
+    var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    var entries = getEntries();
+    
+    if (editingIndex < 0 || editingIndex >= entries.length) {
+        showToast('❌ Error: Índice de edición inválido', 'error');
+        resetFormToCreateMode();
+        return;
+    }
+    
+    var updatedEntry = {
+        keywords: keywords,
+        model: model,
+        created: entries[editingIndex].created || new Date().toISOString(),
+        updated: new Date().toISOString(),
+        usageCount: entries[editingIndex].usageCount || 0
+    };
+    
+    if (isGroupMode) {
+        var responses = [];
+        document.querySelectorAll('.group-response').forEach(function(ta) {
+            var r = ta.value.trim();
+            if (r) responses.push(r);
+        });
+        if (responses.length === 0) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
+        updatedEntry.responses = responses;
+        updatedEntry.isGroup = true;
+    } else {
+        var responseText = document.getElementById('newResponse').value.trim();
+        if (!responseText) { showToast('⚠️ Escribe la respuesta', 'error'); return; }
+        updatedEntry.response = responseText;
+    }
+    
+    // Reemplazar la entrada
+    entries[editingIndex] = updatedEntry;
+    saveEntries(entries);
+    resetFormToCreateMode();
+    showToast('✅ Entrada actualizada correctamente', 'success');
+}
+
+// ============ CANCELAR EDICIÓN ============
+function cancelEdit() {
+    if (editingIndex >= 0) {
+        showToast('❌ Edición cancelada. La entrada original se mantiene.', 'error');
+    }
+    resetFormToCreateMode();
+}
+
+// ============ ELIMINAR ============
+function deleteEntry(index) {
+    if (confirm('¿Eliminar esta entrada permanentemente?')) {
+        var e = getEntries();
+        e.splice(index, 1);
+        saveEntries(e);
+        showToast('🗑 Entrada eliminada', 'error');
+    }
 }
 
 // ============ SUGERENCIAS IA ============
@@ -984,7 +1063,7 @@ function generateKeywordSuggestions() {
     if (suggestions.length > 0) {
         container.style.display = 'block';
         chips.innerHTML = suggestions.map(function(s) {
-            return '<span class="suggestion-chip" onclick="addKeywordSuggestion(\'' + s + '\')">💡 ' + s + '</span>';
+            return '<span class="suggestion-chip" onclick="addKeywordSuggestion(\'' + s.replace(/'/g, "\\'") + '\')">💡 ' + s + '</span>';
         }).join('');
     } else {
         container.style.display = 'none';
@@ -998,45 +1077,6 @@ function addKeywordSuggestion(keyword) {
     input.value = current + keyword + ', ';
     input.focus();
     generateKeywordSuggestions();
-}
-
-// ============ ELIMINAR / EDITAR ============
-function deleteEntry(index) {
-    if (confirm('¿Eliminar esta entrada permanentemente?')) {
-        var e = getEntries();
-        e.splice(index, 1);
-        saveEntries(e);
-        showToast('🗑 Entrada eliminada', 'error');
-    }
-}
-
-function editEntry(index) {
-    var entries = getEntries(), entry = entries[index];
-    document.getElementById('newKeywords').value = entry.keywords.join(', ');
-    generateKeywordSuggestions();
-    
-    if (entry.isGroup && entry.responses) {
-        setMode('group');
-        var fields = document.getElementById('groupFields');
-        fields.innerHTML = '';
-        entry.responses.forEach(function(r) {
-            var div = document.createElement('div');
-            div.className = 'form-row';
-            div.style.marginBottom = '8px';
-            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + escHtml(r) + '</textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
-            fields.appendChild(div);
-        });
-        updateGroupCounter();
-    } else {
-        setMode('single');
-        document.getElementById('newResponse').value = entry.response || '';
-    }
-    
-    document.getElementById('modelSelect').value = entry.model;
-    entries.splice(index, 1);
-    saveEntries(entries);
-    showSection('add');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============ RENDERIZAR ============
@@ -1059,7 +1099,6 @@ function renderEntries(filter) {
     list.innerHTML = entries.map(function(entry) {
         var realIndex = getEntries().indexOf(entry);
         var isGroup = entry.isGroup;
-        var kw = entry.keywords.join(', ');
         var tagsHtml = entry.keywords.slice(0, 5).map(function(k) {
             return '<span class="tag tag-keyword">' + escHtml(k) + '</span>';
         }).join('');
@@ -1073,7 +1112,7 @@ function renderEntries(filter) {
         }
         
         var usageInfo = entry.usageCount ? ' • Usada ' + entry.usageCount + ' veces' : '';
-        
+        var updatedInfo = entry.updated ? ' • Editada ' + new Date(entry.updated).toLocaleDateString('es-ES') : '';
         var highlight = currentSearchTerm ? 'highlighted' : '';
         
         return '<div class="entry-card ' + highlight + '">'
@@ -1082,7 +1121,7 @@ function renderEntries(filter) {
             + '<span class="tag ' + (isGroup ? 'tag-group' : 'tag-model') + '">'
             + (isGroup ? '🎲 GRUPO' : '🤖 ' + (entry.model || 'EVA').toUpperCase())
             + '</span>'
-            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + usageInfo + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + usageInfo + updatedInfo + '</span>'
             + '</div>'
             + '<div class="entry-actions">'
             + '<button class="btn btn-ghost btn-xs" onclick="editEntry(' + realIndex + ')">✏️ Editar</button>'
@@ -1100,11 +1139,7 @@ function liveSearch() {
     var term = document.getElementById('searchInput').value.trim().toLowerCase();
     currentSearchTerm = term;
     
-    if (!term) {
-        renderEntries();
-        document.getElementById('searchInfo').textContent = '';
-        return;
-    }
+    if (!term) { renderEntries(); document.getElementById('searchInfo').textContent = ''; return; }
     
     var entries = getEntries();
     var results = entries.filter(function(e) {
@@ -1123,7 +1158,6 @@ function liveSearch() {
 function renderAnalytics() {
     var entries = getEntries();
     
-    // Nube de keywords
     var keywordCount = {};
     entries.forEach(function(e) {
         e.keywords.forEach(function(k) {
@@ -1140,7 +1174,6 @@ function renderAnalytics() {
     
     document.getElementById('keywordCloud').innerHTML = cloudHtml || '<p style="color:var(--text2);">No hay datos aún</p>';
     
-    // Distribución por modelo
     var modelCount = {};
     entries.forEach(function(e) {
         var m = e.model || 'eva';
@@ -1216,8 +1249,7 @@ function detectDuplicates() {
     });
     
     if (duplicates.length > 0) {
-        showToast('⚠️ Se encontraron ' + duplicates.length + ' entradas con keywords duplicadas', 'error');
-        // Resaltar duplicados
+        showToast('⚠️ ' + duplicates.length + ' entradas con keywords duplicadas', 'error');
         renderEntries(entries.filter(function(e, i) { return duplicates.includes(i); }));
     } else {
         showToast('✅ No hay keywords duplicadas', 'success');
@@ -1241,7 +1273,7 @@ function exportData() {
     a.href = URL.createObjectURL(b);
     a.download = 'eva_entries_' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
-    showToast('📤 Datos exportados: ' + e.length + ' entradas', 'success');
+    showToast('📤 ' + e.length + ' entradas exportadas', 'success');
 }
 
 function importData() { document.getElementById('importFile').click(); }
@@ -1266,10 +1298,10 @@ function handleImport(ev) {
 function addBatchFromJSON() {
     var modal = document.createElement('div');
     modal.className = 'modal-overlay active';
-    modal.innerHTML = '<div class="modal" style="position:relative;">'
+    modal.innerHTML = '<div class="modal">'
         + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button>'
         + '<h3 style="margin-bottom:16px;">📋 Pegar JSON por Lote</h3>'
-        + '<textarea id="batchJsonInput" rows="10" placeholder=\'[{"keywords":["prueba"],"response":"Respuesta de prueba","model":"eva"}]\'></textarea>'
+        + '<textarea id="batchJsonInput" rows="10" placeholder=\'[{"keywords":["prueba"],"response":"Respuesta","model":"eva"}]\'></textarea>'
         + '<button class="btn btn-accent btn-full" onclick="processBatchJson()" style="margin-top:12px;">✅ Agregar Lote</button>'
         + '</div>';
     document.body.appendChild(modal);
@@ -1289,12 +1321,12 @@ function processBatchJson() {
 }
 
 function resetAll() {
-    if (confirm('⚠️ ¿Estás seguro de BORRAR TODAS las entradas? Esta acción no se puede deshacer.')) {
+    if (confirm('⚠️ ¿BORRAR TODAS las entradas? No se puede deshacer.')) {
         localStorage.removeItem('eva_entries');
         renderAll();
         updateStats();
         updateDashboard();
-        showToast('🗑 Todas las entradas eliminadas', 'error');
+        showToast('🗑 Todo eliminado', 'error');
     }
 }
 
@@ -1304,7 +1336,11 @@ function setMode(mode) {
     document.querySelectorAll('#modeTabs .tab').forEach(function(t) { t.classList.remove('active'); });
     document.getElementById('singleResponseContainer').style.display = mode === 'single' ? 'block' : 'none';
     document.getElementById('groupResponseContainer').style.display = mode === 'group' ? 'block' : 'none';
-    event.target.classList.add('active');
+    if (mode === 'single') {
+        document.getElementById('tabSingle').classList.add('active');
+    } else {
+        document.getElementById('tabGroup').classList.add('active');
+    }
 }
 
 // ============ CONTADORES ============

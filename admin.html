@@ -856,8 +856,10 @@ function showSection(section) {
     if (navItems[sectionIndex]) navItems[sectionIndex].classList.add('active');
     
     if (section === 'dashboard') updateDashboard();
-    if (section === 'entries') renderAll();
-    if (section === 'analytics') renderAnalytics();
+if (section === 'entries') renderAll();
+if (section === 'analytics') renderAnalytics();
+if (section === 'flows') renderFlowsList();
+
     
     // Si no estamos editando y vamos a "add", resetear el formulario
     if (section === 'add' && editingIndex === -1) {
@@ -1694,6 +1696,7 @@ showSection('dashboard');
 updateStats();
 updateGroupCounter();
 updateDashboard();
+renderFlowsList();
 </script>
 
 </body>

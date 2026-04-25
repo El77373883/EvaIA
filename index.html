@@ -518,59 +518,52 @@ function getFlowResponse(flow, stepIndex) {
 }
 
 function checkFlows(input) {
-    var msg = input.toLowerCase().trim();
+    var msg = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
     var flows = loadFlows();
 
-    if (activeFlow !== null && activeFlow.mode !== 'keyword') {
-    var flow = activeFlow;
-    var nextStepIndex = activeFlowStep + 1;
-    if (nextStepIndex < flow.steps.length) {
-        var nextStep = flow.steps[nextStepIndex];
-        var stepKws = nextStep.keyword ? nextStep.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean) : [];
-var stepMatch = stepKws.length === 0 || stepKws.some(function(kw){
-    return msg.includes(kw);
-});
-        if (stepMatch) {
-            activeFlowStep = nextStepIndex;
-            var resp = getFlowResponse(flow, activeFlowStep);
-            if (activeFlowStep >= flow.steps.length - 1) {
-                activeFlow = null;
-                activeFlowStep = 0;
+    // Si hay flujo activo avanzar al siguiente paso
+    if (activeFlow !== null) {
+        var flow = activeFlow;
+        var nextStepIndex = activeFlowStep + 1;
+
+        if (nextStepIndex < flow.steps.length) {
+            var nextStep = flow.steps[nextStepIndex];
+            var stepKws = nextStep.keyword 
+                ? nextStep.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean) 
+                : [];
+            
+            // Avanza si:
+            // 1. No hay keywords en el paso
+            // 2. El mensaje contiene alguna keyword
+            // 3. El mensaje es corto (menos de 5 palabras)
+            var stepMatch = stepKws.length === 0 
+                || msg.trim().split(' ').length <= 4
+                || stepKws.some(function(kw){ return msg.includes(kw); });
+
+            if (stepMatch) {
+                activeFlowStep = nextStepIndex;
+                var resp = getFlowResponse(flow, activeFlowStep);
+                if (activeFlowStep >= flow.steps.length - 1) {
+                    activeFlow = null;
+                    activeFlowStep = 0;
+                }
+                return resp;
             }
-            return resp;
+        } else {
+            activeFlow = null;
+            activeFlowStep = 0;
         }
-    } else {
-        activeFlow = null;
-        activeFlowStep = 0;
     }
-}
 
-
+    // Buscar si el mensaje dispara un flujo nuevo
     for (var i = 0; i < flows.length; i++) {
         var flow = flows[i];
         if (flow.model && flow.model !== currentModel) continue;
-var flowKws = flow.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
-if (flowKws.some(function(kw){ return msg.includes(kw); })) {
-            if (flow.mode === 'keyword') {
-                var matchedStep = null;
-                for (var s = 0; s < flow.steps.length; s++) {
-                    var step = flow.steps[s];
-                    if (step.keyword) {
-                        var stepKeywords = step.keyword.toLowerCase().split(',').map(function(k) { return k.trim(); }).filter(Boolean);
-                        var stepMatched = stepKeywords.some(function(kw) { return msg.includes(kw); });
-                        if (stepMatched) {
-                            matchedStep = step;
-                            break;
-                        }
-                    }
-                }
-
-                if (!matchedStep && flow.steps.length > 0) matchedStep = flow.steps[0];
-                if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
-                    return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
-                }
-                return null;
-            }
+        
+        var flowKws = flow.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+        var flowMatch = flowKws.some(function(kw){ return msg.includes(kw); });
+        
+        if (flowMatch) {
             activeFlow = flow;
             activeFlowStep = 0;
             return getFlowResponse(flow, 0);
@@ -579,6 +572,7 @@ if (flowKws.some(function(kw){ return msg.includes(kw); })) {
 
     return null;
 }
+
 
 
 
@@ -1290,8 +1284,18 @@ function generateResponse(input) {
     }
     
 // FLUJOS INTELIGENTES: tienen máxima prioridad
-var flowResponse = checkFlows(input);
+// Buscar tanto en texto original como en texto corregido
+var flowResponse = checkFlows(input) || checkFlows(msg);
 if (flowResponse) return flowResponse;
+
+
+// Si hay flujo activo, no dejar caer a respuesta genérica
+if (activeFlow !== null) {
+    activeFlow = null;
+    activeFlowStep = 0;
+    return null;
+}
+
 
 
 // PALABRAS CONVERSACIONALES: tienen prioridad sobre TODO, incluso la base de datos

@@ -526,23 +526,52 @@ if (activeFlow !== null) {
     var flow = activeFlow;
 
     // MODO KEYWORD EXACTA: busca el paso que coincida con la keyword
-    if (flow.mode === 'keyword') {
-        var matchedStep = null;
-        for (var s = 0; s < flow.steps.length; s++) {
-            var step = flow.steps[s];
-            if (!step.keyword) continue;
-            var stepKws = step.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
-            var matched = stepKws.some(function(kw){ return msg.includes(kw); });
-            if (matched) {
-                matchedStep = step;
-                break;
-            }
+if (flow.mode === 'keyword') {
+    var matchedStep = null;
+    var matchedStepIdx = -1;
+    for (var s = 0; s < flow.steps.length; s++) {
+        // No repetir el paso actual
+        if (s === activeFlowStep) continue;
+        var step = flow.steps[s];
+        if (!step.keyword) continue;
+        var stepKws = step.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+        var matched = stepKws.some(function(kw){
+    // Coincidencia exacta: el mensaje ES la keyword
+    if (msg.trim() === kw) return true;
+    // Coincidencia con sufijo: "si bro", "si wey", "si hermano"
+    if (msg.trim().startsWith(kw + ' ')) return true;
+    // Frase larga que contiene la keyword como palabra completa
+    var msgWords = msg.trim().split(' ');
+    var kwWords = kw.split(' ');
+    if (kwWords.length >= 2) return msg.includes(kw);
+    // Keyword de 1 sola palabra: solo coincide si es la primera o segunda palabra
+    return msgWords[0] === kw || msgWords[1] === kw;
+});
+
+        if (matched) {
+            matchedStep = step;
+            matchedStepIdx = s;
+            break;
         }
-        if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
-            return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
-        }
-        return null;
     }
+        if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
+        activeFlowStep = matchedStepIdx;
+        return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
+    }
+    if (msg.trim().split(' ').length <= 3) {
+        var nextIdx = activeFlowStep + 1;
+        if (nextIdx < flow.steps.length) {
+            activeFlowStep = nextIdx;
+            return getFlowResponse(flow, activeFlowStep);
+        }
+    }
+    activeFlow = null;
+    activeFlowStep = 0;
+    return null;
+}
+
+
+
 
     // MODO ORDEN o AZAR: avanza al siguiente paso
     var nextStepIndex = activeFlowStep + 1;

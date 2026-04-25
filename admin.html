@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eva - Admin Pro</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #FCFCFC; color: #333; padding: 20px; max-width: 900px; margin: 0 auto; transition: all 0.3s; }
+        body.dark { background: #111; color: #ddd; }
+        body.dark .card { background: #1a1a1a; border-color: #2a2a2a; }
+        body.dark textarea { background: #222; color: #ddd; border-color: #333; }
+        body.dark .btn-outline { background: #1a1a1a; border-color: #333; color: #ddd; }
+        body.dark .list-item { background: #1a1a1a; }
+        body.dark .preview { background: #111; color: #aaa; }
+        body.dark select { background: #222; color: #ddd; border-color: #333; }
+        h1 { font-family: Georgia, serif; font-size: 24px; margin-bottom: 4px; }
+        .subtitle { color: #999; font-size: 13px; margin-bottom: 24px; }
+        .card { background: #fff; border: 1px solid #eaeaea; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        label { font-size: 12px; font-weight: 700; color: #888; display: block; margin-bottom: 6px; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        label:first-child { margin-top: 0; }
+        textarea { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace; resize: vertical; line-height: 1.5; }
+        .btn { padding: 10px 18px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: #2563EB; color: #fff; }
+        .btn-success { background: #10B981; color: #fff; }
+        .btn-danger { background: #EF4444; color: #fff; font-size: 12px; padding: 8px 14px; }
+        .btn-outline { background: #fff; border: 1px solid #e0e0e0; }
+        .btn-sm { padding: 8px 14px; font-size: 12px; border-radius: 8px; }
+        .list-item { background: #f9f9f9; border-radius: 12px; padding: 16px; margin-bottom: 10px; border-left: 3px solid #2563EB; }
+        .list-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-eva { background: #FDE8E8; color: #D48A72; }
+        .badge-group { background: #E0F8E8; color: #10B981; }
+        .preview { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #555; max-height: 80px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; margin-top: 6px; font-style: italic; }
+        .empty { text-align: center; color: #bbb; padding: 40px 20px; font-size: 14px; }
+        .counter { font-size: 11px; color: #999; text-align: right; margin-top: 4px; }
+        select { padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #fff; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .group-field { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .group-field textarea { flex: 1; height: 50px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: #f0f4ff; padding: 16px; border-radius: 12px; text-align: center; }
+        body.dark .stat-card { background: #1a1a2e; }
+        .stat-value { font-size: 28px; font-weight: 900; color: #2563EB; }
+        .stat-label { font-size: 11px; color: #888; margin-top: 4px; }
+        .toggle-theme { position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 24px; z-index: 10; }
+        @media (max-width: 500px) { body { padding: 12px; } .card { padding: 14px; } }
+    </style>
+</head>
+<body>
+
+<div class="toggle-theme" onclick="toggleTheme()" id="themeToggle">🌙</div>
+
+<h1>⚙️ Admin Eva Pro</h1>
+<p class="subtitle">Preguntas, respuestas múltiples y seguimiento inteligente</p>
+
+<!-- ESTADÍSTICAS -->
+<div class="card" id="statsCard">
+    <h2 style="font-size:16px;margin-bottom:12px;">📊 Estadísticas</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Entradas totales</div></div>
+        <div class="stat-card"><div class="stat-value" id="statKeywords">0</div><div class="stat-label">Keywords</div></div>
+        <div class="stat-card"><div class="stat-value" id="statGroups">0</div><div class="stat-label">Grupos</div></div>
+        <div class="stat-card"><div class="stat-value" id="statAvg">0</div><div class="stat-label">Respuestas por grupo</div></div>
+    </div>
+</div>
+
+<!-- MODO GRUPO -->
+<div class="card">
+    <div class="flex-between">
+        <h2 style="font-size:16px;">📋 Modo de entrada</h2>
+        <button class="btn btn-primary" id="modeToggle" onclick="toggleMode()">Cambiar a: GRUPO (múltiples respuestas)</button>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:4px;" id="modeDescription">Modo ÚNICO: Una keyword → Una respuesta. Eva elige la primera que coincide.</p>
+</div>
+
+<!-- AGREGAR NUEVO -->
+<div class="card" id="addCard">
+    <div class="flex-between">
+        <h2 style="font-size:16px;">➕ Agregar nueva entrada</h2>
+        <select id="modelSelect">
+            <option value="eva">Eva</option>
+            <option value="selene">Selene</option>
+            <option value="nyx">Nyx</option>
+            <option value="aria">Aria</option>
+        </select>
+    </div>
+    
+    <label>🔑 Keywords (separadas por coma)</label>
+    <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos, buenas"></textarea>
+    <div class="counter" id="keywordsCounter">0 keywords</div>
+    
+    <!-- Respuesta ÚNICA -->
+    <div id="singleResponse">
+        <label>💬 Respuesta</label>
+        <textarea id="newResponse" rows="4" placeholder="Escribe la respuesta aquí..."></textarea>
+        <div class="counter" id="responseCounter">0 caracteres</div>
+    </div>
+    
+    <!-- Respuesta MÚLTIPLE (GRUPO) -->
+    <div id="groupResponses" style="display:none;">
+        <label>💬 Respuestas múltiples (Eva elegirá una al azar)</label>
+        <div id="groupFields">
+            <div class="group-field">
+                <textarea class="group-response" placeholder="Respuesta 1"></textarea>
+                <button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>
+            </div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="addGroupField()">+ Agregar otra respuesta</button>
+        <div class="counter" id="groupCounter">1 respuesta</div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="addEntry()" style="margin-top:12px;width:100%;">✅ Agregar</button>
+</div>
+
+<!-- LISTA DE ENTRADAS -->
+<div class="card">
+    <div class="flex-between">
+        <h2 style="font-size:16px;">📋 Entradas guardadas</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar</button>
+            <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar</button>
+            <button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Lote JSON</button>
+            <button class="btn btn-outline btn-sm" onclick="sortEntries()">🔤 Ordenar</button>
+            <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Borrar todo</button>
+        </div>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+    <div id="entriesList"></div>
+</div>
+
+<script>
+// ============ MODO ============
+var isGroupMode = false;
+var groupResponses = [];
+
+function toggleMode() {
+    isGroupMode = !isGroupMode;
+    var btn = document.getElementById('modeToggle');
+    var desc = document.getElementById('modeDescription');
+    
+    if (isGroupMode) {
+        btn.textContent = 'Cambiar a: ÚNICO (una respuesta)';
+        btn.className = 'btn btn-success';
+        desc.textContent = 'Modo GRUPO: Una keyword → Múltiples respuestas. Eva elige una al AZAR. ¡Perfecto para variar saludos!';
+        document.getElementById('singleResponse').style.display = 'none';
+        document.getElementById('groupResponses').style.display = 'block';
+    } else {
+        btn.textContent = 'Cambiar a: GRUPO (múltiples respuestas)';
+        btn.className = 'btn btn-primary';
+        desc.textContent = 'Modo ÚNICO: Una keyword → Una respuesta. Eva elige la primera que coincide.';
+        document.getElementById('singleResponse').style.display = 'block';
+        document.getElementById('groupResponses').style.display = 'none';
+    }
+}
+
+function addGroupField() {
+    var div = document.createElement('div');
+    div.className = 'group-field';
+    div.innerHTML = '<textarea class="group-response" placeholder="Otra respuesta..."></textarea><button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>';
+    document.getElementById('groupFields').appendChild(div);
+    updateGroupCounter();
+}
+
+function removeGroupField(btn) {
+    if (document.querySelectorAll('.group-field').length > 1) {
+        btn.parentElement.remove();
+        updateGroupCounter();
+    }
+}
+
+function updateGroupCounter() {
+    var count = document.querySelectorAll('.group-field').length;
+    document.getElementById('groupCounter').textContent = count + ' respuestas';
+}
+
+// ============ DATOS ============
+function getEntries() {
+    return JSON.parse(localStorage.getItem('eva_entries') || '[]');
+}
+
+function saveEntries(data) {
+    localStorage.setItem('eva_entries', JSON.stringify(data));
+    renderEntries();
+    updateStats();
+}
+
+// ============ AGREGAR ENTRADA ============
+function addEntry() {
+    var keywordsRaw = document.getElementById('newKeywords').value.trim();
+    var model = document.getElementById('modelSelect').value;
+    
+    if (!keywordsRaw) { alert('Escribe al menos una keyword.'); return; }
+    
+    var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    var entries = getEntries();
+    var responseText;
+    
+    if (isGroupMode) {
+        var responses = [];
+        document.querySelectorAll('.group-response').forEach(function(ta) {
+            var r = ta.value.trim();
+            if (r) responses.push(r);
+        });
+        if (responses.length === 0) { alert('Escribe al menos una respuesta.'); return; }
+        
+        entries.push({
+            keywords: keywords,
+            responses: responses,
+            model: model,
+            isGroup: true,
+            created: new Date().toISOString()
+        });
+        
+        // Limpiar campos de grupo
+        document.querySelectorAll('.group-response').forEach(function(ta, i) {
+            if (i === 0) ta.value = '';
+        });
+    } else {
+        responseText = document.getElementById('newResponse').value.trim();
+        if (!responseText) { alert('Escribe la respuesta.'); return; }
+        
+        entries.push({
+            keywords: keywords,
+            response: responseText,
+            model: model,
+            created: new Date().toISOString()
+        });
+        document.getElementById('newResponse').value = '';
+    }
+    
+    saveEntries(entries);
+    document.getElementById('newKeywords').value = '';
+    updateCounters();
+}
+
+function updateCounters() {
+    document.getElementById('keywordsCounter').textContent = '0 keywords';
+    document.getElementById('responseCounter').textContent = '0 caracteres';
+}
+
+// ============ ELIMINAR / EDITAR ============
+function deleteEntry(index) {
+    if (!confirm('¿Eliminar esta entrada?')) return;
+    var entries = getEntries();
+    entries.splice(index, 1);
+    saveEntries(entries);
+}
+
+function editEntry(index) {
+    var entries = getEntries();
+    var entry = entries[index];
+    document.getElementById('newKeywords').value = entry.keywords.join(', ');
+    
+    if (entry.isGroup && entry.responses) {
+        if (!isGroupMode) toggleMode();
+        var fields = document.getElementById('groupFields');
+        fields.innerHTML = '';
+        entry.responses.forEach(function(r) {
+            var div = document.createElement('div');
+            div.className = 'group-field';
+            div.innerHTML = '<textarea class="group-response">' + r + '</textarea><button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>';
+            fields.appendChild(div);
+        });
+        updateGroupCounter();
+    } else {
+        if (isGroupMode) toggleMode();
+        document.getElementById('newResponse').value = entry.response || '';
+    }
+    
+    document.getElementById('modelSelect').value = entry.model;
+    entries.splice(index, 1);
+    saveEntries(entries);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ RENDERIZAR ============
+function renderEntries() {
+    var entries = getEntries();
+    var list = document.getElementById('entriesList');
+    
+    if (entries.length === 0) {
+        list.innerHTML = '<div class="empty">📭 No hay entradas. Agrega tu primera pregunta arriba.</div>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(function(entry, index) {
+        var badgeClass = entry.isGroup ? 'badge-group' : 'badge-' + (entry.model || 'eva');
+        var keywordsPreview = entry.keywords.join(', ');
+        var responsePreview;
+        
+        if (entry.isGroup && entry.responses) {
+            responsePreview = '🎲 GRUPO (' + entry.responses.length + ' respuestas): ' + entry.responses[0].slice(0, 80) + '...';
+        } else {
+            responsePreview = (entry.response || '').length > 120 ? entry.response.slice(0, 120) + '...' : (entry.response || '');
+        }
+        
+        return '<div class="list-item">'
+            + '<div class="list-header">'
+            + '<span class="badge ' + badgeClass + '">' + (entry.isGroup ? '🎲 GRUPO' : (entry.model || 'EVA').toUpperCase()) + '</span>'
+            + '<span style="font-size:11px;color:#999;">#' + (index + 1) + '</span>'
+            + '<div>'
+            + '<button class="btn btn-outline btn-sm" onclick="editEntry(' + index + ')" style="margin-right:4px;">✏️</button>'
+            + '<button class="btn btn-danger btn-sm" onclick="deleteEntry(' + index + ')">🗑</button>'
+            + '</div>'
+            + '</div>'
+            + '<strong style="font-size:12px;color:#888;">Keywords:</strong> '
+            + '<span style="font-size:13px;">' + escHtml(keywordsPreview) + '</span>'
+            + '<div class="preview">' + escHtml(responsePreview) + '</div>'
+            + '</div>';
+    }).join('');
+}
+
+// ============ ESTADÍSTICAS ============
+function updateStats() {
+    var entries = getEntries();
+    var totalKeywords = 0;
+    var groups = 0;
+    var totalResponses = 0;
+    
+    entries.forEach(function(e) {
+        totalKeywords += e.keywords.length;
+        if (e.isGroup && e.responses) {
+            groups++;
+            totalResponses += e.responses.length;
+        }
+    });
+    
+    document.getElementById('statTotal').textContent = entries.length;
+    document.getElementById('statKeywords').textContent = totalKeywords;
+    document.getElementById('statGroups').textContent = groups;
+    document.getElementById('statAvg').textContent = groups > 0 ? Math.round(totalResponses / groups) : 0;
+}
+
+// ============ ORDENAR ============
+function sortEntries() {
+    var entries = getEntries();
+    entries.sort(function(a, b) {
+        return (a.keywords[0] || '').localeCompare(b.keywords[0] || '');
+    });
+    saveEntries(entries);
+}
+
+// ============ BACKUP AUTOMÁTICO ============
+function autoBackup() {
+    var entries = getEntries();
+    if (entries.length > 0) {
+        localStorage.setItem('eva_entries_backup_' + new Date().toISOString().slice(0,10), JSON.stringify(entries));
+    }
+}
+setInterval(autoBackup, 300000); // Cada 5 minutos
+autoBackup();
+
+// ============ MODO OSCURO ============
+function toggleTheme() {
+    var body = document.body;
+    var btn = document.getElementById('themeToggle');
+    body.classList.toggle('dark');
+    btn.textContent = body.classList.contains('dark') ? '☀️' : '🌙';
+    localStorage.setItem('eva_admin_theme', body.classList.contains('dark') ? 'dark' : 'light');
+}
+
+// Cargar tema guardado
+if (localStorage.getItem('eva_admin_theme') === 'dark') {
+    document.body.classList.add('dark');
+    document.getElementById('themeToggle').textContent = '☀️';
+}
+
+// ============ EXPORTAR / IMPORTAR ============
+function exportData() {
+    var entries = getEntries();
+    if (entries.length === 0) { alert('No hay entradas.'); return; }
+    var blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'eva_entradas_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData() { document.getElementById('importFile').click(); }
+
+function handleImport(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = JSON.parse(e.target.result);
+            if (Array.isArray(data)) {
+                if (confirm('Importar ' + data.length + ' entradas. ¿Sobrescribir?')) {
+                    saveEntries(data);
+                }
+            } else { alert('Formato inválido.'); }
+        } catch(ex) { alert('Error al leer JSON.'); }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function addBatchFromJSON() {
+    var jsonText = prompt('Pega el JSON [{...},{...}]:');
+    if (!jsonText) return;
+    try {
+        var newEntries = JSON.parse(jsonText);
+        if (!Array.isArray(newEntries)) { alert('Debe ser un array'); return; }
+        var entries = getEntries();
+        entries = entries.concat(newEntries);
+        saveEntries(entries);
+        alert('✅ ' + newEntries.length + ' entradas agregadas.');
+    } catch(ex) { alert('Error: ' + ex.message); }
+}
+
+function resetAll() {
+    if (confirm('⚠️ ¿Borrar TODAS las entradas?')) {
+        localStorage.removeItem('eva_entries');
+        renderEntries();
+        updateStats();
+    }
+}
+
+function escHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ============ INIT ============
+renderEntries();
+updateStats();
+updateGroupCounter();
+</script>
+
+</body>
+</html>

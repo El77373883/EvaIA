@@ -527,43 +527,49 @@ if (activeFlow !== null) {
 
     // MODO KEYWORD EXACTA: busca el paso que coincida con la keyword
 if (flow.mode === 'keyword') {
-    var matchedStep = null;
-    var matchedStepIdx = -1;
-    for (var s = 0; s < flow.steps.length; s++) {
-        // No repetir el paso actual
-        if (s === activeFlowStep) continue;
-        var step = flow.steps[s];
-        if (!step.keyword) continue;
-        var stepKws = step.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
-        var matched = stepKws.some(function(kw){
-    // Coincidencia exacta: el mensaje ES la keyword
-    if (msg.trim() === kw) return true;
-    // Coincidencia con sufijo: "si bro", "si wey", "si hermano"
-    if (msg.trim().startsWith(kw + ' ')) return true;
-    // Frase larga que contiene la keyword como palabra completa
-    var msgWords = msg.trim().split(' ');
-    var kwWords = kw.split(' ');
-    if (kwWords.length >= 2) return msg.includes(kw);
-    // Keyword de 1 sola palabra: solo coincide si es la primera o segunda palabra
-    return msgWords[0] === kw || msgWords[1] === kw;
+
+// Primero buscar keyword específica en TODOS los pasos
+var matchedStep = null;
+var matchedStepIdx = -1;
+for (var s = 0; s < flow.steps.length; s++) {
+    if (s === activeFlowStep) continue;
+    var step = flow.steps[s];
+    if (!step.keyword) continue;
+    var stepKws = step.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+    
+    var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop'];
+    var soloConfirmaciones = stepKws.every(function(kw){ return confirmaciones.indexOf(kw) !== -1; });
+    if (soloConfirmaciones) continue;
+    
+    var matched = stepKws.some(function(kw){
+        if (confirmaciones.indexOf(kw) !== -1) return false;
+        if (msg.trim() === kw) return true;
+        if (msg.trim().startsWith(kw + ' ')) return true;
+        var msgWords = msg.trim().split(' ');
+        var kwWords = kw.split(' ');
+        if (kwWords.length >= 2) return msg.includes(kw);
+        return msgWords[0] === kw || msgWords[1] === kw;
+    });
+    
+    if (matched) {
+        matchedStep = step;
+        matchedStepIdx = s;
+        break;
+    }
+}
+
+if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
+    activeFlowStep = matchedStepIdx;
+    return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
+}
+
+var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop','simon'];
+var esConfirmacion = confirmaciones.some(function(c){ 
+    return msg.trim() === c || msg.trim().startsWith(c + ' '); 
 });
-
-        if (matched) {
-            matchedStep = step;
-            matchedStepIdx = s;
-            break;
-        }
-    }
-        if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
-        activeFlowStep = matchedStepIdx;
-        return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
-    }
-    // Palabras cortas de confirmacion siempre avanzan al siguiente paso
-var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop','simón','simon'];
 var esMsgCorto = msg.trim().split(' ').length <= 2;
-var esConfirmacion = confirmaciones.some(function(c){ return msg.trim() === c || msg.trim().startsWith(c + ' '); });
 
-if (esMsgCorto || esConfirmacion) {
+if (esConfirmacion || esMsgCorto) {
     var nextIdx = activeFlowStep + 1;
     if (nextIdx < flow.steps.length) {
         activeFlowStep = nextIdx;
@@ -574,11 +580,11 @@ if (esMsgCorto || esConfirmacion) {
     return null;
 }
 
-// Si no encontró nada, terminar el flujo
 activeFlow = null;
 activeFlowStep = 0;
 return null;
 }
+
 
 
 

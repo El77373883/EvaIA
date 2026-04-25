@@ -521,20 +521,14 @@ function checkFlows(input) {
     var msg = input.toLowerCase().trim();
     var flows = loadFlows();
 
-    // Si hay un flujo activo, verificar si el mensaje activa el siguiente paso
-    if (activeFlow !== null) {
+    if (activeFlow !== null && activeFlow.mode !== 'keyword') {
         var flow = activeFlow;
         var nextStepIndex = activeFlowStep + 1;
-
         if (nextStepIndex < flow.steps.length) {
             var nextStep = flow.steps[nextStepIndex];
-
-            // Si el siguiente paso no tiene keyword o la keyword coincide
             if (!nextStep.keyword || msg.includes(nextStep.keyword)) {
                 activeFlowStep = nextStepIndex;
                 var resp = getFlowResponse(flow, activeFlowStep);
-
-                // Si es el último paso, resetear el flujo
                 if (activeFlowStep >= flow.steps.length - 1) {
                     activeFlow = null;
                     activeFlowStep = 0;
@@ -542,26 +536,39 @@ function checkFlows(input) {
                 return resp;
             }
         } else {
-            // Flujo terminado
             activeFlow = null;
             activeFlowStep = 0;
         }
     }
 
-    // Buscar si el mensaje dispara un flujo nuevo
     for (var i = 0; i < flows.length; i++) {
         var flow = flows[i];
         if (flow.model && flow.model !== currentModel) continue;
         if (msg.includes(flow.keyword) || msg === flow.keyword) {
+            if (flow.mode === 'keyword') {
+                var matchedStep = null;
+                for (var s = 0; s < flow.steps.length; s++) {
+                    var step = flow.steps[s];
+                    if (step.keyword && msg.includes(step.keyword.toLowerCase())) {
+                        matchedStep = step;
+                        break;
+                    }
+                }
+                if (!matchedStep && flow.steps.length > 0) matchedStep = flow.steps[0];
+                if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
+                    return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
+                }
+                return null;
+            }
             activeFlow = flow;
             activeFlowStep = 0;
-            var resp = getFlowResponse(flow, 0);
-            return resp;
+            return getFlowResponse(flow, 0);
         }
     }
 
     return null;
 }
+
 
 
 

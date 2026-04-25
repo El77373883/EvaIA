@@ -936,14 +936,15 @@ function editEntry(index) {
         setMode('group');
         var fields = document.getElementById('groupFields');
         fields.innerHTML = '';
-        entry.responses.forEach(function(r, i) {
-            var div = document.createElement('div');
-            div.className = 'form-row';
-            div.style.marginBottom = '8px';
-            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + escHtml(r) + '</textarea>'
-                + '<button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
-            fields.appendChild(div);
-        });
+entry.responses.forEach(function(r, i) {
+    var div = document.createElement('div');
+    div.className = 'form-row';
+    div.style.marginBottom = '8px';
+    div.innerHTML = '<textarea class="group-response" style="flex:1;"></textarea>'
+        + '<button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
+    fields.appendChild(div);
+    div.querySelector('.group-response').value = r; // ← así sí aparece el texto
+});
         updateGroupCounter();
     } else {
         // Cargar respuesta única

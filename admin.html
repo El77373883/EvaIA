@@ -682,7 +682,8 @@
                             <button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>
                         </div>
                     </div>
-                    <button class="btn btn-outline btn-sm" onclick="addGroupField()" style="margin-top:8px;">+ Agregar otra respuesta</button>
+ <button class="btn btn-outline btn-sm" onclick="addGroupField()" style="margin-top:8px;">+ Agregar otra respuesta</button>
+<button class="btn btn-accent btn-sm" onclick="addGroupBatch()" style="margin-top:8px;">📋 Agregar lote</button>
                     <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="groupCounter">1 respuesta</div>
                 </div>
             </div>
@@ -827,6 +828,59 @@ function removeGroupField(btn) {
 function updateGroupCounter() {
     document.getElementById('groupCounter').textContent = document.querySelectorAll('#groupFields .form-row').length + ' respuestas';
 }
+
+function updateGroupCounter() {
+    document.getElementById('groupCounter').textContent = document.querySelectorAll('#groupFields .form-row').length + ' respuestas';
+}
+
+function addGroupBatch() {
+    var modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.innerHTML = '<div class="modal">'
+        + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button>'
+        + '<h3 style="margin-bottom:8px;">📋 Agregar lote de respuestas</h3>'
+        + '<p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Escribe una respuesta por línea</p>'
+        + '<textarea id="batchGroupInput" rows="10" placeholder="Hola bro 👋&#10;Hey qué tal 😊&#10;Buenas hermano 💪"></textarea>'
+        + '<button class="btn btn-accent btn-full" onclick="processBatchGroup()" style="margin-top:12px;">✅ Agregar todas</button>'
+        + '</div>';
+    document.body.appendChild(modal);
+}
+
+function processBatchGroup() {
+    var text = document.getElementById('batchGroupInput').value.trim();
+    if (!text) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
+    
+    var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+    if (lines.length === 0) { showToast('⚠️ Sin respuestas válidas', 'error'); return; }
+    
+    var fields = document.getElementById('groupFields');
+    var firstTa = fields.querySelector('.group-response');
+    if (firstTa && !firstTa.value.trim() && fields.querySelectorAll('.form-row').length === 1) {
+        fields.innerHTML = '';
+    }
+    
+    lines.forEach(function(line) {
+        var div = document.createElement('div');
+        div.className = 'form-row';
+        div.style.marginBottom = '8px';
+        var ta = document.createElement('textarea');
+        ta.className = 'group-response';
+        ta.style.flex = '1';
+        ta.value = line;
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-red btn-icon btn-sm';
+        btn.textContent = '✕';
+        btn.onclick = function() { removeGroupField(btn); };
+        div.appendChild(ta);
+        div.appendChild(btn);
+        fields.appendChild(div);
+    });
+    
+    updateGroupCounter();
+    document.querySelector('.modal-overlay').remove();
+    showToast('✅ ' + lines.length + ' respuestas agregadas', 'success');
+}
+
 
 // ============ DATOS ============
 function getEntries() { return JSON.parse(localStorage.getItem('eva_entries') || '[]'); }

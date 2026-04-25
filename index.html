@@ -482,6 +482,89 @@ var knowledge = [];
 
 var responses = [];
 
+
+// ============ CARGAR FLUJOS ============
+var activeFlow = null;
+var activeFlowStep = 0;
+var flowResponseIndexes = {};
+
+function loadFlows() {
+    return JSON.parse(localStorage.getItem('eva_flows') || '[]');
+}
+
+function getFlowResponse(flow, stepIndex) {
+    var step = flow.steps[stepIndex];
+    if (!step) return null;
+    var responses = step.responses;
+    if (!responses || responses.length === 0) return null;
+    var key = flow.keyword + '_' + stepIndex;
+
+    if (flow.mode === 'order') {
+        var current = flowResponseIndexes[key] !== undefined ? flowResponseIndexes[key] : -1;
+        var next = (current + 1) % responses.length;
+        flowResponseIndexes[key] = next;
+        return responses[next];
+    } else {
+        var last = flowResponseIndexes[key] !== undefined ? flowResponseIndexes[key] : -1;
+        var idx;
+        if (responses.length === 1) {
+            idx = 0;
+        } else {
+            do { idx = Math.floor(Math.random() * responses.length); } while (idx === last);
+        }
+        flowResponseIndexes[key] = idx;
+        return responses[idx];
+    }
+}
+
+function checkFlows(input) {
+    var msg = input.toLowerCase().trim();
+    var flows = loadFlows();
+
+    // Si hay un flujo activo, verificar si el mensaje activa el siguiente paso
+    if (activeFlow !== null) {
+        var flow = activeFlow;
+        var nextStepIndex = activeFlowStep + 1;
+
+        if (nextStepIndex < flow.steps.length) {
+            var nextStep = flow.steps[nextStepIndex];
+
+            // Si el siguiente paso no tiene keyword o la keyword coincide
+            if (!nextStep.keyword || msg.includes(nextStep.keyword)) {
+                activeFlowStep = nextStepIndex;
+                var resp = getFlowResponse(flow, activeFlowStep);
+
+                // Si es el último paso, resetear el flujo
+                if (activeFlowStep >= flow.steps.length - 1) {
+                    activeFlow = null;
+                    activeFlowStep = 0;
+                }
+                return resp;
+            }
+        } else {
+            // Flujo terminado
+            activeFlow = null;
+            activeFlowStep = 0;
+        }
+    }
+
+    // Buscar si el mensaje dispara un flujo nuevo
+    for (var i = 0; i < flows.length; i++) {
+        var flow = flows[i];
+        if (flow.model && flow.model !== currentModel) continue;
+        if (msg.includes(flow.keyword) || msg === flow.keyword) {
+            activeFlow = flow;
+            activeFlowStep = 0;
+            var resp = getFlowResponse(flow, 0);
+            return resp;
+        }
+    }
+
+    return null;
+}
+
+
+
 // ============ CARGAR DEL ADMIN (localStorage) ============
 function loadFromAdmin() {
     try {
@@ -1188,6 +1271,9 @@ function generateResponse(input) {
         return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
     }
     
+// FLUJOS INTELIGENTES: tienen máxima prioridad
+var flowResponse = checkFlows(input);
+if (flowResponse) return flowResponse;
 
 
 // PALABRAS CONVERSACIONALES: tienen prioridad sobre TODO, incluso la base de datos

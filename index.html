@@ -1260,7 +1260,7 @@ if (isVague) {
 
 
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
-    var greetings = [];
+var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
 for (var g = 0; g < greetings.length; g++) {
     if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
         pendingQuestion = 'saludo';

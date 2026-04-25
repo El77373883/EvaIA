@@ -59,9 +59,9 @@
         .input-box input::placeholder { color: #888; }
         .action-icon { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; color: #555; cursor: pointer; }
         .voice-icon { background-color: #000; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .model-dropdown { display: none; position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; overflow: hidden; min-width: 160px; }
+ .model-dropdown { display: none; position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; min-width: 250px; max-height: 420px; overflow-y: auto; }
         .model-dropdown.active { display: block; }
-        .model-option { padding: 12px 20px; cursor: pointer; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+       .model-option { padding: 12px 16px; cursor: pointer; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
         .model-option:hover { background: #f5f5f5; }
         .model-option.selected { font-weight: 600; color: #2563EB; background: #f8faff; }
         .model-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
@@ -88,24 +88,86 @@
         .clear-all-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eaeaea; background: #fff; font-size: 13px; color: #999; cursor: pointer; }
         .clear-all-btn:active { background: #fee2e2; color: #EF4444; }
         .empty-chats { text-align: center; color: #bbb; padding: 40px 20px; font-size: 13px; }
+        
+        .profile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400}
+.profile-overlay.active{display:block}
+.profile-modal{position:fixed;right:16px;top:70px;background:#fff;border-radius:20px;padding:24px 20px 20px;width:280px;z-index:500;box-shadow:0 12px 40px rgba(0,0,0,0.18);text-align:center;display:none}
+.profile-modal.active{display:block}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#1E40AF);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700}
+.profile-name{font-size:16px;font-weight:700;margin-bottom:2px;color:#111}
+.profile-plan{display:inline-block;background:#F0F0F0;color:#666;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:600;margin-bottom:16px}
+.profile-usage{background:#F9FAFB;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left}
+.profile-usage-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:6px;font-weight:600}
+.profile-usage-bar{height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden}
+.profile-usage-fill{height:100%;background:linear-gradient(90deg,#2563EB,#3B82F6);border-radius:3px}
+.profile-stats{display:flex;justify-content:center;gap:24px;margin:14px 0;padding:12px 0;border-top:1px solid #F0F0F0}
+.profile-stat{text-align:center}
+.profile-stat-value{font-size:16px;font-weight:800;color:#111}
+.profile-stat-label{font-size:10px;color:#999}
+.profile-btn{display:block;width:100%;padding:10px;margin-bottom:6px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-weight:600}
+.profile-btn.primary{background:#2563EB;color:#fff}
+.profile-btn.outline{background:#fff;border:1px solid #E5E7EB;color:#555}
+
+.img-loading { width: 260px; height: 260px; border-radius: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: #bbb; font-size: 13px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.img-gen { max-width: 260px; border-radius: 16px; display: block; margin: 8px 0; animation: fadeIn 0.5s ease; }
+        
+        @keyframes genShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes genPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+.img-reveal { max-width: 260px; border-radius: 16px; display: block; margin: 8px 0; filter: blur(24px) brightness(0.7) saturate(0.3); opacity: 0.4; transition: filter 3.5s ease, opacity 3.5s ease; }
+.img-reveal.ready { filter: blur(0px) brightness(1) saturate(1); opacity: 1; }
+
+        
     </style>
 </head>
 <body>
+
 
 <header>
     <div class="icon-btn" onclick="openSidebar()">
         <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
     </div>
     <div class="model-selector" onclick="toggleModelDropdown()">
-        <span id="currentModelName">Eva 1.0</span>
+        <span id="currentModelName">Eva Pro</span>
         <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </div>
-    <div class="icon-btn">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>
+ <div class="icon-btn" onclick="toggleProfile()">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+</div>
 </header>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="profile-overlay" id="profileOverlay" onclick="closeProfile()"></div>
+<div class="profile-modal" id="profileModal">
+    <div class="profile-avatar" id="profileAvatar">E</div>
+    <div class="profile-name" id="profileName">Usuario</div>
+    <div class="profile-plan">PLAN GRATUITO</div>
+    <div class="profile-usage">
+        <div class="profile-usage-label">
+            <span>Uso del plan</span>
+            <span id="usagePercent">0%</span>
+        </div>
+        <div class="profile-usage-bar">
+            <div class="profile-usage-fill" id="usageBar" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#AAA;margin-top:8px;">
+            <span>Tokens usados</span>
+            <span id="tokensUsed">0 / 10,000</span>
+        </div>
+    </div>
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <div class="profile-stat-value" id="profileChats">0</div>
+            <div class="profile-stat-label">Conversaciones</div>
+        </div>
+        <div class="profile-stat">
+            <div class="profile-stat-value" id="profileMsgs">0</div>
+            <div class="profile-stat-label">Mensajes</div>
+        </div>
+    </div>
+    <button class="profile-btn primary" onclick="editProfile()">Configurar</button>
+    <button class="profile-btn outline" onclick="closeProfile()">Cerrar sesion</button>
+</div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <h2>💬 Chats</h2>
@@ -140,7 +202,7 @@
         </div>
     </div>
     <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
-    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva 1.0</p>
+    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
 </main>
 
 <div class="input-container">
@@ -172,7 +234,7 @@
 
 <script>
 var currentModel = 'eva';
-var currentModelName = 'Eva 1.0';
+var currentModelName = 'Eva Pro';
 var isProcessing = false;
 var typewriterTimers = [];
 var currentChatId = null;
@@ -318,23 +380,65 @@ function closeSidebar() {
     document.getElementById('sidebar').classList.remove('active');
     document.getElementById('sidebarOverlay').classList.remove('active');
 }
+function toggleProfile() {
+    var modal = document.getElementById('profileModal');
+    var overlay = document.getElementById('profileOverlay');
+    var chats = getAllChats();
+    document.getElementById('profileChats').textContent = chats.length;
+    var msgCount = 0;
+    chats.forEach(function(c) { msgCount += c.messages ? c.messages.length : 0; });
+    document.getElementById('profileMsgs').textContent = msgCount;
+    var tokens = msgCount * 50;
+    var percent = Math.min(100, Math.round((tokens / 10000) * 100));
+    document.getElementById('tokensUsed').textContent = tokens.toLocaleString() + ' / 10,000';
+    document.getElementById('usagePercent').textContent = percent + '%';
+    document.getElementById('usageBar').style.width = percent + '%';
+    if (longTermMemory.userName) {
+        document.getElementById('profileName').textContent = longTermMemory.userName;
+        document.getElementById('profileAvatar').textContent = longTermMemory.userName.charAt(0).toUpperCase();
+    }
+    modal.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+function closeProfile() {
+    document.getElementById('profileModal').classList.remove('active');
+    document.getElementById('profileOverlay').classList.remove('active');
+}
+function editProfile() {
+    var name = prompt('Tu nombre:', longTermMemory.userName || '');
+    if (name && name.trim()) {
+        longTermMemory.userName = name.trim();
+        saveLongTermMemory();
+        document.getElementById('profileName').textContent = name.trim();
+        document.getElementById('profileAvatar').textContent = name.trim().charAt(0).toUpperCase();
+    }
+    closeProfile();
+}
 
 
 var icons = {
     eva:    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
     selene: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
     nyx:    '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/>',
-    aria:   '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'
+    aria:   '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+    duck:   '<circle cx="12" cy="12" r="10"/><path d="M8 7h8v3H8zM8 12h8v1H8zM10 14h4v3h-4z"/><circle cx="8" cy="8" r="1.5" fill="#fff"/><circle cx="16" cy="8" r="1.5" fill="#fff"/>'
 };
 
 // ============ DATOS BASE ============
 var models = [
-    { modelId: 'eva',    name: 'Eva 1.0',    greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
+    { modelId: 'eva',    name: 'Eva Pro',    greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
     { modelId: 'selene', name: 'Selene',     greeting: 'Hola, soy Selene.\nVamos a crear algo?' },
     { modelId: 'nyx',    name: 'Nyx',        greeting: 'Nyx te escucha.\nQue inquietud traes?' },
     { modelId: 'aria',   name: 'Aria',       greeting: 'Aria en linea.\nQue datos necesitas?' },
     { modelId: 'wiki',   name: '📚 Wiki',    greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' },
-    { modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' }
+{ modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
+{ modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
+{ modelId: 'deepseek', name: '🧠 DeepSeek', greeting: 'DeepSeek en línea.\nRazonamiento profundo activado.' },
+{ modelId: 'gemini', name: '🌟 Gemini', greeting: 'Gemini en línea.\nIA de Google lista para ayudarte.' },
+{ modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
+{ modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' },
+{ modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
+{ modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
 ];
 var knowledge = [];
 
@@ -380,14 +484,36 @@ responses.push({
 }
 
 // ============ DROPDOWN ============
+// Descripciones de cada modelo
+var modelDescriptions = {
+    eva: 'Asistente general inteligente',
+    selene: 'Creatividad e ideas inspiradoras',
+    nyx: 'Reflexión profunda y consejos',
+    aria: 'Datos precisos y análisis lógico',
+    wiki: 'Búsqueda en Wikipedia',
+    code: 'Programación y código (Groq)',
+    qwen: 'Razonamiento lógico avanzado',
+    deepseek: 'Razonamiento profundo',
+    gemini: 'IA de Google',
+    mistral: 'IA europea rápida',
+    cloudflare: 'Modelo Llama ultrarrápido',
+    buscador: 'Búsqueda en tiempo real',
+    duck: 'Búsqueda DuckDuckGo sin API Key'
+};
+
 function buildModelDropdown() {
     var dropdown = document.getElementById('modelDropdown');
     dropdown.innerHTML = models.map(function(m) {
         var sel = m.modelId === currentModel ? 'selected' : '';
         var icon = icons[m.modelId] || '<circle cx="12" cy="12" r="10"/>';
+        var desc = modelDescriptions[m.modelId] || '';
         return '<div class="model-option ' + sel + '" data-model-id="' + m.modelId + '" data-model-name="' + m.name + '">'
             + '<span class="model-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></span>'
-            + m.name + '</div>';
+            + '<div style="display:flex;flex-direction:column;gap:2px;">'
+            + '<span style="font-weight:600;font-size:14px;">' + m.name + '</span>'
+            + '<span style="font-size:11px;color:#999;">' + desc + '</span>'
+            + '</div>'
+            + '</div>';
     }).join('');
 
     dropdown.querySelectorAll('.model-option').forEach(function(option) {
@@ -421,8 +547,10 @@ document.addEventListener('click', function(e) {
 // ============ SISTEMA DE INTELIGENCIA AVANZADA ============
 
 // Base de conocimiento para analizar temas
-var currentTopic = null; // tema actual de la conversación
-var waitingForCode = false; // esperando que manden código
+var currentTopic = null;
+var waitingForCode = false;
+var lastAskedTopic = null;
+
 
 var knowledgeBase = {
     programacion: {
@@ -940,12 +1068,32 @@ function corregirTexto(texto) {
     return corregido.join(' ');
 }
 
+
 // ============ GENERAR RESPUESTA ============
 function generateResponse(input) {
     var msg = corregirTexto(input);
     // Buscar en internet si es una pregunta que Eva no puede responder
     if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('capital de') || msg.includes('cuanto mide') || msg.includes('donde queda') || msg.includes('cuando fue') || msg.includes('busca en internet') || msg.includes('googlea') || msg.includes('busca')) {
     }
+    
+    var msgClean = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    
+    // Bloquear palabras contextuales sin pregunta pendiente
+    if (isContextualWord(msgClean) && !pendingQuestion) {
+        var neutral = {
+            'si':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            'sí':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            'no':'Está bien. ¿Entonces qué necesitas? 🤔',
+            'ok':'¡OK! ¿Qué sigue? 😊',
+            'dale':'¡Vamos! 💪 ¿Qué necesitas?',
+            'bien':'¡Qué bueno! ¿En qué te ayudo? 😊',
+            'bueno':'¡Perfecto! Dime qué necesitas. 👍',
+            'vale':'¡Vale! ¿En qué te ayudo?',
+            'claro':'¡Claro! Dime. 😊'
+        };
+        if (neutral[msgClean]) return neutral[msgClean];
+    }
+    
     var msgOriginal = input.toLowerCase().trim();
 
     // Modo creación activo
@@ -966,55 +1114,113 @@ function generateResponse(input) {
             return '¡Claro que sí! ¿Qué tipo de página quieres?\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
         }
     }
-
-
-
-    // Buscar TODAS las coincidencias y ordenar por longitud de keyword
-    var matches = [];
     
+    
+    // ===== GENERADOR DE IMÁGENES CON IA =====
+    if (msg.includes('imagen:') || msg.includes('imagen de') || msg.includes('genera una imagen') || msg.includes('crea una imagen') || msg.includes('dibuja') || msg.includes('generar imagen')) {
+        var prompt = msg.replace(/imagen:|imagen de|genera una imagen|crea una imagen|dibuja|generar imagen/gi, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Imagen generada!\n\n![Imagen](' + imageUrl + ')\n\nPrompt: ' + prompt + '\n\n¿Te gusta? Puedes pedir otra con más detalles.';
+    }
+    
+    // ===== GENERADOR DE IMÁGENES (palabra clave "imagen") =====
+    if (msg.startsWith('imagen ') || msg.startsWith('imagen:') || msg.startsWith('dibuja ')) {
+        var prompt = msg.replace(/^imagen[: ]|^dibuja /, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
+    }
+    
+
+// DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
+    var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
+    for (var g = 0; g < greetings.length; g++) {
+        if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
+            pendingQuestion = 'saludo';
+            return '¡Hola! 👋 Soy Eva. ¿En qué puedo ayudarte hoy? 😊✨';
+        }
+    }
+
+// REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa
+    if (shortTermMemory.length > 0) {
+        var lastEvaMsg = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+        var msgWords = msg.trim().split(/\s+/);
+        
+        // Si Eva preguntó "en qué puedo ayudarte" y usuario responde palabra suelta
+        if ((lastEvaMsg.includes('en qué puedo ayudarte') || lastEvaMsg.includes('ayudarte hoy')) && msgWords.length <= 2) {
+            var topicResponses = {
+                'programacion': '¡Me encanta programar! 💻 ¿Qué lenguaje: Java, JavaScript, Python, HTML, CSS?',
+                'codigo': '¿Necesitas ayuda con código? 💻 Dime qué lenguaje.',
+            };
+            for (var key in topicResponses) {
+                if (msg.includes(key)) return topicResponses[key];
+            }
+        }
+    }
+
+
+    // Buscar por SCORE: contar cuántas keywords de cada entrada coinciden
+    var scored = [];
+
     for (var i = 0; i < knowledge.length; i++) {
         var k = knowledge[i];
         var keywords = Array.isArray(k.keywords) ? k.keywords : [];
         
+        var score = 0;
+        var maxKwLen = 0;
+
         for (var j = 0; j < keywords.length; j++) {
-            if (msg.includes(keywords[j])) {
-                matches.push({
-                    keyword: keywords[j],
-                    keywordLength: keywords[j].split(' ').length,
-                    category: k.category,
-                    knowledgeIndex: i
-                });
+            var kw = keywords[j].toLowerCase();
+            if (msg.includes(kw)) {
+                var kwWords = kw.split(' ').length;
+                score += kwWords; // frases largas valen más
+                if (kwWords > maxKwLen) maxKwLen = kwWords;
             }
+            // Coincidencia exacta = bonus grande
+            if (msg.trim() === kw) score += 50;
+        }
+
+        if (score > 0) {
+            scored.push({
+                score: score,
+                maxKwLen: maxKwLen,
+                category: k.category,
+                knowledgeIndex: i
+            });
         }
     }
-    
-    // Ordenar: frases más largas primero
-    matches.sort(function(a, b) {
-        return b.keywordLength - a.keywordLength;
+
+    // Ordenar: mayor score primero, desempate por keyword más larga
+    scored.sort(function(a, b) {
+        if (b.score !== a.score) return b.score - a.score;
+        return b.maxKwLen - a.maxKwLen;
     });
+
+    var matches = scored; // compatibilidad con el código de abajo
+
     
     // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
-    if (matches.length === 0 && (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('cuando') || msg.includes('donde') || msg.includes('busca'))) {
-    }
+
+if (matches.length > 0) {
+    var bestMatch = matches[0];
+    var k = knowledge[bestMatch.knowledgeIndex];
     
-      if (matches.length > 0) {
-        var bestMatch = matches[0];
+    // Guardar tema para seguimiento
+    pendingQuestion = k.keywords[0];
+    
+    var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
+    if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
+    
+    var anyResp = responses.filter(function(r) { return r.category === k.category; });
+    if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
+}
+
         
-        // Si la keyword es corta (1 palabra) y el mensaje es largo, verificar contexto
-        var wordCount = msg.split(' ').filter(Boolean).length;
-        if (bestMatch.keywordLength === 1 && wordCount > 2) {
-            var detected = detectContext(msg);
-            if (detected.score > 0) {
-                return getIntelligentResponse(msg, detected.context);
-            }
-        }
-        
-        var k = knowledge[bestMatch.knowledgeIndex];
-        var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
-        if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
-        var anyResp = responses.filter(function(r) { return r.category === k.category; });
-        if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
-    }
 
     if (msg.includes('hora')) return 'Son las ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
     if (msg.includes('fecha') || msg.includes('hoy') || (msg.includes('que') && msg.includes('dia'))) return 'Hoy es ' + new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.';
@@ -1173,10 +1379,68 @@ function typewriterEffect(text, sender) {
         var item = queue[qIdx];
 
         if (item.type === 'text') {
-            var span = document.createElement('span');
-            msgDiv.appendChild(span);
-            var i = 0;
-            function typeChar() {
+    // Detectar imagen markdown ![...](url)
+    var imgMatch = item.content.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
+    if (imgMatch) {
+        var imgUrl = imgMatch[1];
+        // Texto antes de la imagen
+        var beforeImg = item.content.split(/!\[.*?\]\(.*?\)/)[0];
+        var afterImg = item.content.split(/!\[.*?\]\(.*?\)/).slice(1).join('');
+        
+        if (beforeImg.trim()) {
+            var preSpan = document.createElement('span');
+            preSpan.textContent = beforeImg;
+            msgDiv.appendChild(preSpan);
+        }
+        
+        // Loader animado
+var loader = document.createElement('div');
+loader.style.cssText = 'position:relative;width:260px;height:260px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#ede8ff,#f5e8ff,#e8f0ff);margin:8px 0;';
+
+var shimmer = document.createElement('div');
+shimmer.style.cssText = 'position:absolute;inset:0;background:linear-gradient(90deg,transparent 25%,rgba(255,255,255,0.5) 50%,transparent 75%);background-size:200% 100%;animation:genShimmer 1.4s infinite linear;';
+
+var dots = document.createElement('div');
+dots.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;';
+dots.innerHTML = '<div style="font-size:28px;animation:genPulse 1.2s infinite;">🎨</div><div style="font-size:12px;color:#9b7dff;font-weight:700;letter-spacing:1px;animation:genPulse 1.2s infinite;">Generando imagen...</div>';
+
+loader.appendChild(shimmer);
+loader.appendChild(dots);
+msgDiv.appendChild(loader);
+chatArea.scrollTop = chatArea.scrollHeight;
+
+var img = document.createElement('img');
+img.className = 'img-reveal';
+img.onload = function() {
+    loader.replaceWith(img);
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            img.classList.add('ready');
+        });
+    });
+    chatArea.scrollTop = chatArea.scrollHeight;
+};
+img.onerror = function() {
+    loader.innerHTML = '<div style="padding:20px;text-align:center;color:#EF4444;">❌ No se pudo generar la imagen.</div>';
+};
+img.src = imgUrl;
+
+        
+        if (afterImg.trim()) {
+            var afterSpan = document.createElement('span');
+            afterSpan.textContent = afterImg;
+            msgDiv.appendChild(afterSpan);
+        }
+        
+        processQueue(qIdx + 1);
+        return;
+    }
+    
+    var span = document.createElement('span');
+    msgDiv.appendChild(span);
+    var i = 0;
+    function typeChar() {
+
                 if (i < item.content.length) {
                     span.textContent += item.content.charAt(i);
                     chatArea.scrollTop = chatArea.scrollHeight;
@@ -1309,7 +1573,28 @@ function addMessage(text, sender) {
     wrapper.className = 'message-wrapper ' + sender + '-wrapper';
     var msgDiv = document.createElement('div');
     msgDiv.className = 'message ' + sender;
-    msgDiv.textContent = text;
+    
+    // Detectar si hay una imagen Markdown ![Imagen](url)
+    if (text.includes('![') && text.includes('](')) {
+        var parts = text.split(/(!\[.*?\]\(.*?\))/);
+        parts.forEach(function(part) {
+            if (part.startsWith('![') && part.includes('](')) {
+                var url = part.split('](')[1].split(')')[0];
+                var imgEl = document.createElement('img');
+                imgEl.src = url;
+                imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
+                imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
+                msgDiv.appendChild(imgEl);
+            } else if (part.trim()) {
+                var textEl = document.createElement('div');
+                textEl.textContent = part;
+                msgDiv.appendChild(textEl);
+            }
+        });
+    } else {
+        msgDiv.textContent = text;
+    }
+    
     wrapper.appendChild(msgDiv);
     chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;
@@ -1338,6 +1623,18 @@ function clearChat() {
     document.getElementById('welcomeScreen').classList.remove('hidden');
 }
 
+
+// ============ MEMORIA DE CONVERSACIÓN ============
+var shortTermMemory = [];
+var pendingQuestion = null;
+
+var contextualWords = ['si','sí','no','nop','nel','dale','va','ok','oka','vale','bien','bueno','claro','obvio','simón','quizás','tal vez','puede ser'];
+
+function isContextualWord(msg) {
+    var clean = msg.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    return contextualWords.indexOf(clean) !== -1;
+}
+
 function startVoice() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1350,10 +1647,8 @@ function startVoice() {
     } else { document.getElementById('chatInput').focus(); }
 }
 
-// ============ NUEVO: SISTEMA DE MEMORIA Y RAZONAMIENTO ============
+// ============ MEMORIA DE CONVERSACIÓN (NUEVO) ============
 
-// Memoria a corto plazo (últimas 15 interacciones)
-var shortTermMemory = [];
 
 // Memoria a largo plazo (datos aprendidos sobre el usuario)
 var longTermMemory = {
@@ -1623,7 +1918,7 @@ function generateContextualResponse(input, baseResponse) {
 }
 
 // ============ REEMPLAZAR sendMessage() ============
-sendMessage = async function() {
+async function sendMessage() {
     if (isProcessing) return;
     var input = document.getElementById('chatInput');
     var message = input.value.trim();
@@ -1632,6 +1927,8 @@ sendMessage = async function() {
     isProcessing = true;
     
     learnFromUserInput(message);
+        if (message.trim().split(/\s+/).length > 2) lastAskedTopic = null;
+
 
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('chatArea').classList.add('active');
@@ -1654,19 +1951,69 @@ sendMessage = async function() {
                 baseResponse = 'No encontré nada en Wikipedia sobre eso. 🤔';
             }
         }
-        // 💻 CODE: Solo Groq
+        // 💻 CODE: Solo Groq (Llama)
         else if (currentModel === 'code') {
-            var groqResult = await askGroq(message);
-            if (groqResult) {
-                baseResponse = groqResult;
-            } else {
-                baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
-            }
-        }
-        // 🤖 RESTO: Eva, Selene, Nyx, Aria
-        else {
-            baseResponse = generateResponse(message);
-        }
+    var groqResult = await askGroq(message);
+    if (groqResult) {
+        baseResponse = groqResult;
+    } else {
+        baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
+    }
+}
+// 🧠 QWEN: Groq con Qwen
+else if (currentModel === 'qwen') {
+    var qwenResult = await askQwen(message);
+    if (qwenResult) {
+        baseResponse = qwenResult;
+    } else {
+        baseResponse = 'Qwen no está disponible ahora. 🧠';
+    }
+}
+
+// 🌟 GEMINI
+else if (currentModel === 'gemini') {
+    var geminiResult = await askGemini(message);
+    if (geminiResult) { baseResponse = geminiResult; }
+    else { baseResponse = 'Gemini no está disponible ahora. 🌟'; }
+}
+// 💨 MISTRAL
+else if (currentModel === 'mistral') {
+    var mistralResult = await askMistral(message);
+    if (mistralResult) { baseResponse = mistralResult; }
+    else { baseResponse = 'Mistral no está disponible ahora. 💨'; }
+}
+// ☁️ CLOUDFLARE
+else if (currentModel === 'cloudflare') {
+    var cfResult = await askCloudflareAI(message);
+    if (cfResult) { baseResponse = cfResult; }
+    else { baseResponse = 'Cloudflare AI no está disponible ahora. ☁️'; }
+}
+
+else if (currentModel === 'duck') {
+    var duckResult = await askDuck(message);
+    if (duckResult) { baseResponse = duckResult; }
+    else { baseResponse = 'No encontré resultados con DuckDuckGo. 🦆'; }
+}
+
+else if (currentModel === 'buscador') {
+    var buscaResult = await askBuscador(message);
+    if (buscaResult) { baseResponse = buscaResult; }
+    else { baseResponse = 'No encontré información. Intenta ser más específico. 🔍'; }
+}
+
+
+// 🧠 DEEPSEEK
+else if (currentModel === 'deepseek') {
+    var deepseekResult = await askDeepSeek(message);
+    if (deepseekResult) {
+        baseResponse = deepseekResult;
+    } else {
+        baseResponse = 'DeepSeek no está disponible ahora. 🧠';
+    }
+}
+else {
+    baseResponse = generateResponse(message);
+}
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
         typewriterEffect(contextualResponse, 'eva');
@@ -2519,6 +2866,7 @@ function generatePageCode(data) {
 </html>`;
     }
 
+
         creationData = {};
     lastGeneratedHTML = html;
     creationState = 'ask_extras';
@@ -2553,6 +2901,154 @@ async function searchDuckDuckGo(query) {
 }
 
 
+async function askQwen(message) {
+    try {
+        var resp = await fetch('/api/qwen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askGemini(message) {
+    try {
+        var resp = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askMistral(message) {
+    try {
+        var resp = await fetch('/api/mistral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askCloudflareAI(message) {
+    try {
+        var resp = await fetch('/api/cloudflare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askDeepSeek(message) {
+    try {
+        var resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askBuscador(message) {
+    try {
+        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+
+async function askDuck(message) {
+    try {
+        var cleanQuery = message
+            .replace(/busca en internet /gi, '')
+            .replace(/busca /gi, '')
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        
+        if (cleanQuery.length < 2) return 'Escribe una pregunta más específica. 🦆';
+        
+        // Intentar API JSON de DuckDuckGo
+        var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1';
+        
+        var resp = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        
+        var data = await resp.json();
+        var answer = '';
+        
+        // Buscar en todos los campos posibles
+        if (data.Abstract && data.Abstract.length > 10) {
+            answer = '📚 ' + data.Abstract;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.AbstractText && data.AbstractText.length > 10) {
+            answer = '📚 ' + data.AbstractText;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.Answer && data.Answer.length > 2) {
+            answer = '💡 ' + data.Answer;
+        } else if (data.Definition && data.Definition.length > 2) {
+            answer = '📝 ' + data.Definition;
+            if (data.DefinitionSource) answer += '\n\n🔗 ' + data.DefinitionSource;
+        } else if (data.Heading && data.Heading.length > 2) {
+            answer = '📌 ' + data.Heading;
+        } else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+            answer = '🔍 Resultados:\n';
+            var count = 0;
+            for (var i = 0; i < data.RelatedTopics.length && count < 5; i++) {
+                var t = data.RelatedTopics[i];
+                if (t.Text && t.Text.length > 5) {
+                    count++;
+                    answer += '\n• ' + t.Text.split(' - ')[0].trim();
+                    if (t.FirstURL) answer += '\n  🔗 ' + t.FirstURL;
+                }
+            }
+        } else {
+            // Si no hay nada, sugerir búsqueda en Google
+            answer = 'No encontré resultados para "' + cleanQuery + '".\n\n🔍 Puedes buscar en Google: https://www.google.com/search?q=' + encodeURIComponent(cleanQuery);
+        }
+        
+        return answer || 'No encontré resultados. Intenta con otras palabras. 🦆';
+        
+    } catch(e) {
+        console.log('Error DuckDuckGo:', e.message);
+        
+        // Si falla la API, dar opción de buscar en Google
+        var fallbackQuery = message.replace(/\?/g, '').trim();
+return 'No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=' + encodeURIComponent(fallbackQuery);
+    }
+}
+
 async function askGroq(message) {
     try {
         var resp = await fetch('/api/chat', {
@@ -2569,25 +3065,29 @@ async function askGroq(message) {
 }
 
 
-
 // ============ INIT ============
 console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
 console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
-currentChatId = Date.now().toString();
-loadFromAdmin();
-loadLongTermMemory();
-loadChatHistory();
-buildModelDropdown();
-renderChatsList();
 
+// Esperar a que cargue el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    currentChatId = Date.now().toString();
+    loadFromAdmin();
+    loadLongTermMemory();
+    loadChatHistory();
+    buildModelDropdown();
+    renderChatsList();
 
-// Mensaje de bienvenida personalizado si ya conoce al usuario
-if (longTermMemory.userName) {
-    var welcome = document.getElementById('welcomeGreeting');
-    if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
-        welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+    // Mensaje de bienvenida personalizado si ya conoce al usuario
+    if (longTermMemory.userName) {
+        var welcome = document.getElementById('welcomeGreeting');
+        if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
+            welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+        }
     }
-}
+});
+
+
 </script>
 
 </body>

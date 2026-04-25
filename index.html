@@ -549,11 +549,15 @@ function checkFlows(input) {
                 var matchedStep = null;
                 for (var s = 0; s < flow.steps.length; s++) {
                     var step = flow.steps[s];
-                    if (step.keyword && msg.includes(step.keyword.toLowerCase())) {
+                    if (step.keyword) {
+    var stepKeywords = step.keyword.toLowerCase().split(',').map(function(k) { return k.trim(); }).filter(Boolean);
+    var stepMatched = stepKeywords.some(function(kw) { return msg.includes(kw); });
+    if (stepMatched) {
                         matchedStep = step;
                         break;
                     }
                 }
+            }
                 if (!matchedStep && flow.steps.length > 0) matchedStep = flow.steps[0];
                 if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
                     return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];

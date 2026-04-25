@@ -1190,6 +1190,54 @@ function generateResponse(input) {
     
 
 
+// PALABRAS CONVERSACIONALES: tienen prioridad sobre TODO, incluso la base de datos
+var conversacionales = [
+    'bien','muy bien','todo bien','excelente','de lujo','perfecto','genial',
+    'mal','muy mal','fatal','triste','cansado','estresado','regular','mas o menos',
+    'ok','oka','vale','dale','claro','obvio'
+];
+var msgParaChequear = msg.trim().toLowerCase().replace(/[!¡?¿.,]/g, '').replace(/ (bro|hermano|hermana|amigo|wey|mano)$/g, '').trim();
+
+if (conversacionales.indexOf(msgParaChequear) !== -1) {
+    var respConv = {
+        'bien':       ['¡Qué bueno! Me alegra mucho 😊 ¿En qué te ayudo?', 'Me da gusto! 💪 ¿Qué necesitas?', '¡Genial! ¿En qué te ayudo hoy? 😄'],
+        'muy bien':   ['¡Qué bien! Me alegra 🙌 ¿Qué necesitas?', '¡Excelente! ¿En qué te ayudo? 😊'],
+        'todo bien':  ['¡Me alegra! 😊 ¿En qué te puedo ayudar?', '¡Qué bueno! Cuéntame qué necesitas 💪'],
+        'excelente':  ['¡Eso es genial! 🔥 ¿En qué te ayudo?', '¡Me da gusto! 😊 ¿Qué necesitas?'],
+        'de lujo':    ['¡Qué buena onda! 😄 ¿Qué necesitas?', '¡Me da gusto! 💪 ¿En qué te ayudo?'],
+        'perfecto':   ['¡Genial! 😊 ¿Qué necesitas?', '¡Qué bueno! Dime en qué te ayudo.'],
+        'genial':     ['¡Me alegra! 😄 ¿En qué te ayudo?', '¡Qué bueno! 🔥 ¿Qué necesitas?'],
+        'mal':        ['Ay no 😟 ¿Qué pasó? Cuéntame.', 'Lo siento 🤍 ¿Qué está pasando?', '¿Qué pasó? Aquí estoy 💙'],
+        'muy mal':    ['Lo siento mucho 😟 ¿Qué pasó?', 'Ay no 🤍 Cuéntame qué pasó.'],
+        'fatal':      ['Ay lo siento 😟 ¿Qué pasó?', 'No me digas... cuéntame 💙'],
+        'triste':     ['Lo siento 🤍 ¿Quieres contarme?', 'Aquí estoy para escucharte 💙 ¿Qué pasó?'],
+        'cansado':    ['Normal, a todos nos pasa 💪 ¿Qué pasó?', 'Descansa un poco 😊 ¿Cuéntame?'],
+        'estresado':  ['Respira hondo 😌 ¿Qué está pasando?', 'Tranquilo/a, cuéntame 🤍'],
+        'regular':    ['¿Qué pasó? ¿Estás bien? 😊', 'Espero que mejore tu día 💪 ¿En qué te ayudo?'],
+        'mas o menos':['Ah, ¿qué pasó? Cuéntame 🤔', '¿Todo bien? ¿En qué te ayudo? 😊'],
+        'ok':         ['¡Oye qué bien! 😊 ¿En qué te ayudo?', '¡Entendido! ¿Qué necesitas?'],
+        'oka':        ['¡Qué bueno! 😊 ¿En qué te ayudo?', '¡Perfecto! ¿Qué necesitas?'],
+        'vale':       ['¡Vale! ¿En qué te ayudo? 😊', '¡Perfecto! Dime qué necesitas.'],
+        'dale':       ['¡Vamos! 💪 ¿Qué necesitas?', '¡Dale! ¿En qué te ayudo?'],
+        'claro':      ['¡Claro que sí! 😊 ¿Qué necesitas?', '¡Por supuesto! Dime.'],
+        'obvio':      ['¡Obvio! 😄 ¿En qué te ayudo?', '¡Claro! Dime qué necesitas.']
+    };
+
+    var opciones = respConv[msgParaChequear];
+    if (opciones) {
+        var ultima = lastResponseIndex['conv_' + msgParaChequear] !== undefined ? lastResponseIndex['conv_' + msgParaChequear] : -1;
+        var idx;
+        if (opciones.length === 1) {
+            idx = 0;
+        } else {
+            do { idx = Math.floor(Math.random() * opciones.length); } while (idx === ultima);
+        }
+        lastResponseIndex['conv_' + msgParaChequear] = idx;
+        return opciones[idx];
+    }
+}
+
+
 // BUSCAR EN ADMIN PRIMERO (tiene prioridad sobre todo)
 var scoredFirst = [];
 for (var i = 0; i < knowledge.length; i++) {
@@ -1198,7 +1246,10 @@ for (var i = 0; i < knowledge.length; i++) {
     var score = 0;
     for (var j = 0; j < keywords.length; j++) {
         var kw = keywords[j].toLowerCase();
-        if (msg.includes(kw)) score += kw.split(' ').length;
+// No puntuar keywords conversacionales si el mensaje es corto
+var esCorto = msg.trim().split(' ').length <= 3;
+var esConvKw = conversacionales.indexOf(kw) !== -1;
+if (msg.includes(kw) && !(esCorto && esConvKw)) score += kw.split(' ').length;
         if (msg.trim() === kw) score += 50;
     }
     if (score > 0) scoredFirst.push({ score: score, category: k.category, knowledgeIndex: i });

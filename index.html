@@ -1368,10 +1368,54 @@ function typewriterEffect(text, sender) {
         var item = queue[qIdx];
 
         if (item.type === 'text') {
-            var span = document.createElement('span');
-            msgDiv.appendChild(span);
-            var i = 0;
-            function typeChar() {
+    // Detectar imagen markdown ![...](url)
+    var imgMatch = item.content.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
+    if (imgMatch) {
+        var imgUrl = imgMatch[1];
+        // Texto antes de la imagen
+        var beforeImg = item.content.split(/!\[.*?\]\(.*?\)/)[0];
+        var afterImg = item.content.split(/!\[.*?\]\(.*?\)/).slice(1).join('');
+        
+        if (beforeImg.trim()) {
+            var preSpan = document.createElement('span');
+            preSpan.textContent = beforeImg;
+            msgDiv.appendChild(preSpan);
+        }
+        
+        // Loader animado
+        var loader = document.createElement('div');
+        loader.className = 'img-loading';
+        loader.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D48A72" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Generando imagen...</span>';
+        msgDiv.appendChild(loader);
+        chatArea.scrollTop = chatArea.scrollHeight;
+        
+        // Cargar imagen real
+        var img = document.createElement('img');
+        img.className = 'img-gen';
+        img.onload = function() {
+            loader.replaceWith(img);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        };
+        img.onerror = function() {
+            loader.innerHTML = '❌ No se pudo generar la imagen. Intenta de nuevo.';
+        };
+        img.src = imgUrl;
+        
+        if (afterImg.trim()) {
+            var afterSpan = document.createElement('span');
+            afterSpan.textContent = afterImg;
+            msgDiv.appendChild(afterSpan);
+        }
+        
+        processQueue(qIdx + 1);
+        return;
+    }
+    
+    var span = document.createElement('span');
+    msgDiv.appendChild(span);
+    var i = 0;
+    function typeChar() {
+
                 if (i < item.content.length) {
                     span.textContent += item.content.charAt(i);
                     chatArea.scrollTop = chatArea.scrollHeight;
@@ -2769,8 +2813,6 @@ function generatePageCode(data) {
     .task span.done { text-decoration: line-through; color: #bbb; }
     .delete-btn { background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 18px; }
     .footer { text-align: center; margin-top: 16px; font-size: 12px; color: #bbb; }
-    
-
   </style>
 </head>
 <body>
@@ -2798,6 +2840,7 @@ function generatePageCode(data) {
 </body>
 </html>`;
     }
+
 
         creationData = {};
     lastGeneratedHTML = html;

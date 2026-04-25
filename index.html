@@ -460,32 +460,46 @@ function loadFromAdmin() {
                 category: catName,
                 keywords: entry.keywords
             });
-            
-            var responseText = entry.response;
-if (!responseText.includes('```')) {
-    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-        responseText = '```html\n' + responseText + '\n```';
-    } else if (responseText.includes('function') || responseText.includes('const ') || responseText.includes('let ') || responseText.includes('var ')) {
-        responseText = '```javascript\n' + responseText + '\n```';
-    } else if (responseText.includes('def ') || responseText.includes('import ') || responseText.includes('print(')) {
-        responseText = '```python\n' + responseText + '\n```';
-    } else if (responseText.includes('{') && responseText.includes(':') && responseText.includes(';')) {
-        responseText = '```css\n' + responseText + '\n```';
-    }
-}
-responses.push({
-    category: catName,
-    model: entry.model || 'eva',
-    text: responseText
-});
 
-        }); // ← cierre del forEach
+            // GRUPO: múltiples respuestas
+            if (entry.isGroup && Array.isArray(entry.responses)) {
+                entry.responses.forEach(function(r) {
+                    if (!r || !r.trim()) return;
+                    responses.push({
+                        category: catName,
+                        model: entry.model || 'eva',
+                        text: r.trim()
+                    });
+                });
+            }
+            // ÚNICA: una sola respuesta
+            else if (entry.response) {
+                var responseText = entry.response;
+                if (!responseText.includes('```')) {
+                    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        responseText = '```html\n' + responseText + '\n```';
+                    } else if (responseText.includes('function') || responseText.includes('const ') || responseText.includes('let ') || responseText.includes('var ')) {
+                        responseText = '```javascript\n' + responseText + '\n```';
+                    } else if (responseText.includes('def ') || responseText.includes('import ') || responseText.includes('print(')) {
+                        responseText = '```python\n' + responseText + '\n```';
+                    } else if (responseText.includes('{') && responseText.includes(':') && responseText.includes(';')) {
+                        responseText = '```css\n' + responseText + '\n```';
+                    }
+                }
+                responses.push({
+                    category: catName,
+                    model: entry.model || 'eva',
+                    text: responseText
+                });
+            }
+        });
         
-        console.log('✅ Entradas del admin cargadas: ' + entries.length);
+        console.log('✅ Entradas cargadas: ' + entries.length);
     } catch(e) {
         console.log('❌ Error:', e);
     }
 }
+
 
 // ============ DROPDOWN ============
 // Descripciones de cada modelo

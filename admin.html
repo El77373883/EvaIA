@@ -578,9 +578,12 @@
         <button class="nav-item" onclick="showSection('analytics'); closeSidebar();">
             <span class="nav-icon">📈</span> Analíticas
         </button>
-        <button class="nav-item" onclick="showSection('tools'); closeSidebar();">
-            <span class="nav-icon">🔧</span> Herramientas
-        </button>
+    <button class="nav-item" onclick="showSection('tools'); closeSidebar();">
+    <span class="nav-icon">🔧</span> Herramientas
+</button>
+<button class="nav-item" onclick="showSection('flows'); closeSidebar();">
+    <span class="nav-icon">🔄</span> Flujos
+</button>
     </nav>
     
     <div class="sidebar-footer">
@@ -737,6 +740,71 @@
             <div id="modelDistribution"></div>
         </div>
     </section>
+    
+    
+    
+    <!-- FLOWS SECTION -->
+<section id="section-flows" style="display:none;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <span class="card-title">🔄 Flujos Inteligentes</span>
+                <p class="card-subtitle">Define conversaciones paso a paso para Eva, Selene, Nyx y Aria</p>
+            </div>
+            <button class="btn btn-accent btn-sm" onclick="showNewFlowForm()">+ Nuevo Flujo</button>
+        </div>
+
+        <!-- FORMULARIO NUEVO FLUJO -->
+        <div id="flowForm" style="display:none;">
+            <div class="edit-banner" id="flowEditBanner" style="display:none;">
+                ✏️ <span id="flowEditText">Editando flujo</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>🔑 Keyword que dispara el flujo</label>
+                    <input type="text" id="flowKeyword" placeholder="programacion, amor, trabajo...">
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>🤖 Modelo</label>
+                    <select id="flowModel">
+                        <option value="eva">🤖 Eva Pro</option>
+                        <option value="selene">🌙 Selene</option>
+                        <option value="nyx">🌑 Nyx</option>
+                        <option value="aria">📊 Aria</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:180px;">
+                    <label>🎲 Modo de respuesta</label>
+                    <select id="flowMode">
+                        <option value="random">Al azar sin repetir</option>
+                        <option value="order">En orden 1,2,3...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PASOS DEL FLUJO -->
+            <div style="margin-top:16px;">
+                <label>📋 Pasos del flujo</label>
+                <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Cada paso tiene una keyword que lo activa y varias respuestas posibles</p>
+                <div id="flowSteps"></div>
+                <button class="btn btn-outline btn-sm" onclick="addFlowStep()" style="margin-top:8px;">+ Agregar Paso</button>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:20px;" id="flowSaveBtns">
+                <button class="btn btn-accent btn-full" onclick="saveFlow()">✅ Guardar Flujo</button>
+            </div>
+            <div style="display:none;gap:8px;margin-top:20px;" id="flowEditBtns">
+                <button class="btn btn-orange btn-full" onclick="updateFlow()">💾 Actualizar Flujo</button>
+                <button class="btn btn-outline btn-full" onclick="cancelFlowEdit()" style="margin-top:8px;">❌ Cancelar</button>
+            </div>
+        </div>
+
+        <!-- LISTA DE FLUJOS -->
+        <div id="flowsList" style="margin-top:20px;"></div>
+    </div>
+</section>
+
 
     <!-- TOOLS SECTION -->
     <section id="section-tools" style="display:none;">
@@ -1438,6 +1506,187 @@ function escHtml(s) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeSidebar();
 });
+
+// ============ FLUJOS INTELIGENTES ============
+var editingFlowIndex = -1;
+var flowStepCount = 0;
+
+function getFlows() { return JSON.parse(localStorage.getItem('eva_flows') || '[]'); }
+function saveFlows(data) {
+    localStorage.setItem('eva_flows', JSON.stringify(data));
+    renderFlowsList();
+    showToast('✅ Flujos guardados', 'success');
+}
+
+function showNewFlowForm() {
+    editingFlowIndex = -1;
+    flowStepCount = 0;
+    document.getElementById('flowForm').style.display = 'block';
+    document.getElementById('flowKeyword').value = '';
+    document.getElementById('flowModel').value = 'eva';
+    document.getElementById('flowMode').value = 'random';
+    document.getElementById('flowSteps').innerHTML = '';
+    document.getElementById('flowEditBanner').style.display = 'none';
+    document.getElementById('flowSaveBtns').style.display = 'flex';
+    document.getElementById('flowEditBtns').style.display = 'none';
+    addFlowStep();
+}
+
+function addFlowStep() {
+    flowStepCount++;
+    var stepNum = flowStepCount;
+    var div = document.createElement('div');
+    div.id = 'flowStep_' + stepNum;
+    div.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;';
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+        + '<span style="font-size:13px;font-weight:700;color:var(--accent2);">Paso ' + stepNum + '</span>'
+        + '<button class="btn btn-red btn-xs" onclick="removeFlowStep(' + stepNum + ')">✕ Eliminar</button>'
+        + '</div>'
+        + '<div class="form-group" style="margin-bottom:10px;">'
+        + '<label>🔑 Keyword que activa este paso (opcional, vacío = siempre aplica)</label>'
+        + '<input type="text" class="flow-step-keyword" placeholder="python, web, error... (deja vacío si siempre aplica)">'
+        + '</div>'
+        + '<div class="form-group">'
+        + '<label>💬 Respuestas posibles (una por línea, Eva elige según el modo)</label>'
+        + '<textarea class="flow-step-responses" rows="4" placeholder="¡Qué proyecto tienes en mente?\n¿Empezamos desde cero o tienes algo avanzado?\n¿Qué lenguaje quieres usar?"></textarea>'
+        + '</div>';
+    document.getElementById('flowSteps').appendChild(div);
+}
+
+function removeFlowStep(num) {
+    var el = document.getElementById('flowStep_' + num);
+    if (el) el.remove();
+}
+
+function saveFlow() {
+    var keyword = document.getElementById('flowKeyword').value.trim().toLowerCase();
+    var model = document.getElementById('flowModel').value;
+    var mode = document.getElementById('flowMode').value;
+
+    if (!keyword) { showToast('⚠️ Escribe la keyword del flujo', 'error'); return; }
+
+    var steps = [];
+    document.querySelectorAll('[id^="flowStep_"]').forEach(function(stepEl) {
+        var kw = stepEl.querySelector('.flow-step-keyword').value.trim().toLowerCase();
+        var responsesRaw = stepEl.querySelector('.flow-step-responses').value.trim();
+        var responses = responsesRaw.split('\n').map(function(r) { return r.trim(); }).filter(Boolean);
+        if (responses.length > 0) {
+            steps.push({ keyword: kw, responses: responses });
+        }
+    });
+
+    if (steps.length === 0) { showToast('⚠️ Agrega al menos un paso con respuestas', 'error'); return; }
+
+    var flows = getFlows();
+    flows.push({ keyword: keyword, model: model, mode: mode, steps: steps, created: new Date().toISOString() });
+    saveFlows(flows);
+    document.getElementById('flowForm').style.display = 'none';
+    showToast('✅ Flujo creado: ' + keyword, 'success');
+}
+
+function editFlow(index) {
+    var flows = getFlows();
+    var flow = flows[index];
+    editingFlowIndex = index;
+    flowStepCount = 0;
+
+    document.getElementById('flowForm').style.display = 'block';
+    document.getElementById('flowKeyword').value = flow.keyword;
+    document.getElementById('flowModel').value = flow.model || 'eva';
+    document.getElementById('flowMode').value = flow.mode || 'random';
+    document.getElementById('flowSteps').innerHTML = '';
+    document.getElementById('flowEditBanner').style.display = 'flex';
+    document.getElementById('flowEditText').textContent = 'Editando flujo: ' + flow.keyword;
+    document.getElementById('flowSaveBtns').style.display = 'none';
+    document.getElementById('flowEditBtns').style.display = 'flex';
+    document.getElementById('flowEditBtns').style.flexDirection = 'column';
+
+    flow.steps.forEach(function(step) {
+        addFlowStep();
+        var stepEl = document.getElementById('flowStep_' + flowStepCount);
+        stepEl.querySelector('.flow-step-keyword').value = step.keyword || '';
+        stepEl.querySelector('.flow-step-responses').value = step.responses.join('\n');
+    });
+}
+
+function updateFlow() {
+    var keyword = document.getElementById('flowKeyword').value.trim().toLowerCase();
+    var model = document.getElementById('flowModel').value;
+    var mode = document.getElementById('flowMode').value;
+
+    if (!keyword) { showToast('⚠️ Escribe la keyword', 'error'); return; }
+
+    var steps = [];
+    document.querySelectorAll('[id^="flowStep_"]').forEach(function(stepEl) {
+        var kw = stepEl.querySelector('.flow-step-keyword').value.trim().toLowerCase();
+        var responsesRaw = stepEl.querySelector('.flow-step-responses').value.trim();
+        var responses = responsesRaw.split('\n').map(function(r) { return r.trim(); }).filter(Boolean);
+        if (responses.length > 0) {
+            steps.push({ keyword: kw, responses: responses });
+        }
+    });
+
+    if (steps.length === 0) { showToast('⚠️ Agrega al menos un paso', 'error'); return; }
+
+    var flows = getFlows();
+    flows[editingFlowIndex] = { keyword: keyword, model: model, mode: mode, steps: steps, updated: new Date().toISOString() };
+    saveFlows(flows);
+    cancelFlowEdit();
+    showToast('✅ Flujo actualizado', 'success');
+}
+
+function cancelFlowEdit() {
+    editingFlowIndex = -1;
+    document.getElementById('flowForm').style.display = 'none';
+    document.getElementById('flowEditBanner').style.display = 'none';
+}
+
+function deleteFlow(index) {
+    if (!confirm('¿Eliminar este flujo?')) return;
+    var flows = getFlows();
+    flows.splice(index, 1);
+    saveFlows(flows);
+    showToast('🗑 Flujo eliminado', 'error');
+}
+
+function renderFlowsList() {
+    var flows = getFlows();
+    var list = document.getElementById('flowsList');
+    if (!list) return;
+
+    if (flows.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔄</div><p>No hay flujos creados aún</p></div>';
+        return;
+    }
+
+    list.innerHTML = flows.map(function(flow, i) {
+        var totalResponses = flow.steps.reduce(function(acc, s) { return acc + s.responses.length; }, 0);
+        return '<div class="entry-card">'
+            + '<div class="entry-header">'
+            + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+            + '<span class="tag tag-model">🔄 FLUJO</span>'
+            + '<span class="tag tag-group">🤖 ' + (flow.model || 'eva').toUpperCase() + '</span>'
+            + '<span style="font-size:12px;font-weight:700;color:var(--accent2);">' + flow.keyword + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">' + flow.steps.length + ' pasos · ' + totalResponses + ' respuestas · ' + (flow.mode === 'random' ? '🎲 azar' : '🔢 orden') + '</span>'
+            + '</div>'
+            + '<div class="entry-actions" style="opacity:1;">'
+            + '<button class="btn btn-ghost btn-xs" onclick="editFlow(' + i + ')">✏️ Editar</button>'
+            + '<button class="btn btn-red btn-xs" onclick="deleteFlow(' + i + ')">🗑</button>'
+            + '</div>'
+            + '</div>'
+            + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">'
+            + flow.steps.map(function(s, si) {
+                return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;">'
+                    + '<span style="color:var(--accent2);">Paso ' + (si+1) + '</span>'
+                    + (s.keyword ? ' · <span style="color:var(--green);">' + s.keyword + '</span>' : ' · <span style="color:var(--text2);">siempre</span>')
+                    + ' · ' + s.responses.length + ' resp'
+                    + '</div>';
+            }).join('')
+            + '</div>'
+            + '</div>';
+    }).join('');
+}
+
 
 // ============ INIT ============
 showSection('dashboard');

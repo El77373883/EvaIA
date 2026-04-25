@@ -1139,12 +1139,18 @@ function generateResponse(input) {
 
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
     var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
-    for (var g = 0; g < greetings.length; g++) {
-        if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
-            pendingQuestion = 'saludo';
-            return '¡Hola! 👋 Soy Eva. ¿En qué puedo ayudarte hoy? 😊✨';
+for (var g = 0; g < greetings.length; g++) {
+    if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
+        pendingQuestion = 'saludo';
+        // Si ya hay conversación, responder diferente
+        if (shortTermMemory.length > 0) {
+            var estaRespuestas = ['¡Bien! 😊 ¿En qué te ayudo?', '¡Todo bien! ¿Qué necesitas?', '¡Genial, aquí estoy! ¿Cómo te puedo ayudar?'];
+            return estaRespuestas[Math.floor(Math.random() * estaRespuestas.length)];
         }
+        return '¡Hola! 👋 Soy Eva. ¿En qué puedo ayudarte hoy? 😊✨';
     }
+}
+
 
 // REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa
     if (shortTermMemory.length > 0) {

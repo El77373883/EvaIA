@@ -1345,6 +1345,21 @@ function showCodeResponse(text, sender) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var cleanText = text.replace(/\*\*/g, '').replace(/```[\s\S]*?```/g, ' [código omitido] ').replace(/!\[.*?\]\(.*?\)/g, '').replace(/[#*_~`>|-]/g, '').trim();
+        var utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 500));
+        utterance.lang = 'es-MX';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        var voices = speechSynthesis.getVoices();
+        var spanishVoice = voices.find(function(v) { return v.lang.startsWith('es'); });
+        if (spanishVoice) utterance.voice = spanishVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
 
 function typewriterEffect(text, sender) {
     var chatArea = document.getElementById('chatArea');
@@ -1639,14 +1654,41 @@ function startVoice() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         var recognition = new SR();
-        recognition.lang = 'es-ES';
-        recognition.interimResults = false;
-        recognition.onresult = function(event) { document.getElementById('chatInput').value = event.results[0][0].transcript; sendMessage(); };
-        recognition.onerror = function() { document.getElementById('chatInput').focus(); };
+        recognition.lang = 'es-MX';
+        recognition.interimResults = true;
+        var finalText = '';
+        
+        recognition.onresult = function(event) {
+            var input = document.getElementById('chatInput');
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalText += event.results[i][0].transcript + ' ';
+                } else {
+                    input.value = finalText + event.results[i][0].transcript;
+                }
+            }
+            if (event.results[event.results.length - 1].isFinal) {
+                input.value = finalText.trim();
+                setTimeout(function() { sendMessage(); }, 300);
+            }
+        };
+        
+        recognition.onerror = function() {
+            document.getElementById('chatInput').focus();
+        };
+        
+        recognition.onend = function() {
+            document.getElementById('chatInput').placeholder = 'Habla con Eva...';
+        };
+        
+        document.getElementById('chatInput').placeholder = '🎤 Escuchando...';
+        document.getElementById('chatInput').value = '';
+        finalText = '';
         recognition.start();
-    } else { document.getElementById('chatInput').focus(); }
+    } else {
+        document.getElementById('chatInput').focus();
+    }
 }
-
 // ============ MEMORIA DE CONVERSACIÓN (NUEVO) ============
 
 
@@ -2017,6 +2059,8 @@ else {
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
         typewriterEffect(contextualResponse, 'eva');
+        if (typeof voiceEnabled === 'undefined') var voiceEnabled = true;
+if (voiceEnabled) speakText(contextualResponse);
         
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();

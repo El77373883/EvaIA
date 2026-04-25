@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eva Admin Pro • Knowledge Manager</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1a1a25;
+            --border: #252535;
+            --text: #e0e0e0;
+            --text2: #8888aa;
+            --accent: #6C5CE7;
+            --accent2: #A78BFA;
+            --green: #00D68F;
+            --red: #FF6B6B;
+            --yellow: #FFD93D;
+            --orange: #F59E0B;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+        }
+        
+        .sidebar-overlay.active { display: block; }
+        
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 18px;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+        }
+        
+        .logo-text { font-weight: 800; font-size: 18px; }
+        .logo-sub { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .nav-item:hover { background: var(--surface2); color: var(--text); }
+        .nav-item.active { background: var(--accent); color: #fff; font-weight: 600; }
+        .nav-icon { font-size: 20px; width: 24px; text-align: center; }
+        
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stat-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+        }
+        
+        .stat-mini-val { font-weight: 700; font-size: 18px; color: var(--accent2); }
+        .stat-mini-lbl { font-size: 11px; color: var(--text2); }
+        
+        .main {
+            margin-left: 260px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .header h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+        .header-badge {
+            padding: 6px 14px;
+            background: var(--accent);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -20px; right: -20px;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.1;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .stat-card:hover::after { opacity: 0.2; transform: scale(1.2); }
+        
+        .stat-icon { font-size: 28px; margin-bottom: 12px; }
+        .stat-value { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+        .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .card-title { font-size: 16px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: var(--text2); }
+        
+        .form-row { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-end; }
+        .form-group { flex: 1; }
+        
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: all 0.2s;
+            outline: none;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.15);
+        }
+        
+        textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+        select { cursor: pointer; font-family: 'Inter', sans-serif; }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .btn:active { transform: scale(0.95); }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn-accent:hover { background: #7C6FF7; }
+        .btn-orange { background: var(--orange); color: #000; font-weight: 700; }
+        .btn-green { background: #059669; color: #fff; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+        .btn-ghost { background: transparent; color: var(--text2); }
+        .btn-ghost:hover { color: var(--text); background: var(--surface2); }
+        .btn-sm { padding: 7px 14px; font-size: 11px; }
+        .btn-xs { padding: 5px 10px; font-size: 10px; border-radius: 6px; }
+        .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .tag-model { background: rgba(108,92,231,0.2); color: var(--accent2); }
+        .tag-group { background: rgba(0,214,143,0.2); color: var(--green); }
+        .tag-keyword {
+            background: var(--surface2);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-keyword:hover { background: var(--accent); color: #fff; }
+        
+        .entry-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .entry-card:hover { border-color: var(--accent); }
+        .entry-card.highlighted { border-color: var(--yellow); background: rgba(255,217,61,0.05); }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        
+        .entry-keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        
+        .entry-preview {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text2);
+            font-style: italic;
+            max-height: 60px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .entry-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .entry-card:hover .entry-actions { opacity: 1; }
+        
+        .search-container { position: relative; margin-bottom: 20px; }
+        
+        .search-input { padding-left: 44px; font-size: 15px; height: 48px; }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--text2);
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 300;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        
+        .ai-suggestions {
+            background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(167,139,250,0.05));
+            border: 1px solid rgba(108,92,231,0.3);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .ai-suggestions h4 {
+            font-size: 12px;
+            color: var(--accent2);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .suggestion-chip {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            color: var(--text2);
+        }
+        .tab.active { background: var(--accent); color: #fff; }
+        
+        .keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; }
+        
+        .keyword-cloud-item {
+            padding: 6px 14px;
+            background: var(--surface2);
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .keyword-cloud-item:hover { background: var(--accent); color: #fff; }
+        .keyword-cloud-item.large { font-size: 16px; font-weight: 700; padding: 8px 18px; }
+        .keyword-cloud-item.medium { font-size: 13px; font-weight: 600; }
+        
+        .edit-banner {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid var(--orange);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange);
+        }
+        
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-close { display: flex; }
+            .sidebar-overlay.active { display: block; }
+            .main { margin-left: 0; padding: 20px; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { flex-direction: column; }
+            .menu-btn { display: flex; }
+            .entry-actions { opacity: 1; }
+        }
+        
+        @media (max-width: 500px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 22px; }
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="closeSidebar()" title="Cerrar menú">✕</button>
+    
+    <div class="sidebar-logo">
+        <div class="logo-icon">E</div>
+        <div>
+            <div class="logo-text">Eva Admin</div>
+            <div class="logo-sub">Knowledge Base</div>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showSection('dashboard'); closeSidebar();">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="showSection('add'); closeSidebar();">
+            <span class="nav-icon">➕</span> Nueva Entrada
+        </button>
+        <button class="nav-item" onclick="showSection('entries'); closeSidebar();">
+            <span class="nav-icon">📋</span> Todas las Entradas
+        </button>
+        <button class="nav-item" onclick="showSection('analytics'); closeSidebar();">
+            <span class="nav-icon">📈</span> Analíticas
+        </button>
+        <button class="nav-item" onclick="showSection('tools'); closeSidebar();">
+            <span class="nav-icon">🔧</span> Herramientas
+        </button>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="stat-mini">
+            <div>
+                <div class="stat-mini-val" id="totalEntries">0</div>
+                <div class="stat-mini-lbl">Entradas totales</div>
+            </div>
+            <span style="font-size:24px;">📚</span>
+        </div>
+        <button class="nav-item" onclick="exportData()" style="margin-top:8px;">
+            <span class="nav-icon">📤</span> Exportar datos
+        </button>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="menu-btn" onclick="openSidebar()" title="Abrir menú">☰</button>
+            <div>
+                <h1>Panel de Control</h1>
+                <p style="color:var(--text2);font-size:13px;margin-top:4px;">Gestiona el conocimiento de tu IA</p>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <span class="header-badge">v3.0 PRO</span>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="section-dashboard">
+        <div class="dashboard-grid">
+            <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="dashTotal">0</div><div class="stat-label">Entradas</div></div>
+            <div class="stat-card"><div class="stat-icon">🔑</div><div class="stat-value" id="dashKeywords">0</div><div class="stat-label">Keywords</div></div>
+            <div class="stat-card"><div class="stat-icon">🎲</div><div class="stat-value" id="dashGroups">0</div><div class="stat-label">Grupos</div></div>
+            <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-value" id="dashAvg">0</div><div class="stat-label">Resp x Grupo</div></div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📈 Últimas Entradas</span>
+                <button class="btn btn-ghost btn-sm" onclick="showSection('entries')">Ver todas →</button>
+            </div>
+            <div id="recentEntries"></div>
+        </div>
+    </section>
+
+    <!-- ADD SECTION -->
+    <section id="section-add" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <span class="card-title" id="formTitle">➕ Crear Nueva Entrada</span>
+                    <p class="card-subtitle" id="formSubtitle">Define keywords y respuestas para tu IA</p>
+                </div>
+                <select id="modelSelect" style="width:auto;">
+                    <option value="eva">🤖 Eva</option>
+                    <option value="selene">🌙 Selene</option>
+                    <option value="nyx">🌑 Nyx</option>
+                    <option value="aria">📊 Aria</option>
+                </select>
+            </div>
+            
+            <!-- BANNER DE EDICIÓN -->
+            <div class="edit-banner" id="editBanner" style="display:none;">
+                ✏️ <span id="editBannerText">Editando entrada</span>
+            </div>
+            
+            <div class="tabs" id="modeTabs">
+                <button class="tab active" id="tabSingle" onclick="setMode('single')">📄 Respuesta Única</button>
+                <button class="tab" id="tabGroup" onclick="setMode('group')">🎲 Grupo de Respuestas</button>
+            </div>
+            
+            <div class="form-group">
+                <label>🔑 Keywords (separadas por coma)</label>
+                <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos, qué tal" oninput="generateKeywordSuggestions()"></textarea>
+                <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="keywordsCounter">0 keywords</div>
+            </div>
+            
+            <div class="ai-suggestions" id="aiSuggestions" style="display:none;">
+                <h4>🧠 Sugerencias de keywords relacionadas:</h4>
+                <div id="suggestionChips"></div>
+            </div>
+            
+            <div id="singleResponseContainer">
+                <div class="form-group">
+                    <label>💬 Respuesta</label>
+                    <textarea id="newResponse" rows="4" placeholder="¡Hola! Soy Eva, ¿en qué puedo ayudarte?"></textarea>
+                    <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="responseCounter">0 caracteres</div>
+                </div>
+            </div>
+            
+            <div id="groupResponseContainer" style="display:none;">
+                <div class="form-group">
+                    <label>💬 Respuestas (Eva elegirá una al azar)</label>
+                    <div id="groupFields">
+                        <div class="form-row" style="margin-bottom:8px;">
+                            <textarea class="group-response" placeholder="Respuesta 1" style="flex:1;"></textarea>
+                            <button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="addGroupField()" style="margin-top:8px;">+ Agregar otra respuesta</button>
+                    <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="groupCounter">1 respuesta</div>
+                </div>
+            </div>
+            
+            <!-- BOTONES DE GUARDAR/CANCELAR -->
+            <div id="saveButtons">
+                <button class="btn btn-accent btn-full" id="saveBtn" onclick="addEntry()">
+                    ✅ Guardar Entrada
+                </button>
+            </div>
+            <div id="editButtons" style="display:none;">
+                <button class="btn btn-orange btn-full" onclick="updateEntry()">
+                    💾 Actualizar Entrada
+                </button>
+                <button class="btn btn-outline btn-full" onclick="cancelEdit()" style="margin-top:8px;">
+                    ❌ Cancelar Edición
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ENTRIES SECTION -->
+    <section id="section-entries" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📋 Todas las Entradas (<span id="entryCount">0</span>)</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="sortEntries()">🔤 Ordenar A-Z</button>
+                    <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar</button>
+                    <button class="btn btn-red btn-sm" onclick="resetAll()">🗑 Borrar Todo</button>
+                </div>
+            </div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar por keyword, respuesta o modelo..." oninput="liveSearch()">
+                <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="searchInfo"></div>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+            <div id="entriesList"></div>
+        </div>
+    </section>
+
+    <!-- ANALYTICS SECTION -->
+    <section id="section-analytics" style="display:none;">
+        <div class="card">
+            <div class="card-header"><span class="card-title">📈 Analíticas de Conocimiento</span></div>
+            <h4 style="font-size:13px;color:var(--text2);margin-bottom:12px;">☁️ Nube de Keywords más usadas:</h4>
+            <div class="keyword-cloud" id="keywordCloud"></div>
+            <h4 style="font-size:13px;color:var(--text2);margin:24px 0 12px;">📊 Distribución por Modelo:</h4>
+            <div id="modelDistribution"></div>
+        </div>
+    </section>
+
+    <!-- TOOLS SECTION -->
+    <section id="section-tools" style="display:none;">
+        <div class="card">
+            <div class="card-header"><span class="card-title">🔧 Herramientas</span></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+                <button class="btn btn-outline" onclick="exportData()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📤</span><span>Exportar JSON</span></button>
+                <button class="btn btn-outline" onclick="importData()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📥</span><span>Importar JSON</span></button>
+                <button class="btn btn-outline" onclick="addBatchFromJSON()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">📋</span><span>Lote JSON</span></button>
+                <button class="btn btn-outline" onclick="sortEntries()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🔤</span><span>Ordenar A-Z</span></button>
+                <button class="btn btn-outline" onclick="detectDuplicates()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🔍</span><span>Detectar Duplicados</span></button>
+                <button class="btn btn-red" onclick="resetAll()" style="flex-direction:column;padding:20px;text-align:center;"><span style="font-size:32px;">🗑</span><span>Borrar Todo</span></button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="toast" class="toast" style="display:none;"></div>
+
+<script>
+// ============ ESTADO ============
+var isGroupMode = false;
+var currentSearchTerm = '';
+var currentSection = 'dashboard';
+var editingIndex = -1; // -1 = creando nuevo, >=0 = editando
+
+// ============ SIDEBAR ============
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// ============ NAVEGACIÓN ============
+function showSection(section) {
+    currentSection = section;
+    document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.style.display = 'none'; });
+    var target = document.getElementById('section-' + section);
+    if (target) target.style.display = 'block';
+    
+    document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
+    var sectionIndex = { dashboard: 0, add: 1, entries: 2, analytics: 3, tools: 4 }[section] || 0;
+    var navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+    if (navItems[sectionIndex]) navItems[sectionIndex].classList.add('active');
+    
+    if (section === 'dashboard') updateDashboard();
+    if (section === 'entries') renderAll();
+    if (section === 'analytics') renderAnalytics();
+    
+    // Si no estamos editando y vamos a "add", resetear el formulario
+    if (section === 'add' && editingIndex === -1) {
+        resetFormToCreateMode();
+    }
+}
+
+// ============ TOAST ============
+function showToast(msg, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    toast.style.animation = 'slideIn 0.3s ease';
+    toast.style.borderColor = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--red)' : 'var(--accent)';
+    
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(function() {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(function() { toast.style.display = 'none'; }, 280);
+    }, 2500);
+}
+
+// ============ GRUPOS ============
+function addGroupField() {
+    var div = document.createElement('div');
+    div.className = 'form-row';
+    div.style.marginBottom = '8px';
+    div.innerHTML = '<textarea class="group-response" placeholder="Otra respuesta..." style="flex:1;"></textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
+    document.getElementById('groupFields').appendChild(div);
+    updateGroupCounter();
+}
+
+function removeGroupField(btn) {
+    var fields = document.querySelectorAll('#groupFields .form-row');
+    if (fields.length > 1) { btn.parentElement.remove(); updateGroupCounter(); }
+}
+
+function updateGroupCounter() {
+    document.getElementById('groupCounter').textContent = document.querySelectorAll('#groupFields .form-row').length + ' respuestas';
+}
+
+// ============ DATOS ============
+function getEntries() { return JSON.parse(localStorage.getItem('eva_entries') || '[]'); }
+function saveEntries(data) {
+    localStorage.setItem('eva_entries', JSON.stringify(data));
+    renderAll();
+    updateStats();
+    updateDashboard();
+    if (currentSection === 'analytics') renderAnalytics();
+}
+
+// ============ RESETEAR FORMULARIO ============
+function resetFormToCreateMode() {
+    editingIndex = -1;
+    document.getElementById('newKeywords').value = '';
+    document.getElementById('newResponse').value = '';
+    document.getElementById('keywordsCounter').textContent = '0 keywords';
+    document.getElementById('responseCounter').textContent = '0 caracteres';
+    document.getElementById('aiSuggestions').style.display = 'none';
+    document.getElementById('modelSelect').value = 'eva';
+    
+    // Limpiar grupo
+    var fields = document.getElementById('groupFields');
+    fields.innerHTML = '<div class="form-row" style="margin-bottom:8px;"><textarea class="group-response" placeholder="Respuesta 1" style="flex:1;"></textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button></div>';
+    updateGroupCounter();
+    
+    // Modo único por defecto
+    setMode('single');
+    
+    // Mostrar botones de crear
+    document.getElementById('saveButtons').style.display = 'block';
+    document.getElementById('editButtons').style.display = 'none';
+    document.getElementById('editBanner').style.display = 'none';
+    document.getElementById('formTitle').textContent = '➕ Crear Nueva Entrada';
+    document.getElementById('formSubtitle').textContent = 'Define keywords y respuestas para tu IA';
+    document.getElementById('saveBtn').onclick = addEntry;
+}
+
+// ============ AGREGAR NUEVA ENTRADA ============
+function addEntry() {
+    var keywordsRaw = document.getElementById('newKeywords').value.trim();
+    var model = document.getElementById('modelSelect').value;
+    
+    if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
+    
+    var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    var entries = getEntries();
+    
+    var existingEntry = entries.find(function(e) {
+        return e.keywords.some(function(k) { return keywords.includes(k); });
+    });
+    
+    if (existingEntry && !confirm('⚠️ Ya existe una entrada con alguna de estas keywords. ¿Continuar de todos modos?')) {
+        return;
+    }
+    
+    var newEntry = {
+        keywords: keywords,
+        model: model,
+        created: new Date().toISOString(),
+        usageCount: 0
+    };
+    
+    if (isGroupMode) {
+        var responses = [];
+        document.querySelectorAll('.group-response').forEach(function(ta) {
+            var r = ta.value.trim();
+            if (r) responses.push(r);
+        });
+        if (responses.length === 0) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
+        newEntry.responses = responses;
+        newEntry.isGroup = true;
+        document.querySelectorAll('.group-response').forEach(function(ta) { ta.value = ''; });
+    } else {
+        var responseText = document.getElementById('newResponse').value.trim();
+        if (!responseText) { showToast('⚠️ Escribe la respuesta', 'error'); return; }
+        newEntry.response = responseText;
+        document.getElementById('newResponse').value = '';
+    }
+    
+    entries.push(newEntry);
+    saveEntries(entries);
+    resetFormToCreateMode();
+    showToast('✅ Entrada creada exitosamente', 'success');
+}
+
+// ============ EDITAR ENTRADA ============
+function editEntry(index) {
+    var entries = getEntries();
+    var entry = entries[index];
+    
+    editingIndex = index;
+    
+    // Cambiar a sección add
+    showSection('add');
+    
+    // Cargar keywords
+    document.getElementById('newKeywords').value = entry.keywords.join(', ');
+    document.getElementById('keywordsCounter').textContent = entry.keywords.length + ' keywords';
+    generateKeywordSuggestions();
+    
+    // Cargar modelo
+    document.getElementById('modelSelect').value = entry.model || 'eva';
+    
+    if (entry.isGroup && entry.responses) {
+        // Cargar grupo
+        setMode('group');
+        var fields = document.getElementById('groupFields');
+        fields.innerHTML = '';
+        entry.responses.forEach(function(r, i) {
+            var div = document.createElement('div');
+            div.className = 'form-row';
+            div.style.marginBottom = '8px';
+            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + escHtml(r) + '</textarea>'
+                + '<button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
+            fields.appendChild(div);
+        });
+        updateGroupCounter();
+    } else {
+        // Cargar respuesta única
+        setMode('single');
+        document.getElementById('newResponse').value = entry.response || '';
+        document.getElementById('responseCounter').textContent = (entry.response || '').length + ' caracteres';
+    }
+    
+    // Cambiar UI a modo edición
+    document.getElementById('saveButtons').style.display = 'none';
+    document.getElementById('editButtons').style.display = 'block';
+    document.getElementById('editBanner').style.display = 'flex';
+    document.getElementById('editBannerText').textContent = 'Editando entrada #' + (index + 1) + ' - ' + entry.keywords.slice(0, 3).join(', ');
+    document.getElementById('formTitle').textContent = '✏️ Editar Entrada';
+    document.getElementById('formSubtitle').textContent = 'Modifica y presiona Actualizar para guardar';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('✏️ Editando entrada. Modifica y presiona Actualizar.', 'success');
+}
+
+// ============ ACTUALIZAR ENTRADA ============
+function updateEntry() {
+    var keywordsRaw = document.getElementById('newKeywords').value.trim();
+    var model = document.getElementById('modelSelect').value;
+    
+    if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
+    
+    var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    var entries = getEntries();
+    
+    if (editingIndex < 0 || editingIndex >= entries.length) {
+        showToast('❌ Error: Índice de edición inválido', 'error');
+        resetFormToCreateMode();
+        return;
+    }
+    
+    var updatedEntry = {
+        keywords: keywords,
+        model: model,
+        created: entries[editingIndex].created || new Date().toISOString(),
+        updated: new Date().toISOString(),
+        usageCount: entries[editingIndex].usageCount || 0
+    };
+    
+    if (isGroupMode) {
+        var responses = [];
+        document.querySelectorAll('.group-response').forEach(function(ta) {
+            var r = ta.value.trim();
+            if (r) responses.push(r);
+        });
+        if (responses.length === 0) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
+        updatedEntry.responses = responses;
+        updatedEntry.isGroup = true;
+    } else {
+        var responseText = document.getElementById('newResponse').value.trim();
+        if (!responseText) { showToast('⚠️ Escribe la respuesta', 'error'); return; }
+        updatedEntry.response = responseText;
+    }
+    
+    // Reemplazar la entrada
+    entries[editingIndex] = updatedEntry;
+    saveEntries(entries);
+    resetFormToCreateMode();
+    showToast('✅ Entrada actualizada correctamente', 'success');
+}
+
+// ============ CANCELAR EDICIÓN ============
+function cancelEdit() {
+    if (editingIndex >= 0) {
+        showToast('❌ Edición cancelada. La entrada original se mantiene.', 'error');
+    }
+    resetFormToCreateMode();
+}
+
+// ============ ELIMINAR ============
+function deleteEntry(index) {
+    if (confirm('¿Eliminar esta entrada permanentemente?')) {
+        var e = getEntries();
+        e.splice(index, 1);
+        saveEntries(e);
+        showToast('🗑 Entrada eliminada', 'error');
+    }
+}
+
+// ============ SUGERENCIAS IA ============
+var keywordDatabase = {
+    'hola': ['hey', 'saludos', 'buenas', 'qué tal', 'buen día'],
+    'ayuda': ['socorro', 'help', 'auxilio', 'necesito', 'problema'],
+    'código': ['programar', 'html', 'css', 'javascript', 'python'],
+    'precio': ['costo', 'valor', 'cuánto', 'dinero', 'pago'],
+    'contacto': ['email', 'correo', 'teléfono', 'whatsapp', 'redes'],
+    'producto': ['servicio', 'catálogo', 'tienda', 'comprar', 'venta'],
+    'cuenta': ['perfil', 'usuario', 'login', 'registro', 'sesión'],
+    'error': ['bug', 'fallo', 'problema', 'no funciona', 'roto']
+};
+
+function generateKeywordSuggestions() {
+    var input = document.getElementById('newKeywords').value.toLowerCase();
+    var currentKeywords = input.split(',').map(function(k) { return k.trim(); }).filter(Boolean);
+    var suggestions = [];
+    
+    currentKeywords.forEach(function(kw) {
+        for (var base in keywordDatabase) {
+            if (kw.includes(base) || base.includes(kw)) {
+                keywordDatabase[base].forEach(function(s) {
+                    if (!currentKeywords.includes(s) && !suggestions.includes(s)) {
+                        suggestions.push(s);
+                    }
+                });
+            }
+        }
+    });
+    
+    var container = document.getElementById('aiSuggestions');
+    var chips = document.getElementById('suggestionChips');
+    
+    if (suggestions.length > 0) {
+        container.style.display = 'block';
+        chips.innerHTML = suggestions.map(function(s) {
+            return '<span class="suggestion-chip" onclick="addKeywordSuggestion(\'' + s.replace(/'/g, "\\'") + '\')">💡 ' + s + '</span>';
+        }).join('');
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+function addKeywordSuggestion(keyword) {
+    var input = document.getElementById('newKeywords');
+    var current = input.value.trim();
+    if (current && !current.endsWith(',')) current += ', ';
+    input.value = current + keyword + ', ';
+    input.focus();
+    generateKeywordSuggestions();
+}
+
+// ============ RENDERIZAR ============
+function renderAll() {
+    renderEntries();
+    document.getElementById('entryCount').textContent = getEntries().length;
+    document.getElementById('totalEntries').textContent = getEntries().length;
+    if (currentSearchTerm) liveSearch();
+}
+
+function renderEntries(filter) {
+    var entries = filter || getEntries();
+    var list = document.getElementById('entriesList');
+    
+    if (entries.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><h3>Sin resultados</h3><p>No se encontraron entradas</p></div>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(function(entry) {
+        var realIndex = getEntries().indexOf(entry);
+        var isGroup = entry.isGroup;
+        var tagsHtml = entry.keywords.slice(0, 5).map(function(k) {
+            return '<span class="tag tag-keyword">' + escHtml(k) + '</span>';
+        }).join('');
+        if (entry.keywords.length > 5) tagsHtml += '<span class="tag tag-keyword">+' + (entry.keywords.length - 5) + '</span>';
+        
+        var rp;
+        if (isGroup && entry.responses) {
+            rp = '🎲 Grupo (' + entry.responses.length + ' respuestas): ' + entry.responses[0].slice(0, 100) + '...';
+        } else {
+            rp = (entry.response || '').length > 120 ? entry.response.slice(0, 120) + '...' : (entry.response || '');
+        }
+        
+        var usageInfo = entry.usageCount ? ' • Usada ' + entry.usageCount + ' veces' : '';
+        var updatedInfo = entry.updated ? ' • Editada ' + new Date(entry.updated).toLocaleDateString('es-ES') : '';
+        var highlight = currentSearchTerm ? 'highlighted' : '';
+        
+        return '<div class="entry-card ' + highlight + '">'
+            + '<div class="entry-header">'
+            + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+            + '<span class="tag ' + (isGroup ? 'tag-group' : 'tag-model') + '">'
+            + (isGroup ? '🎲 GRUPO' : '🤖 ' + (entry.model || 'EVA').toUpperCase())
+            + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + usageInfo + updatedInfo + '</span>'
+            + '</div>'
+            + '<div class="entry-actions">'
+            + '<button class="btn btn-ghost btn-xs" onclick="editEntry(' + realIndex + ')">✏️ Editar</button>'
+            + '<button class="btn btn-red btn-xs" onclick="deleteEntry(' + realIndex + ')">🗑</button>'
+            + '</div>'
+            + '</div>'
+            + '<div class="entry-keywords">' + tagsHtml + '</div>'
+            + '<div class="entry-preview">' + escHtml(rp) + '</div>'
+            + '</div>';
+    }).join('');
+}
+
+// ============ BÚSQUEDA ============
+function liveSearch() {
+    var term = document.getElementById('searchInput').value.trim().toLowerCase();
+    currentSearchTerm = term;
+    
+    if (!term) { renderEntries(); document.getElementById('searchInfo').textContent = ''; return; }
+    
+    var entries = getEntries();
+    var results = entries.filter(function(e) {
+        var inKw = e.keywords.join(' ').toLowerCase().includes(term);
+        var inRp = (e.response || '').toLowerCase().includes(term);
+        var inGroup = e.responses ? e.responses.join(' ').toLowerCase().includes(term) : false;
+        var inModel = (e.model || '').toLowerCase().includes(term);
+        return inKw || inRp || inGroup || inModel;
+    });
+    
+    renderEntries(results);
+    document.getElementById('searchInfo').textContent = '🔍 ' + results.length + ' resultados de ' + entries.length + ' totales';
+}
+
+// ============ ANALYTICS ============
+function renderAnalytics() {
+    var entries = getEntries();
+    
+    var keywordCount = {};
+    entries.forEach(function(e) {
+        e.keywords.forEach(function(k) {
+            keywordCount[k] = (keywordCount[k] || 0) + 1;
+        });
+    });
+    
+    var cloudHtml = '';
+    var sorted = Object.entries(keywordCount).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 30);
+    sorted.forEach(function(item) {
+        var size = item[1] > 5 ? 'large' : item[1] > 2 ? 'medium' : '';
+        cloudHtml += '<span class="keyword-cloud-item ' + size + '">' + escHtml(item[0]) + ' (' + item[1] + ')</span>';
+    });
+    
+    document.getElementById('keywordCloud').innerHTML = cloudHtml || '<p style="color:var(--text2);">No hay datos aún</p>';
+    
+    var modelCount = {};
+    entries.forEach(function(e) {
+        var m = e.model || 'eva';
+        modelCount[m] = (modelCount[m] || 0) + 1;
+    });
+    
+    var distHtml = '';
+    for (var model in modelCount) {
+        var pct = Math.round((modelCount[model] / entries.length) * 100);
+        distHtml += '<div style="margin-bottom:12px;">'
+            + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">'
+            + '<span>🤖 ' + model + '</span><span>' + modelCount[model] + ' (' + pct + '%)</span></div>'
+            + '<div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;">'
+            + '<div style="background:var(--accent);height:100%;width:' + pct + '%;"></div></div></div>';
+    }
+    
+    document.getElementById('modelDistribution').innerHTML = distHtml || '<p style="color:var(--text2);">No hay datos aún</p>';
+}
+
+// ============ ESTADÍSTICAS ============
+function updateStats() {
+    var e = getEntries(), tk = 0, g = 0, tr = 0;
+    e.forEach(function(x) {
+        tk += x.keywords.length;
+        if (x.isGroup && x.responses) { g++; tr += x.responses.length; }
+    });
+    document.getElementById('dashTotal').textContent = e.length;
+    document.getElementById('dashKeywords').textContent = tk;
+    document.getElementById('dashGroups').textContent = g;
+    document.getElementById('dashAvg').textContent = g > 0 ? Math.round(tr / g) : 0;
+    document.getElementById('totalEntries').textContent = e.length;
+}
+
+function updateDashboard() {
+    updateStats();
+    var entries = getEntries();
+    var recent = entries.slice(-5).reverse();
+    var container = document.getElementById('recentEntries');
+    
+    if (recent.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No hay entradas aún</p><button class="btn btn-accent btn-sm" onclick="showSection(\'add\')" style="margin-top:12px;">➕ Crear primera entrada</button></div>';
+        return;
+    }
+    
+    container.innerHTML = recent.map(function(entry) {
+        var kw = entry.keywords.slice(0, 3).join(', ');
+        if (entry.keywords.length > 3) kw += ' +' + (entry.keywords.length - 3);
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">'
+            + '<div>'
+            + '<span class="tag ' + (entry.isGroup ? 'tag-group' : 'tag-model') + '" style="margin-right:8px;">' + (entry.isGroup ? '🎲' : '🤖') + '</span>'
+            + '<span style="font-size:13px;">' + escHtml(kw) + '</span>'
+            + '</div>'
+            + '<span style="font-size:10px;color:var(--text2);">' + new Date(entry.created).toLocaleDateString('es-ES') + '</span>'
+            + '</div>';
+    }).join('');
+}
+
+// ============ DETECTAR DUPLICADOS ============
+function detectDuplicates() {
+    var entries = getEntries();
+    var seen = {};
+    var duplicates = [];
+    
+    entries.forEach(function(entry, index) {
+        entry.keywords.forEach(function(kw) {
+            if (seen[kw] !== undefined) {
+                if (!duplicates.includes(index)) duplicates.push(index);
+                if (!duplicates.includes(seen[kw])) duplicates.push(seen[kw]);
+            } else {
+                seen[kw] = index;
+            }
+        });
+    });
+    
+    if (duplicates.length > 0) {
+        showToast('⚠️ ' + duplicates.length + ' entradas con keywords duplicadas', 'error');
+        renderEntries(entries.filter(function(e, i) { return duplicates.includes(i); }));
+    } else {
+        showToast('✅ No hay keywords duplicadas', 'success');
+    }
+}
+
+// ============ ORDENAR ============
+function sortEntries() {
+    var e = getEntries();
+    e.sort(function(a, b) { return (a.keywords[0] || '').localeCompare(b.keywords[0] || ''); });
+    saveEntries(e);
+    showToast('🔤 Entradas ordenadas A-Z', 'success');
+}
+
+// ============ EXPORTAR / IMPORTAR ============
+function exportData() {
+    var e = getEntries();
+    if (!e.length) { showToast('⚠️ No hay datos para exportar', 'error'); return; }
+    var b = new Blob([JSON.stringify(e, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'eva_entries_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    showToast('📤 ' + e.length + ' entradas exportadas', 'success');
+}
+
+function importData() { document.getElementById('importFile').click(); }
+
+function handleImport(ev) {
+    var f = ev.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(e) {
+        try {
+            var d = JSON.parse(e.target.result);
+            if (Array.isArray(d) && confirm('¿Importar ' + d.length + ' entradas y SOBRESCRIBIR todo?')) {
+                saveEntries(d);
+                showToast('📥 ' + d.length + ' entradas importadas', 'success');
+            }
+        } catch(ex) { showToast('❌ Error: JSON inválido', 'error'); }
+    };
+    r.readAsText(f);
+    ev.target.value = '';
+}
+
+function addBatchFromJSON() {
+    var modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.innerHTML = '<div class="modal">'
+        + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button>'
+        + '<h3 style="margin-bottom:16px;">📋 Pegar JSON por Lote</h3>'
+        + '<textarea id="batchJsonInput" rows="10" placeholder=\'[{"keywords":["prueba"],"response":"Respuesta","model":"eva"}]\'></textarea>'
+        + '<button class="btn btn-accent btn-full" onclick="processBatchJson()" style="margin-top:12px;">✅ Agregar Lote</button>'
+        + '</div>';
+    document.body.appendChild(modal);
+}
+
+function processBatchJson() {
+    var t = document.getElementById('batchJsonInput').value.trim();
+    if (!t) { showToast('⚠️ Pega el JSON', 'error'); return; }
+    try {
+        var n = JSON.parse(t);
+        if (!Array.isArray(n)) { showToast('❌ Debe ser un array', 'error'); return; }
+        var entries = getEntries().concat(n);
+        saveEntries(entries);
+        document.querySelector('.modal-overlay')?.remove();
+        showToast('✅ ' + n.length + ' entradas agregadas', 'success');
+    } catch(ex) { showToast('❌ Error: ' + ex.message, 'error'); }
+}
+
+function resetAll() {
+    if (confirm('⚠️ ¿BORRAR TODAS las entradas? No se puede deshacer.')) {
+        localStorage.removeItem('eva_entries');
+        renderAll();
+        updateStats();
+        updateDashboard();
+        showToast('🗑 Todo eliminado', 'error');
+    }
+}
+
+// ============ MODO ============
+function setMode(mode) {
+    isGroupMode = (mode === 'group');
+    document.querySelectorAll('#modeTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('singleResponseContainer').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('groupResponseContainer').style.display = mode === 'group' ? 'block' : 'none';
+    if (mode === 'single') {
+        document.getElementById('tabSingle').classList.add('active');
+    } else {
+        document.getElementById('tabGroup').classList.add('active');
+    }
+}
+
+// ============ CONTADORES ============
+document.getElementById('newKeywords').addEventListener('input', function() {
+    document.getElementById('keywordsCounter').textContent = this.value.split(',').filter(function(k) { return k.trim(); }).length + ' keywords';
+});
+
+document.getElementById('newResponse').addEventListener('input', function() {
+    document.getElementById('responseCounter').textContent = this.value.length + ' caracteres';
+});
+
+// ============ UTILIDADES ============
+function escHtml(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+// ============ CERRAR SIDEBAR CON ESC ============
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidebar();
+});
+
+// ============ INIT ============
+showSection('dashboard');
+updateStats();
+updateGroupCounter();
+updateDashboard();
+</script>
+
+</body>
+</html>

@@ -1089,7 +1089,8 @@ function renderAll() {
 }
 
 function renderEntries(filter) {
-    var entries = filter || getEntries();
+    var allEntries = getEntries();
+    var entries = filter || allEntries;
     var list = document.getElementById('entriesList');
     
     if (entries.length === 0) {
@@ -1097,8 +1098,17 @@ function renderEntries(filter) {
         return;
     }
     
-    list.innerHTML = entries.map(function(entry) {
-        var realIndex = getEntries().indexOf(entry);
+    list.innerHTML = entries.map(function(entry, mapIndex) {
+        var realIndex = mapIndex;
+        if (filter) {
+            for (var i = 0; i < allEntries.length; i++) {
+                if (JSON.stringify(allEntries[i].keywords) === JSON.stringify(entry.keywords)) {
+                    realIndex = i;
+                    break;
+                }
+            }
+        }
+
         var isGroup = entry.isGroup;
         var tagsHtml = entry.keywords.slice(0, 5).map(function(k) {
             return '<span class="tag tag-keyword">' + escHtml(k) + '</span>';

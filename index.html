@@ -1057,12 +1057,32 @@ function corregirTexto(texto) {
     return corregido.join(' ');
 }
 
+
 // ============ GENERAR RESPUESTA ============
 function generateResponse(input) {
     var msg = corregirTexto(input);
     // Buscar en internet si es una pregunta que Eva no puede responder
     if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('capital de') || msg.includes('cuanto mide') || msg.includes('donde queda') || msg.includes('cuando fue') || msg.includes('busca en internet') || msg.includes('googlea') || msg.includes('busca')) {
     }
+    
+    var msgClean = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    
+    // Bloquear palabras contextuales sin pregunta pendiente
+    if (isContextualWord(msgClean) && !pendingQuestion) {
+        var neutral = {
+            'si':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            'sí':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            'no':'Está bien. ¿Entonces qué necesitas? 🤔',
+            'ok':'¡OK! ¿Qué sigue? 😊',
+            'dale':'¡Vamos! 💪 ¿Qué necesitas?',
+            'bien':'¡Qué bueno! ¿En qué te ayudo? 😊',
+            'bueno':'¡Perfecto! Dime qué necesitas. 👍',
+            'vale':'¡Vale! ¿En qué te ayudo?',
+            'claro':'¡Claro! Dime. 😊'
+        };
+        if (neutral[msgClean]) return neutral[msgClean];
+    }
+    
     var msgOriginal = input.toLowerCase().trim();
 
     // Modo creación activo
@@ -1109,11 +1129,11 @@ function generateResponse(input) {
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
     var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
     for (var g = 0; g < greetings.length; g++) {
-        if (msg.includes(greetings[g]) && msg.split(' ').length <= 4) {
+        if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
+            pendingQuestion = 'saludo';
             return '¡Hola! 👋 Soy Eva. ¿En qué puedo ayudarte hoy? 😊✨';
         }
     }
-
 
 // REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa
     if (shortTermMemory.length > 0) {
@@ -1121,18 +1141,10 @@ function generateResponse(input) {
         var msgWords = msg.trim().split(/\s+/);
         
         // Si Eva preguntó "en qué puedo ayudarte" y usuario responde palabra suelta
-        if ((lastEvaMsg.includes('en qué puedo ayudarte') || lastEvaMsg.includes('en que puedo ayudarte') || lastEvaMsg.includes('ayudarte hoy')) && msgWords.length <= 2) {
+        if ((lastEvaMsg.includes('en qué puedo ayudarte') || lastEvaMsg.includes('ayudarte hoy')) && msgWords.length <= 2) {
             var topicResponses = {
-                'programacion': 'Veo que te interesa la programación 💻 ¿Quieres aprender, tienes un error que arreglar o necesitas crear algo?',
-                'matematicas': '¡Matemáticas! 🔢 Dime el problema o tema y te ayudo.',
-                'tareas': '¿Tienes tareas pendientes? 📚 Cuéntame de qué materia y te ayudo.',
-                'tarea': '¿Qué tarea necesitas hacer? 📚 Dime y te ayudo.',
-                'examen': '¿Examen cerca? 📝 Dime la materia y te ayudo a estudiar.',
-                'historia': '¿Sobre qué época o evento histórico quieres saber? 📜',
-                'ciencia': '¿Física, química o biología? 🔬 Dime qué tema necesitas.',
-                'ingles': '¿Necesitas traducir algo o practicar inglés? 🌎',
-                'consejo': 'Te escucho 💙 Cuéntame qué está pasando.',
-                'ayuda': '¿En qué necesitas ayuda exactamente? 🤝'
+                'programacion': '¡Me encanta programar! 💻 ¿Qué lenguaje: Java, JavaScript, Python, HTML, CSS?',
+                'codigo': '¿Necesitas ayuda con código? 💻 Dime qué lenguaje.',
             };
             for (var key in topicResponses) {
                 if (msg.includes(key)) return topicResponses[key];
@@ -1186,6 +1198,9 @@ function generateResponse(input) {
 if (matches.length > 0) {
     var bestMatch = matches[0];
     var k = knowledge[bestMatch.knowledgeIndex];
+    
+    // Guardar tema para seguimiento
+    pendingQuestion = k.keywords[0];
     
     var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
     if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
@@ -1539,6 +1554,18 @@ function clearChat() {
     document.getElementById('welcomeScreen').classList.remove('hidden');
 }
 
+
+// ============ MEMORIA DE CONVERSACIÓN ============
+var shortTermMemory = [];
+var pendingQuestion = null;
+
+var contextualWords = ['si','sí','no','nop','nel','dale','va','ok','oka','vale','bien','bueno','claro','obvio','simón','quizás','tal vez','puede ser'];
+
+function isContextualWord(msg) {
+    var clean = msg.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    return contextualWords.indexOf(clean) !== -1;
+}
+
 function startVoice() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1551,10 +1578,8 @@ function startVoice() {
     } else { document.getElementById('chatInput').focus(); }
 }
 
-// ============ NUEVO: SISTEMA DE MEMORIA Y RAZONAMIENTO ============
+// ============ MEMORIA DE CONVERSACIÓN (NUEVO) ============
 
-// Memoria a corto plazo (últimas 15 interacciones)
-var shortTermMemory = [];
 
 // Memoria a largo plazo (datos aprendidos sobre el usuario)
 var longTermMemory = {

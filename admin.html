@@ -776,10 +776,11 @@
                 </div>
                 <div class="form-group" style="max-width:180px;">
                     <label>🎲 Modo de respuesta</label>
-                    <select id="flowMode">
-                        <option value="random">Al azar sin repetir</option>
-                        <option value="order">En orden 1,2,3...</option>
-                    </select>
+          <select id="flowMode">
+    <option value="random">Al azar sin repetir</option>
+    <option value="order">En orden 1,2,3...</option>
+    <option value="keyword">🔍 Por keyword exacta</option>
+</select>
                 </div>
             </div>
 
@@ -1667,7 +1668,7 @@ function renderFlowsList() {
             + '<span class="tag tag-model">🔄 FLUJO</span>'
             + '<span class="tag tag-group">🤖 ' + (flow.model || 'eva').toUpperCase() + '</span>'
             + '<span style="font-size:12px;font-weight:700;color:var(--accent2);">' + flow.keyword + '</span>'
-            + '<span style="font-size:10px;color:var(--text2);">' + flow.steps.length + ' pasos · ' + totalResponses + ' respuestas · ' + (flow.mode === 'random' ? '🎲 azar' : '🔢 orden') + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">' + flow.steps.length + ' pasos · ' + totalResponses + ' respuestas · ' + (flow.mode === 'random' ? '🎲 azar' : flow.mode === 'keyword' ? '🔍 keyword' : '🔢 orden')
             + '</div>'
             + '<div class="entry-actions" style="opacity:1;">'
             + '<button class="btn btn-ghost btn-xs" onclick="editFlow(' + i + ')">✏️ Editar</button>'

@@ -117,7 +117,7 @@
         <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
     </div>
     <div class="model-selector" onclick="toggleModelDropdown()">
-        <span id="currentModelName">Eva 1.0</span>
+        <span id="currentModelName">Eva Pro</span>
         <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </div>
  <div class="icon-btn" onclick="toggleProfile()">
@@ -191,7 +191,7 @@
         </div>
     </div>
     <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
-    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva 1.0</p>
+    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
 </main>
 
 <div class="input-container">
@@ -223,7 +223,7 @@
 
 <script>
 var currentModel = 'eva';
-var currentModelName = 'Eva 1.0';
+var currentModelName = 'Eva Pro';
 var isProcessing = false;
 var typewriterTimers = [];
 var currentChatId = null;
@@ -415,7 +415,7 @@ var icons = {
 
 // ============ DATOS BASE ============
 var models = [
-    { modelId: 'eva',    name: 'Eva 1.0',    greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
+    { modelId: 'eva',    name: 'Eva Pro',    greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
     { modelId: 'selene', name: 'Selene',     greeting: 'Hola, soy Selene.\nVamos a crear algo?' },
     { modelId: 'nyx',    name: 'Nyx',        greeting: 'Nyx te escucha.\nQue inquietud traes?' },
     { modelId: 'aria',   name: 'Aria',       greeting: 'Aria en linea.\nQue datos necesitas?' },

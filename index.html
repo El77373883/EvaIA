@@ -1155,8 +1155,33 @@ function generateResponse(input) {
     }
     
 
+
+// BUSCAR EN ADMIN PRIMERO (tiene prioridad sobre todo)
+var scoredFirst = [];
+for (var i = 0; i < knowledge.length; i++) {
+    var k = knowledge[i];
+    var keywords = Array.isArray(k.keywords) ? k.keywords : [];
+    var score = 0;
+    for (var j = 0; j < keywords.length; j++) {
+        var kw = keywords[j].toLowerCase();
+        if (msg.includes(kw)) score += kw.split(' ').length;
+        if (msg.trim() === kw) score += 50;
+    }
+    if (score > 0) scoredFirst.push({ score: score, category: k.category, knowledgeIndex: i });
+}
+scoredFirst.sort(function(a, b) { return b.score - a.score; });
+if (scoredFirst.length > 0) {
+    var bestCat = scoredFirst[0].category;
+    var catResp = responses.filter(function(r) { return r.category === bestCat && r.model === currentModel; });
+    if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
+    var anyResp = responses.filter(function(r) { return r.category === bestCat; });
+    if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
+}
+
+
+
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
-    var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
+    var greetings = [];
 for (var g = 0; g < greetings.length; g++) {
     if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
         pendingQuestion = 'saludo';

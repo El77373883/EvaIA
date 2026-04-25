@@ -30,6 +30,21 @@
             color: var(--text);
             min-height: 100vh;
             line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        /* OVERLAY para móviles */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
         }
         
         /* SIDEBAR */
@@ -44,6 +59,24 @@
             flex-direction: column;
             z-index: 100;
             transition: transform 0.3s ease;
+        }
+        
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 18px;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
         }
         
         .sidebar-logo {
@@ -126,6 +159,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
         
         .header h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
@@ -135,6 +170,20 @@
             border-radius: 50px;
             font-size: 12px;
             font-weight: 700;
+        }
+        
+        .menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
         }
         
         /* GRID */
@@ -188,6 +237,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
         
         .card-title { font-size: 16px; font-weight: 700; }
@@ -255,7 +306,6 @@
         .btn-sm { padding: 7px 14px; font-size: 11px; }
         .btn-xs { padding: 5px 10px; font-size: 10px; border-radius: 6px; }
         .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; }
-        
         .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
         
         /* TAGS */
@@ -365,9 +415,26 @@
             border-radius: var(--radius);
             padding: 32px;
             width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
+            max-width: 700px;
+            max-height: 85vh;
             overflow-y: auto;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* TOAST */
@@ -376,7 +443,7 @@
             bottom: 24px;
             right: 24px;
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 1px solid var(--accent);
             border-radius: var(--radius-sm);
             padding: 14px 20px;
             font-size: 13px;
@@ -384,11 +451,17 @@
             z-index: 300;
             animation: slideIn 0.3s ease;
             box-shadow: var(--shadow);
+            max-width: 400px;
         }
         
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
         
         .empty-state {
@@ -398,6 +471,42 @@
         }
         
         .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        
+        /* AI SUGGESTIONS */
+        .ai-suggestions {
+            background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(167,139,250,0.05));
+            border: 1px solid rgba(108,92,231,0.3);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .ai-suggestions h4 {
+            font-size: 12px;
+            color: var(--accent2);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .suggestion-chip {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
         
         /* TABS */
         .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
@@ -416,17 +525,51 @@
         }
         .tab.active { background: var(--accent); color: #fff; }
         
+        /* ANALYTICS SECTION */
+        .keyword-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 16px 0;
+        }
+        
+        .keyword-cloud-item {
+            padding: 6px 14px;
+            background: var(--surface2);
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .keyword-cloud-item:hover { background: var(--accent); color: #fff; }
+        .keyword-cloud-item.large { font-size: 16px; font-weight: 700; padding: 8px 18px; }
+        .keyword-cloud-item.medium { font-size: 13px; font-weight: 600; }
+        
         /* RESPONSIVE */
         @media (max-width: 900px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-close {
+                display: flex;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
             .main { margin-left: 0; padding: 20px; }
             .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
             .form-row { flex-direction: column; }
+            .menu-btn { display: flex; }
+            .entry-actions { opacity: 1; }
         }
         
         @media (max-width: 500px) {
             .dashboard-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 22px; }
         }
         
         /* SCROLLBAR */
@@ -437,8 +580,13 @@
 </head>
 <body>
 
+<!-- OVERLAY PARA CERRAR SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="closeSidebar()" title="Cerrar menú">✕</button>
+    
     <div class="sidebar-logo">
         <div class="logo-icon">E</div>
         <div>
@@ -448,16 +596,19 @@
     </div>
     
     <nav class="sidebar-nav">
-        <button class="nav-item active" onclick="showSection('dashboard')">
+        <button class="nav-item active" onclick="showSection('dashboard'); closeSidebar();">
             <span class="nav-icon">📊</span> Dashboard
         </button>
-        <button class="nav-item" onclick="showSection('add')">
+        <button class="nav-item" onclick="showSection('add'); closeSidebar();">
             <span class="nav-icon">➕</span> Nueva Entrada
         </button>
-        <button class="nav-item" onclick="showSection('entries')">
+        <button class="nav-item" onclick="showSection('entries'); closeSidebar();">
             <span class="nav-icon">📋</span> Todas las Entradas
         </button>
-        <button class="nav-item" onclick="showSection('tools')">
+        <button class="nav-item" onclick="showSection('analytics'); closeSidebar();">
+            <span class="nav-icon">📈</span> Analíticas
+        </button>
+        <button class="nav-item" onclick="showSection('tools'); closeSidebar();">
             <span class="nav-icon">🔧</span> Herramientas
         </button>
     </nav>
@@ -480,12 +631,14 @@
 <main class="main">
     <!-- HEADER -->
     <div class="header">
-        <div>
-            <h1>Panel de Control</h1>
-            <p style="color:var(--text2);font-size:13px;margin-top:4px;">Gestiona el conocimiento de tu IA</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="menu-btn" onclick="openSidebar()" title="Abrir menú">☰</button>
+            <div>
+                <h1>Panel de Control</h1>
+                <p style="color:var(--text2);font-size:13px;margin-top:4px;">Gestiona el conocimiento de tu IA</p>
+            </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn btn-outline btn-sm" onclick="toggleSidebar()">☰ Menú</button>
             <span class="header-badge">v3.0 PRO</span>
         </div>
     </div>
@@ -547,8 +700,14 @@
             
             <div class="form-group">
                 <label>🔑 Keywords (separadas por coma)</label>
-                <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos, qué tal"></textarea>
+                <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos, qué tal" oninput="generateKeywordSuggestions()"></textarea>
                 <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="keywordsCounter">0 keywords</div>
+            </div>
+            
+            <!-- SUGERENCIAS IA -->
+            <div class="ai-suggestions" id="aiSuggestions" style="display:none;">
+                <h4>🧠 Sugerencias de keywords relacionadas:</h4>
+                <div id="suggestionChips"></div>
             </div>
             
             <div id="singleResponseContainer">
@@ -603,11 +762,26 @@
         </div>
     </section>
 
+    <!-- ANALYTICS SECTION -->
+    <section id="section-analytics" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📈 Analíticas de Conocimiento</span>
+            </div>
+            
+            <h4 style="font-size:13px;color:var(--text2);margin-bottom:12px;">☁️ Nube de Keywords más usadas:</h4>
+            <div class="keyword-cloud" id="keywordCloud"></div>
+            
+            <h4 style="font-size:13px;color:var(--text2);margin:24px 0 12px;">📊 Distribución por Modelo:</h4>
+            <div id="modelDistribution"></div>
+        </div>
+    </section>
+
     <!-- TOOLS SECTION -->
     <section id="section-tools" style="display:none;">
         <div class="card">
             <div class="card-header"><span class="card-title">🔧 Herramientas</span></div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
                 <button class="btn btn-outline" onclick="exportData()" style="flex-direction:column;padding:20px;text-align:center;">
                     <span style="font-size:32px;">📤</span>
                     <span>Exportar JSON</span>
@@ -623,6 +797,10 @@
                 <button class="btn btn-outline" onclick="sortEntries()" style="flex-direction:column;padding:20px;text-align:center;">
                     <span style="font-size:32px;">🔤</span>
                     <span>Ordenar A-Z</span>
+                </button>
+                <button class="btn btn-outline" onclick="detectDuplicates()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">🔍</span>
+                    <span>Detectar Duplicados</span>
                 </button>
                 <button class="btn btn-red" onclick="resetAll()" style="flex-direction:column;padding:20px;text-align:center;">
                     <span style="font-size:32px;">🗑</span>
@@ -642,6 +820,17 @@ var isGroupMode = false;
 var currentSearchTerm = '';
 var currentSection = 'dashboard';
 
+// ============ SIDEBAR ============
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 // ============ NAVEGACIÓN ============
 function showSection(section) {
     currentSection = section;
@@ -650,24 +839,13 @@ function showSection(section) {
     if (target) target.style.display = 'block';
     
     document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
-    var navItems = document.querySelectorAll('.nav-item');
-    var sectionIndex = { dashboard: 0, add: 1, entries: 2, tools: 3 }[section] || 0;
+    var sectionIndex = { dashboard: 0, add: 1, entries: 2, analytics: 3, tools: 4 }[section] || 0;
+    var navItems = document.querySelectorAll('.sidebar-nav .nav-item');
     if (navItems[sectionIndex]) navItems[sectionIndex].classList.add('active');
     
     if (section === 'dashboard') updateDashboard();
     if (section === 'entries') renderAll();
-}
-
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-}
-
-function setMode(mode) {
-    isGroupMode = (mode === 'group');
-    document.querySelectorAll('#modeTabs .tab').forEach(function(t) { t.classList.remove('active'); });
-    document.getElementById('singleResponseContainer').style.display = mode === 'single' ? 'block' : 'none';
-    document.getElementById('groupResponseContainer').style.display = mode === 'group' ? 'block' : 'none';
-    event.target.classList.add('active');
+    if (section === 'analytics') renderAnalytics();
 }
 
 // ============ TOAST ============
@@ -675,8 +853,14 @@ function showToast(msg, type) {
     var toast = document.getElementById('toast');
     toast.textContent = msg;
     toast.style.display = 'block';
+    toast.style.animation = 'slideIn 0.3s ease';
     toast.style.borderColor = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--red)' : 'var(--accent)';
-    setTimeout(function() { toast.style.display = 'none'; }, 2500);
+    
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(function() {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(function() { toast.style.display = 'none'; }, 280);
+    }, 2500);
 }
 
 // ============ GRUPOS ============
@@ -705,6 +889,7 @@ function saveEntries(data) {
     renderAll();
     updateStats();
     updateDashboard();
+    if (currentSection === 'analytics') renderAnalytics();
     showToast('✅ Datos guardados correctamente', 'success');
 }
 
@@ -716,7 +901,16 @@ function addEntry() {
     if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
     
     var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+    
+    // Validar duplicados
     var entries = getEntries();
+    var existingEntry = entries.find(function(e) {
+        return e.keywords.some(function(k) { return keywords.includes(k); });
+    });
+    
+    if (existingEntry && !confirm('⚠️ Ya existe una entrada con alguna de estas keywords. ¿Continuar de todos modos?')) {
+        return;
+    }
     
     if (isGroupMode) {
         var responses = [];
@@ -730,7 +924,8 @@ function addEntry() {
             responses: responses,
             model: model,
             isGroup: true,
-            created: new Date().toISOString()
+            created: new Date().toISOString(),
+            usageCount: 0
         });
         document.querySelectorAll('.group-response').forEach(function(ta) { ta.value = ''; });
     } else {
@@ -740,7 +935,8 @@ function addEntry() {
             keywords: keywords,
             response: responseText,
             model: model,
-            created: new Date().toISOString()
+            created: new Date().toISOString(),
+            usageCount: 0
         });
         document.getElementById('newResponse').value = '';
     }
@@ -749,7 +945,59 @@ function addEntry() {
     document.getElementById('newKeywords').value = '';
     document.getElementById('keywordsCounter').textContent = '0 keywords';
     document.getElementById('responseCounter').textContent = '0 caracteres';
+    document.getElementById('aiSuggestions').style.display = 'none';
     showToast('✅ Entrada creada exitosamente', 'success');
+}
+
+// ============ SUGERENCIAS IA ============
+var keywordDatabase = {
+    'hola': ['hey', 'saludos', 'buenas', 'qué tal', 'buen día'],
+    'ayuda': ['socorro', 'help', 'auxilio', 'necesito', 'problema'],
+    'código': ['programar', 'html', 'css', 'javascript', 'python'],
+    'precio': ['costo', 'valor', 'cuánto', 'dinero', 'pago'],
+    'contacto': ['email', 'correo', 'teléfono', 'whatsapp', 'redes'],
+    'producto': ['servicio', 'catálogo', 'tienda', 'comprar', 'venta'],
+    'cuenta': ['perfil', 'usuario', 'login', 'registro', 'sesión'],
+    'error': ['bug', 'fallo', 'problema', 'no funciona', 'roto']
+};
+
+function generateKeywordSuggestions() {
+    var input = document.getElementById('newKeywords').value.toLowerCase();
+    var currentKeywords = input.split(',').map(function(k) { return k.trim(); }).filter(Boolean);
+    var suggestions = [];
+    
+    currentKeywords.forEach(function(kw) {
+        for (var base in keywordDatabase) {
+            if (kw.includes(base) || base.includes(kw)) {
+                keywordDatabase[base].forEach(function(s) {
+                    if (!currentKeywords.includes(s) && !suggestions.includes(s)) {
+                        suggestions.push(s);
+                    }
+                });
+            }
+        }
+    });
+    
+    var container = document.getElementById('aiSuggestions');
+    var chips = document.getElementById('suggestionChips');
+    
+    if (suggestions.length > 0) {
+        container.style.display = 'block';
+        chips.innerHTML = suggestions.map(function(s) {
+            return '<span class="suggestion-chip" onclick="addKeywordSuggestion(\'' + s + '\')">💡 ' + s + '</span>';
+        }).join('');
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+function addKeywordSuggestion(keyword) {
+    var input = document.getElementById('newKeywords');
+    var current = input.value.trim();
+    if (current && !current.endsWith(',')) current += ', ';
+    input.value = current + keyword + ', ';
+    input.focus();
+    generateKeywordSuggestions();
 }
 
 // ============ ELIMINAR / EDITAR ============
@@ -765,6 +1013,7 @@ function deleteEntry(index) {
 function editEntry(index) {
     var entries = getEntries(), entry = entries[index];
     document.getElementById('newKeywords').value = entry.keywords.join(', ');
+    generateKeywordSuggestions();
     
     if (entry.isGroup && entry.responses) {
         setMode('group');
@@ -774,7 +1023,7 @@ function editEntry(index) {
             var div = document.createElement('div');
             div.className = 'form-row';
             div.style.marginBottom = '8px';
-            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + r + '</textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
+            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + escHtml(r) + '</textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
             fields.appendChild(div);
         });
         updateGroupCounter();
@@ -823,15 +1072,17 @@ function renderEntries(filter) {
             rp = (entry.response || '').length > 120 ? entry.response.slice(0, 120) + '...' : (entry.response || '');
         }
         
+        var usageInfo = entry.usageCount ? ' • Usada ' + entry.usageCount + ' veces' : '';
+        
         var highlight = currentSearchTerm ? 'highlighted' : '';
         
         return '<div class="entry-card ' + highlight + '">'
             + '<div class="entry-header">'
-            + '<div style="display:flex;gap:8px;align-items:center;">'
+            + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
             + '<span class="tag ' + (isGroup ? 'tag-group' : 'tag-model') + '">'
             + (isGroup ? '🎲 GRUPO' : '🤖 ' + (entry.model || 'EVA').toUpperCase())
             + '</span>'
-            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + usageInfo + '</span>'
             + '</div>'
             + '<div class="entry-actions">'
             + '<button class="btn btn-ghost btn-xs" onclick="editEntry(' + realIndex + ')">✏️ Editar</button>'
@@ -868,11 +1119,45 @@ function liveSearch() {
     document.getElementById('searchInfo').textContent = '🔍 ' + results.length + ' resultados de ' + entries.length + ' totales';
 }
 
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    currentSearchTerm = '';
-    renderEntries();
-    document.getElementById('searchInfo').textContent = '';
+// ============ ANALYTICS ============
+function renderAnalytics() {
+    var entries = getEntries();
+    
+    // Nube de keywords
+    var keywordCount = {};
+    entries.forEach(function(e) {
+        e.keywords.forEach(function(k) {
+            keywordCount[k] = (keywordCount[k] || 0) + 1;
+        });
+    });
+    
+    var cloudHtml = '';
+    var sorted = Object.entries(keywordCount).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 30);
+    sorted.forEach(function(item) {
+        var size = item[1] > 5 ? 'large' : item[1] > 2 ? 'medium' : '';
+        cloudHtml += '<span class="keyword-cloud-item ' + size + '">' + escHtml(item[0]) + ' (' + item[1] + ')</span>';
+    });
+    
+    document.getElementById('keywordCloud').innerHTML = cloudHtml || '<p style="color:var(--text2);">No hay datos aún</p>';
+    
+    // Distribución por modelo
+    var modelCount = {};
+    entries.forEach(function(e) {
+        var m = e.model || 'eva';
+        modelCount[m] = (modelCount[m] || 0) + 1;
+    });
+    
+    var distHtml = '';
+    for (var model in modelCount) {
+        var pct = Math.round((modelCount[model] / entries.length) * 100);
+        distHtml += '<div style="margin-bottom:12px;">'
+            + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">'
+            + '<span>🤖 ' + model + '</span><span>' + modelCount[model] + ' (' + pct + '%)</span></div>'
+            + '<div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;">'
+            + '<div style="background:var(--accent);height:100%;width:' + pct + '%;"></div></div></div>';
+    }
+    
+    document.getElementById('modelDistribution').innerHTML = distHtml || '<p style="color:var(--text2);">No hay datos aún</p>';
 }
 
 // ============ ESTADÍSTICAS ============
@@ -913,6 +1198,32 @@ function updateDashboard() {
     }).join('');
 }
 
+// ============ DETECTAR DUPLICADOS ============
+function detectDuplicates() {
+    var entries = getEntries();
+    var seen = {};
+    var duplicates = [];
+    
+    entries.forEach(function(entry, index) {
+        entry.keywords.forEach(function(kw) {
+            if (seen[kw] !== undefined) {
+                if (!duplicates.includes(index)) duplicates.push(index);
+                if (!duplicates.includes(seen[kw])) duplicates.push(seen[kw]);
+            } else {
+                seen[kw] = index;
+            }
+        });
+    });
+    
+    if (duplicates.length > 0) {
+        showToast('⚠️ Se encontraron ' + duplicates.length + ' entradas con keywords duplicadas', 'error');
+        // Resaltar duplicados
+        renderEntries(entries.filter(function(e, i) { return duplicates.includes(i); }));
+    } else {
+        showToast('✅ No hay keywords duplicadas', 'success');
+    }
+}
+
 // ============ ORDENAR ============
 function sortEntries() {
     var e = getEntries();
@@ -930,7 +1241,7 @@ function exportData() {
     a.href = URL.createObjectURL(b);
     a.download = 'eva_entries_' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
-    showToast('📤 Datos exportados', 'success');
+    showToast('📤 Datos exportados: ' + e.length + ' entradas', 'success');
 }
 
 function importData() { document.getElementById('importFile').click(); }
@@ -953,13 +1264,26 @@ function handleImport(ev) {
 }
 
 function addBatchFromJSON() {
-    var t = prompt('Pega el JSON [{...}]:');
-    if (!t) return;
+    var modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.innerHTML = '<div class="modal" style="position:relative;">'
+        + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button>'
+        + '<h3 style="margin-bottom:16px;">📋 Pegar JSON por Lote</h3>'
+        + '<textarea id="batchJsonInput" rows="10" placeholder=\'[{"keywords":["prueba"],"response":"Respuesta de prueba","model":"eva"}]\'></textarea>'
+        + '<button class="btn btn-accent btn-full" onclick="processBatchJson()" style="margin-top:12px;">✅ Agregar Lote</button>'
+        + '</div>';
+    document.body.appendChild(modal);
+}
+
+function processBatchJson() {
+    var t = document.getElementById('batchJsonInput').value.trim();
+    if (!t) { showToast('⚠️ Pega el JSON', 'error'); return; }
     try {
         var n = JSON.parse(t);
         if (!Array.isArray(n)) { showToast('❌ Debe ser un array', 'error'); return; }
         var entries = getEntries().concat(n);
         saveEntries(entries);
+        document.querySelector('.modal-overlay')?.remove();
         showToast('✅ ' + n.length + ' entradas agregadas', 'success');
     } catch(ex) { showToast('❌ Error: ' + ex.message, 'error'); }
 }
@@ -974,6 +1298,15 @@ function resetAll() {
     }
 }
 
+// ============ MODO ============
+function setMode(mode) {
+    isGroupMode = (mode === 'group');
+    document.querySelectorAll('#modeTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('singleResponseContainer').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('groupResponseContainer').style.display = mode === 'group' ? 'block' : 'none';
+    event.target.classList.add('active');
+}
+
 // ============ CONTADORES ============
 document.getElementById('newKeywords').addEventListener('input', function() {
     document.getElementById('keywordsCounter').textContent = this.value.split(',').filter(function(k) { return k.trim(); }).length + ' keywords';
@@ -985,10 +1318,16 @@ document.getElementById('newResponse').addEventListener('input', function() {
 
 // ============ UTILIDADES ============
 function escHtml(s) {
+    if (!s) return '';
     var d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
 }
+
+// ============ CERRAR SIDEBAR CON ESC ============
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidebar();
+});
 
 // ============ INIT ============
 showSection('dashboard');

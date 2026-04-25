@@ -444,7 +444,38 @@ var models = [
 { modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
 { modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
 ];
-var lastResponseIndex = {};
+var lastContextualIndex = {};
+
+var contextualFollowUps = {
+    default: [
+        'Me da gusto! 😊 ¿En qué más te puedo ayudar?',
+        '¡Qué bueno! 💪 ¿Algo más en lo que te ayude?',
+        '¡Perfecto! ✨ Aquí estoy si necesitas algo.',
+        'Genial! 😄 ¿Hay algo más?'
+    ],
+    programacion: [
+        '¡Qué bueno! 💻 ¿Tu código ya funciona bien?',
+        'Me da gusto! 🚀 ¿Algo más con el proyecto?',
+        '¡Perfecto! ¿Necesitas ayuda con algo más del código?'
+    ],
+    salud: [
+        'Me da gusto que estés bien! 💪 ¿Cuídate!',
+        '¡Qué bueno! 😊 La salud es lo primero.',
+        '¡Perfecto! Cualquier duda sobre salud aquí estoy.'
+    ],
+    trabajo: [
+        '¡Qué bueno con el trabajo! 💼 ¿Todo tranquilo?',
+        'Me da gusto! 🙌 ¿Algo más en lo que te ayude?',
+        '¡Perfecto! El trabajo bien es lo que importa. 💪'
+    ],
+    emocional: [
+        'Me da mucho gusto escuchar eso! 🤍',
+        '¡Qué bueno! Siempre es importante estar bien. 😊',
+        'Me alegra! ¿Hay algo más en lo que te pueda ayudar?'
+    ]
+};
+
+
 var knowledge = [];
 
 var responses = [];
@@ -1198,6 +1229,34 @@ if (anyResp.length > 0) {
     return anyResp[idx2].text;
   }
 }
+
+// RESPUESTAS CONTEXTUALES (todo bien, bien, ok, etc)
+var vaguePhrases = ['todo bien','bien','todo ok','ok','oka','de lujo','excelente','perfecto','muy bien','todo tranquilo'];
+var isVague = vaguePhrases.some(function(p) { return msg.trim() === p || msg.trim() === p + '!' || msg.trim() === p + ' bro' || msg.trim() === p + ' hermano'; });
+
+if (isVague) {
+    // Detectar contexto de conversación anterior
+    var ctx = 'default';
+    if (shortTermMemory.length > 0) {
+        var lastMsgs = shortTermMemory.slice(-3).map(function(m) { return m.user.toLowerCase(); }).join(' ');
+        if (lastMsgs.includes('codigo') || lastMsgs.includes('html') || lastMsgs.includes('js') || lastMsgs.includes('programar')) ctx = 'programacion';
+        else if (lastMsgs.includes('salud') || lastMsgs.includes('dolor') || lastMsgs.includes('enferm')) ctx = 'salud';
+        else if (lastMsgs.includes('trabajo') || lastMsgs.includes('jefe') || lastMsgs.includes('chamba')) ctx = 'trabajo';
+        else if (lastMsgs.includes('triste') || lastMsgs.includes('mal') || lastMsgs.includes('estres')) ctx = 'emocional';
+    }
+    
+    var opts = contextualFollowUps[ctx] || contextualFollowUps.default;
+    var lastI = lastContextualIndex[ctx] !== undefined ? lastContextualIndex[ctx] : -1;
+    var newI;
+    if (opts.length === 1) {
+        newI = 0;
+    } else {
+        do { newI = Math.floor(Math.random() * opts.length); } while (newI === lastI);
+    }
+    lastContextualIndex[ctx] = newI;
+    return opts[newI];
+}
+
 
 
 // DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)

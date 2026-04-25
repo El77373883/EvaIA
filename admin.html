@@ -3,390 +3,998 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eva - Admin Pro</title>
+    <title>Eva Admin Pro • Knowledge Manager</title>
     <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1a1a25;
+            --border: #252535;
+            --text: #e0e0e0;
+            --text2: #8888aa;
+            --accent: #6C5CE7;
+            --accent2: #A78BFA;
+            --green: #00D68F;
+            --red: #FF6B6B;
+            --yellow: #FFD93D;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #F8F9FB; color: #1a1a2e; padding: 20px; max-width: 960px; margin: 0 auto; transition: all 0.3s; }
-        body.dark { background: #0a0a0f; color: #e0e0e0; }
-        body.dark .card { background: #12121a; border-color: #1e1e2e; }
-        body.dark textarea { background: #0a0a0f; color: #e0e0e0; border-color: #1e1e2e; }
-        body.dark .btn-outline { background: #12121a; border-color: #1e1e2e; color: #ccc; }
-        body.dark .list-item { background: #12121a; border-left-color: #3B82F6; }
-        body.dark .preview { background: #0a0a0f; color: #999; }
-        body.dark select { background: #0a0a0f; color: #e0e0e0; border-color: #1e1e2e; }
-        body.dark .stat-card { background: #12121a; }
-        body.dark .search-highlight { background: #3B82F633; }
         
-        h1 { font-family: Georgia, serif; font-size: 26px; margin-bottom: 2px; letter-spacing: -0.5px; }
-        .subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
         
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .top-bar .actions { display: flex; gap: 8px; align-items: center; }
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
         
-        .card { background: #fff; border: 1px solid #e8e8ee; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        label { font-size: 11px; font-weight: 700; color: #888; display: block; margin-bottom: 6px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.8px; }
-        label:first-child { margin-top: 0; }
-        textarea { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: 'SF Mono', Menlo, Monaco, monospace; resize: vertical; line-height: 1.6; background: #fafafa; }
-        textarea:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
         
-        .btn { padding: 10px 18px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-        .btn:active { transform: scale(0.96); }
-        .btn-primary { background: #2563EB; color: #fff; }
-        .btn-success { background: #10B981; color: #fff; }
-        .btn-danger { background: #EF4444; color: #fff; }
-        .btn-warning { background: #F59E0B; color: #000; }
-        .btn-outline { background: #fff; border: 1px solid #e0e0e0; color: #555; }
-        .btn-sm { padding: 7px 12px; font-size: 11px; border-radius: 8px; }
+        .logo-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+        }
+        
+        .logo-text { font-weight: 800; font-size: 18px; }
+        .logo-sub { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .nav-item:hover { background: var(--surface2); color: var(--text); }
+        .nav-item.active { background: var(--accent); color: #fff; font-weight: 600; }
+        .nav-icon { font-size: 20px; width: 24px; text-align: center; }
+        
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stat-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+        }
+        
+        .stat-mini-val { font-weight: 700; font-size: 18px; color: var(--accent2); }
+        .stat-mini-lbl { font-size: 11px; color: var(--text2); }
+        
+        /* MAIN */
+        .main {
+            margin-left: 260px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .header h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+        .header-badge {
+            padding: 6px 14px;
+            background: var(--accent);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        /* GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -20px; right: -20px;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.1;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .stat-card:hover::after { opacity: 0.2; transform: scale(1.2); }
+        
+        .stat-icon { font-size: 28px; margin-bottom: 12px; }
+        .stat-value { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+        .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .stat-change { font-size: 11px; margin-top: 8px; color: var(--green); }
+        
+        /* CARDS */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title { font-size: 16px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: var(--text2); }
+        
+        /* FORM */
+        .form-row { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-end; }
+        .form-group { flex: 1; }
+        
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: all 0.2s;
+            outline: none;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.15);
+        }
+        
+        textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+        select { cursor: pointer; font-family: 'Inter', sans-serif; }
+        
+        /* BUTTONS */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .btn:active { transform: scale(0.95); }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn-accent:hover { background: #7C6FF7; }
+        .btn-green { background: #059669; color: #fff; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+        .btn-ghost { background: transparent; color: var(--text2); }
+        .btn-ghost:hover { color: var(--text); background: var(--surface2); }
+        .btn-sm { padding: 7px 14px; font-size: 11px; }
         .btn-xs { padding: 5px 10px; font-size: 10px; border-radius: 6px; }
+        .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; }
         
-        .list-item { background: #fafafa; border-radius: 12px; padding: 16px; margin-bottom: 10px; border-left: 3px solid #2563EB; transition: all 0.2s; }
-        .list-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .list-item.search-highlight { border-left-color: #F59E0B; background: #FFFDE7; }
-        body.dark .list-item.search-highlight { background: #1a1a0a; }
-        .list-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
         
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
-        .badge-eva { background: #FDE8E8; color: #D48A72; }
-        .badge-group { background: #D1FAE5; color: #059669; }
+        /* TAGS */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
         
-        .preview { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #666; max-height: 70px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; margin-top: 6px; font-style: italic; }
-        .empty { text-align: center; color: #bbb; padding: 40px 20px; font-size: 14px; }
-        .counter { font-size: 11px; color: #999; text-align: right; margin-top: 4px; }
+        .tag-model { background: rgba(108,92,231,0.2); color: var(--accent2); }
+        .tag-group { background: rgba(0,214,143,0.2); color: var(--green); }
+        .tag-keyword {
+            background: var(--surface2);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-keyword:hover { background: var(--accent); color: #fff; }
         
-        select { padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #fff; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        /* LIST */
+        .entry-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            position: relative;
+        }
         
-        .group-field { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .group-field textarea { flex: 1; height: 50px; }
+        .entry-card:hover { border-color: var(--accent); }
+        .entry-card.highlighted { border-color: var(--yellow); background: rgba(255,217,61,0.05); }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: #f0f4ff; padding: 16px; border-radius: 12px; text-align: center; }
-        .stat-value { font-size: 26px; font-weight: 900; color: #2563EB; }
-        .stat-label { font-size: 10px; color: #888; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
         
-        .search-box { display: flex; gap: 8px; margin-bottom: 16px; }
-        .search-box input { flex: 1; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; }
-        .search-box input:focus { border-color: #2563EB; }
+        .entry-keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
         
-        .toggle-theme { position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 22px; z-index: 10; background: #fff; border: 1px solid #e0e0e0; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        body.dark .toggle-theme { background: #1a1a2e; border-color: #2a2a3e; }
+        .entry-preview {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text2);
+            font-style: italic;
+            max-height: 60px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
         
-        @media (max-width: 500px) { body { padding: 12px; } .card { padding: 14px; } .btn { padding: 8px 14px; font-size: 12px; } }
+        .entry-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .entry-card:hover .entry-actions { opacity: 1; }
+        
+        /* SEARCH */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            padding-left: 44px;
+            font-size: 15px;
+            height: 48px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--text2);
+        }
+        
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 300;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text2);
+        }
+        
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        
+        /* TABS */
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            color: var(--text2);
+        }
+        .tab.active { background: var(--accent); color: #fff; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 20px; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { flex-direction: column; }
+        }
+        
+        @media (max-width: 500px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     </style>
 </head>
 <body>
 
-<div class="toggle-theme" onclick="toggleTheme()" id="themeToggle">🌙</div>
-
-<h1>⚙️ Admin Eva Pro</h1>
-<p class="subtitle">Gestión avanzada de conocimiento • Grupos • Búsqueda • Estadísticas</p>
-
-<!-- ESTADÍSTICAS -->
-<div class="card">
-    <h2 style="font-size:15px;margin-bottom:12px;">📊 Panel de Estadísticas</h2>
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Entradas</div></div>
-        <div class="stat-card"><div class="stat-value" id="statKeywords">0</div><div class="stat-label">Keywords</div></div>
-        <div class="stat-card"><div class="stat-value" id="statGroups">0</div><div class="stat-label">Grupos</div></div>
-        <div class="stat-card"><div class="stat-value" id="statAvg">0</div><div class="stat-label">Resp x Grupo</div></div>
-    </div>
-</div>
-
-<!-- MODO -->
-<div class="card">
-    <div class="flex-between">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">E</div>
         <div>
-            <h2 style="font-size:15px;">📋 Modo de entrada</h2>
-            <p style="font-size:11px;color:#888;margin-top:2px;" id="modeDescription">Modo ÚNICO: Una keyword → Una respuesta</p>
+            <div class="logo-text">Eva Admin</div>
+            <div class="logo-sub">Knowledge Base</div>
         </div>
-        <button class="btn btn-primary" id="modeToggle" onclick="toggleMode()">🎲 Cambiar a GRUPO</button>
     </div>
-</div>
+    
+    <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showSection('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="showSection('add')">
+            <span class="nav-icon">➕</span> Nueva Entrada
+        </button>
+        <button class="nav-item" onclick="showSection('entries')">
+            <span class="nav-icon">📋</span> Todas las Entradas
+        </button>
+        <button class="nav-item" onclick="showSection('tools')">
+            <span class="nav-icon">🔧</span> Herramientas
+        </button>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="stat-mini">
+            <div>
+                <div class="stat-mini-val" id="totalEntries">0</div>
+                <div class="stat-mini-lbl">Entradas totales</div>
+            </div>
+            <span style="font-size:24px;">📚</span>
+        </div>
+        <button class="nav-item" onclick="exportData()" style="margin-top:8px;">
+            <span class="nav-icon">📤</span> Exportar datos
+        </button>
+    </div>
+</aside>
 
-<!-- AGREGAR -->
-<div class="card">
-    <div class="flex-between">
-        <h2 style="font-size:15px;">➕ Nueva Entrada</h2>
-        <select id="modelSelect">
-            <option value="eva">Eva</option>
-            <option value="selene">Selene</option>
-            <option value="nyx">Nyx</option>
-            <option value="aria">Aria</option>
-        </select>
+<!-- MAIN -->
+<main class="main">
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h1>Panel de Control</h1>
+            <p style="color:var(--text2);font-size:13px;margin-top:4px;">Gestiona el conocimiento de tu IA</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-outline btn-sm" onclick="toggleSidebar()">☰ Menú</button>
+            <span class="header-badge">v3.0 PRO</span>
+        </div>
     </div>
-    
-    <label>🔑 Keywords (separadas por coma)</label>
-    <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos"></textarea>
-    <div class="counter" id="keywordsCounter">0 keywords</div>
-    
-    <div id="singleResponse">
-        <label>💬 Respuesta</label>
-        <textarea id="newResponse" rows="4" placeholder="Respuesta única..."></textarea>
-        <div class="counter" id="responseCounter">0 caracteres</div>
-    </div>
-    
-    <div id="groupResponses" style="display:none;">
-        <label>💬 Respuestas Múltiples (Eva elige al azar)</label>
-        <div id="groupFields">
-            <div class="group-field">
-                <textarea class="group-response" placeholder="Respuesta 1"></textarea>
-                <button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>
+
+    <!-- DASHBOARD SECTION -->
+    <section id="section-dashboard">
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-value" id="dashTotal">0</div>
+                <div class="stat-label">Entradas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔑</div>
+                <div class="stat-value" id="dashKeywords">0</div>
+                <div class="stat-label">Keywords</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎲</div>
+                <div class="stat-value" id="dashGroups">0</div>
+                <div class="stat-label">Grupos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-value" id="dashAvg">0</div>
+                <div class="stat-label">Resp x Grupo</div>
             </div>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="addGroupField()">+ Agregar respuesta</button>
-        <div class="counter" id="groupCounter">1 respuesta</div>
-    </div>
-    
-    <button class="btn btn-primary" onclick="addEntry()" style="margin-top:12px;width:100%;">✅ Guardar Entrada</button>
-</div>
-
-<!-- BÚSQUEDA AVANZADA -->
-<div class="card">
-    <h2 style="font-size:15px;margin-bottom:10px;">🔍 Búsqueda Avanzada</h2>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Buscar por keyword, respuesta o modelo..." oninput="liveSearch()">
-        <button class="btn btn-outline btn-sm" onclick="clearSearch()">✕ Limpiar</button>
-    </div>
-    <div style="font-size:11px;color:#888;" id="searchInfo"></div>
-</div>
-
-<!-- LISTA -->
-<div class="card">
-    <div class="flex-between">
-        <h2 style="font-size:15px;">📋 Entradas (<span id="entryCount">0</span>)</h2>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Exportar</button>
-            <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar</button>
-            <button class="btn btn-outline btn-sm" onclick="addBatchFromJSON()">📥 Lote JSON</button>
-            <button class="btn btn-outline btn-sm" onclick="sortEntries()">🔤 Ordenar</button>
-            <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Borrar Todo</button>
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📈 Últimas Entradas</span>
+                <button class="btn btn-ghost btn-sm" onclick="showSection('entries')">Ver todas →</button>
+            </div>
+            <div id="recentEntries"></div>
         </div>
-    </div>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
-    <div id="entriesList"></div>
-</div>
+    </section>
+
+    <!-- ADD SECTION -->
+    <section id="section-add" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <span class="card-title">➕ Crear Nueva Entrada</span>
+                    <p class="card-subtitle">Define keywords y respuestas para tu IA</p>
+                </div>
+                <select id="modelSelect" style="width:auto;">
+                    <option value="eva">🤖 Eva</option>
+                    <option value="selene">🌙 Selene</option>
+                    <option value="nyx">🌑 Nyx</option>
+                    <option value="aria">📊 Aria</option>
+                </select>
+            </div>
+            
+            <div class="tabs" id="modeTabs">
+                <button class="tab active" onclick="setMode('single')">📄 Respuesta Única</button>
+                <button class="tab" onclick="setMode('group')">🎲 Grupo de Respuestas</button>
+            </div>
+            
+            <div class="form-group">
+                <label>🔑 Keywords (separadas por coma)</label>
+                <textarea id="newKeywords" rows="2" placeholder="hola, hey, saludos, qué tal"></textarea>
+                <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="keywordsCounter">0 keywords</div>
+            </div>
+            
+            <div id="singleResponseContainer">
+                <div class="form-group">
+                    <label>💬 Respuesta</label>
+                    <textarea id="newResponse" rows="4" placeholder="¡Hola! Soy Eva, ¿en qué puedo ayudarte?"></textarea>
+                    <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="responseCounter">0 caracteres</div>
+                </div>
+            </div>
+            
+            <div id="groupResponseContainer" style="display:none;">
+                <div class="form-group">
+                    <label>💬 Respuestas (Eva elegirá una al azar)</label>
+                    <div id="groupFields">
+                        <div class="form-row" style="margin-bottom:8px;">
+                            <textarea class="group-response" placeholder="Respuesta 1" style="flex:1;"></textarea>
+                            <button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="addGroupField()" style="margin-top:8px;">+ Agregar otra respuesta</button>
+                    <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:right;" id="groupCounter">1 respuesta</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-accent btn-full" onclick="addEntry()">
+                ✅ Guardar Entrada
+            </button>
+        </div>
+    </section>
+
+    <!-- ENTRIES SECTION -->
+    <section id="section-entries" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📋 Todas las Entradas (<span id="entryCount">0</span>)</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="sortEntries()">🔤 Ordenar A-Z</button>
+                    <button class="btn btn-outline btn-sm" onclick="importData()">📥 Importar</button>
+                    <button class="btn btn-red btn-sm" onclick="resetAll()">🗑 Borrar Todo</button>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar por keyword, respuesta o modelo..." oninput="liveSearch()">
+                <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="searchInfo"></div>
+            </div>
+            
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+            
+            <div id="entriesList"></div>
+        </div>
+    </section>
+
+    <!-- TOOLS SECTION -->
+    <section id="section-tools" style="display:none;">
+        <div class="card">
+            <div class="card-header"><span class="card-title">🔧 Herramientas</span></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                <button class="btn btn-outline" onclick="exportData()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">📤</span>
+                    <span>Exportar JSON</span>
+                </button>
+                <button class="btn btn-outline" onclick="importData()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">📥</span>
+                    <span>Importar JSON</span>
+                </button>
+                <button class="btn btn-outline" onclick="addBatchFromJSON()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">📋</span>
+                    <span>Lote JSON</span>
+                </button>
+                <button class="btn btn-outline" onclick="sortEntries()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">🔤</span>
+                    <span>Ordenar A-Z</span>
+                </button>
+                <button class="btn btn-red" onclick="resetAll()" style="flex-direction:column;padding:20px;text-align:center;">
+                    <span style="font-size:32px;">🗑</span>
+                    <span>Borrar Todo</span>
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- TOAST -->
+<div id="toast" class="toast" style="display:none;"></div>
 
 <script>
-// ============ MODO ============
+// ============ ESTADO ============
 var isGroupMode = false;
+var currentSearchTerm = '';
+var currentSection = 'dashboard';
 
-function toggleMode() {
-    isGroupMode = !isGroupMode;
-    var btn = document.getElementById('modeToggle');
-    var desc = document.getElementById('modeDescription');
-    if (isGroupMode) {
-        btn.textContent = '📄 Cambiar a ÚNICO';
-        btn.className = 'btn btn-success';
-        desc.textContent = 'Modo GRUPO: Una keyword → Múltiples respuestas. Eva elige al AZAR.';
-        document.getElementById('singleResponse').style.display = 'none';
-        document.getElementById('groupResponses').style.display = 'block';
-    } else {
-        btn.textContent = '🎲 Cambiar a GRUPO';
-        btn.className = 'btn btn-primary';
-        desc.textContent = 'Modo ÚNICO: Una keyword → Una respuesta.';
-        document.getElementById('singleResponse').style.display = 'block';
-        document.getElementById('groupResponses').style.display = 'none';
-    }
+// ============ NAVEGACIÓN ============
+function showSection(section) {
+    currentSection = section;
+    document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.style.display = 'none'; });
+    var target = document.getElementById('section-' + section);
+    if (target) target.style.display = 'block';
+    
+    document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
+    var navItems = document.querySelectorAll('.nav-item');
+    var sectionIndex = { dashboard: 0, add: 1, entries: 2, tools: 3 }[section] || 0;
+    if (navItems[sectionIndex]) navItems[sectionIndex].classList.add('active');
+    
+    if (section === 'dashboard') updateDashboard();
+    if (section === 'entries') renderAll();
 }
 
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+function setMode(mode) {
+    isGroupMode = (mode === 'group');
+    document.querySelectorAll('#modeTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('singleResponseContainer').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('groupResponseContainer').style.display = mode === 'group' ? 'block' : 'none';
+    event.target.classList.add('active');
+}
+
+// ============ TOAST ============
+function showToast(msg, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    toast.style.borderColor = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--red)' : 'var(--accent)';
+    setTimeout(function() { toast.style.display = 'none'; }, 2500);
+}
+
+// ============ GRUPOS ============
 function addGroupField() {
     var div = document.createElement('div');
-    div.className = 'group-field';
-    div.innerHTML = '<textarea class="group-response" placeholder="Otra respuesta..."></textarea><button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>';
+    div.className = 'form-row';
+    div.style.marginBottom = '8px';
+    div.innerHTML = '<textarea class="group-response" placeholder="Otra respuesta..." style="flex:1;"></textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
     document.getElementById('groupFields').appendChild(div);
     updateGroupCounter();
 }
+
 function removeGroupField(btn) {
-    if (document.querySelectorAll('.group-field').length > 1) { btn.parentElement.remove(); updateGroupCounter(); }
+    var fields = document.querySelectorAll('#groupFields .form-row');
+    if (fields.length > 1) { btn.parentElement.remove(); updateGroupCounter(); }
 }
+
 function updateGroupCounter() {
-    document.getElementById('groupCounter').textContent = document.querySelectorAll('.group-field').length + ' respuestas';
+    document.getElementById('groupCounter').textContent = document.querySelectorAll('#groupFields .form-row').length + ' respuestas';
 }
 
 // ============ DATOS ============
 function getEntries() { return JSON.parse(localStorage.getItem('eva_entries') || '[]'); }
-function saveEntries(data) { localStorage.setItem('eva_entries', JSON.stringify(data)); renderAll(); updateStats(); }
+function saveEntries(data) {
+    localStorage.setItem('eva_entries', JSON.stringify(data));
+    renderAll();
+    updateStats();
+    updateDashboard();
+    showToast('✅ Datos guardados correctamente', 'success');
+}
 
 // ============ AGREGAR ============
 function addEntry() {
     var keywordsRaw = document.getElementById('newKeywords').value.trim();
     var model = document.getElementById('modelSelect').value;
-    if (!keywordsRaw) { alert('Escribe al menos una keyword.'); return; }
+    
+    if (!keywordsRaw) { showToast('⚠️ Escribe al menos una keyword', 'error'); return; }
+    
     var keywords = keywordsRaw.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
     var entries = getEntries();
     
     if (isGroupMode) {
         var responses = [];
-        document.querySelectorAll('.group-response').forEach(function(ta) { var r = ta.value.trim(); if (r) responses.push(r); });
-        if (responses.length === 0) { alert('Escribe al menos una respuesta.'); return; }
-        entries.push({ keywords: keywords, responses: responses, model: model, isGroup: true, created: new Date().toISOString() });
-        document.querySelectorAll('.group-response').forEach(function(ta, i) { if (i === 0) ta.value = ''; });
+        document.querySelectorAll('.group-response').forEach(function(ta) {
+            var r = ta.value.trim();
+            if (r) responses.push(r);
+        });
+        if (responses.length === 0) { showToast('⚠️ Escribe al menos una respuesta', 'error'); return; }
+        entries.push({
+            keywords: keywords,
+            responses: responses,
+            model: model,
+            isGroup: true,
+            created: new Date().toISOString()
+        });
+        document.querySelectorAll('.group-response').forEach(function(ta) { ta.value = ''; });
     } else {
         var responseText = document.getElementById('newResponse').value.trim();
-        if (!responseText) { alert('Escribe la respuesta.'); return; }
-        entries.push({ keywords: keywords, response: responseText, model: model, created: new Date().toISOString() });
+        if (!responseText) { showToast('⚠️ Escribe la respuesta', 'error'); return; }
+        entries.push({
+            keywords: keywords,
+            response: responseText,
+            model: model,
+            created: new Date().toISOString()
+        });
         document.getElementById('newResponse').value = '';
     }
+    
     saveEntries(entries);
     document.getElementById('newKeywords').value = '';
     document.getElementById('keywordsCounter').textContent = '0 keywords';
     document.getElementById('responseCounter').textContent = '0 caracteres';
+    showToast('✅ Entrada creada exitosamente', 'success');
 }
 
 // ============ ELIMINAR / EDITAR ============
-function deleteEntry(index) { if (confirm('¿Eliminar?')) { var e = getEntries(); e.splice(index, 1); saveEntries(e); } }
+function deleteEntry(index) {
+    if (confirm('¿Eliminar esta entrada permanentemente?')) {
+        var e = getEntries();
+        e.splice(index, 1);
+        saveEntries(e);
+        showToast('🗑 Entrada eliminada', 'error');
+    }
+}
+
 function editEntry(index) {
     var entries = getEntries(), entry = entries[index];
     document.getElementById('newKeywords').value = entry.keywords.join(', ');
+    
     if (entry.isGroup && entry.responses) {
-        if (!isGroupMode) toggleMode();
-        var fields = document.getElementById('groupFields'); fields.innerHTML = '';
+        setMode('group');
+        var fields = document.getElementById('groupFields');
+        fields.innerHTML = '';
         entry.responses.forEach(function(r) {
-            var div = document.createElement('div'); div.className = 'group-field';
-            div.innerHTML = '<textarea class="group-response">' + r + '</textarea><button class="btn btn-danger btn-sm" onclick="removeGroupField(this)">✕</button>';
+            var div = document.createElement('div');
+            div.className = 'form-row';
+            div.style.marginBottom = '8px';
+            div.innerHTML = '<textarea class="group-response" style="flex:1;">' + r + '</textarea><button class="btn btn-red btn-icon btn-sm" onclick="removeGroupField(this)">✕</button>';
             fields.appendChild(div);
         });
         updateGroupCounter();
     } else {
-        if (isGroupMode) toggleMode();
+        setMode('single');
         document.getElementById('newResponse').value = entry.response || '';
     }
+    
     document.getElementById('modelSelect').value = entry.model;
-    entries.splice(index, 1); saveEntries(entries);
+    entries.splice(index, 1);
+    saveEntries(entries);
+    showSection('add');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============ RENDERIZAR ============
-var currentSearchTerm = '';
-
 function renderAll() {
     renderEntries();
     document.getElementById('entryCount').textContent = getEntries().length;
+    document.getElementById('totalEntries').textContent = getEntries().length;
     if (currentSearchTerm) liveSearch();
 }
 
 function renderEntries(filter) {
     var entries = filter || getEntries();
     var list = document.getElementById('entriesList');
-    if (entries.length === 0) { list.innerHTML = '<div class="empty">📭 Sin resultados.</div>'; return; }
     
-    list.innerHTML = entries.map(function(entry, index) {
+    if (entries.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><h3>Sin resultados</h3><p>No se encontraron entradas</p></div>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(function(entry) {
         var realIndex = getEntries().indexOf(entry);
-        var badgeClass = entry.isGroup ? 'badge-group' : 'badge-eva';
+        var isGroup = entry.isGroup;
         var kw = entry.keywords.join(', ');
+        var tagsHtml = entry.keywords.slice(0, 5).map(function(k) {
+            return '<span class="tag tag-keyword">' + escHtml(k) + '</span>';
+        }).join('');
+        if (entry.keywords.length > 5) tagsHtml += '<span class="tag tag-keyword">+' + (entry.keywords.length - 5) + '</span>';
+        
         var rp;
-        if (entry.isGroup && entry.responses) {
-            rp = '🎲 GRUPO (' + entry.responses.length + '): ' + entry.responses[0].slice(0, 80) + '...';
+        if (isGroup && entry.responses) {
+            rp = '🎲 Grupo (' + entry.responses.length + ' respuestas): ' + entry.responses[0].slice(0, 100) + '...';
         } else {
-            rp = (entry.response || '').length > 100 ? entry.response.slice(0, 100) + '...' : (entry.response || '');
+            rp = (entry.response || '').length > 120 ? entry.response.slice(0, 120) + '...' : (entry.response || '');
         }
-        var highlight = currentSearchTerm ? 'search-highlight' : '';
-        return '<div class="list-item ' + highlight + '">'
-            + '<div class="list-header">'
-            + '<span class="badge ' + badgeClass + '">' + (entry.isGroup ? '🎲 GRUPO' : (entry.model||'EVA').toUpperCase()) + '</span>'
-            + '<span style="font-size:10px;color:#999;">#' + (realIndex + 1) + '</span>'
-            + '<div>'
-            + '<button class="btn btn-outline btn-xs" onclick="editEntry(' + realIndex + ')">✏️</button>'
-            + '<button class="btn btn-danger btn-xs" onclick="deleteEntry(' + realIndex + ')">🗑</button>'
-            + '</div></div>'
-            + '<div style="font-size:12px;color:#888;margin-bottom:4px;">Keywords: <b>' + escHtml(kw) + '</b></div>'
-            + '<div class="preview">' + escHtml(rp) + '</div></div>';
+        
+        var highlight = currentSearchTerm ? 'highlighted' : '';
+        
+        return '<div class="entry-card ' + highlight + '">'
+            + '<div class="entry-header">'
+            + '<div style="display:flex;gap:8px;align-items:center;">'
+            + '<span class="tag ' + (isGroup ? 'tag-group' : 'tag-model') + '">'
+            + (isGroup ? '🎲 GRUPO' : '🤖 ' + (entry.model || 'EVA').toUpperCase())
+            + '</span>'
+            + '<span style="font-size:10px;color:var(--text2);">#' + (realIndex + 1) + '</span>'
+            + '</div>'
+            + '<div class="entry-actions">'
+            + '<button class="btn btn-ghost btn-xs" onclick="editEntry(' + realIndex + ')">✏️ Editar</button>'
+            + '<button class="btn btn-red btn-xs" onclick="deleteEntry(' + realIndex + ')">🗑</button>'
+            + '</div>'
+            + '</div>'
+            + '<div class="entry-keywords">' + tagsHtml + '</div>'
+            + '<div class="entry-preview">' + escHtml(rp) + '</div>'
+            + '</div>';
     }).join('');
 }
 
-// ============ BÚSQUEDA AVANZADA ============
+// ============ BÚSQUEDA ============
 function liveSearch() {
     var term = document.getElementById('searchInput').value.trim().toLowerCase();
     currentSearchTerm = term;
-    if (!term) { renderEntries(); document.getElementById('searchInfo').textContent = ''; return; }
+    
+    if (!term) {
+        renderEntries();
+        document.getElementById('searchInfo').textContent = '';
+        return;
+    }
     
     var entries = getEntries();
     var results = entries.filter(function(e) {
         var inKw = e.keywords.join(' ').toLowerCase().includes(term);
         var inRp = (e.response || '').toLowerCase().includes(term);
         var inGroup = e.responses ? e.responses.join(' ').toLowerCase().includes(term) : false;
-        return inKw || inRp || inGroup;
+        var inModel = (e.model || '').toLowerCase().includes(term);
+        return inKw || inRp || inGroup || inModel;
     });
     
     renderEntries(results);
-    document.getElementById('searchInfo').textContent = '🔍 ' + results.length + ' resultados para "' + term + '" de ' + entries.length + ' totales';
+    document.getElementById('searchInfo').textContent = '🔍 ' + results.length + ' resultados de ' + entries.length + ' totales';
 }
-function clearSearch() { document.getElementById('searchInput').value = ''; currentSearchTerm = ''; renderEntries(); document.getElementById('searchInfo').textContent = ''; }
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    currentSearchTerm = '';
+    renderEntries();
+    document.getElementById('searchInfo').textContent = '';
+}
 
 // ============ ESTADÍSTICAS ============
 function updateStats() {
     var e = getEntries(), tk = 0, g = 0, tr = 0;
-    e.forEach(function(x) { tk += x.keywords.length; if (x.isGroup && x.responses) { g++; tr += x.responses.length; } });
-    document.getElementById('statTotal').textContent = e.length;
-    document.getElementById('statKeywords').textContent = tk;
-    document.getElementById('statGroups').textContent = g;
-    document.getElementById('statAvg').textContent = g > 0 ? Math.round(tr / g) : 0;
+    e.forEach(function(x) {
+        tk += x.keywords.length;
+        if (x.isGroup && x.responses) { g++; tr += x.responses.length; }
+    });
+    document.getElementById('dashTotal').textContent = e.length;
+    document.getElementById('dashKeywords').textContent = tk;
+    document.getElementById('dashGroups').textContent = g;
+    document.getElementById('dashAvg').textContent = g > 0 ? Math.round(tr / g) : 0;
+    document.getElementById('totalEntries').textContent = e.length;
+}
+
+function updateDashboard() {
+    updateStats();
+    var entries = getEntries();
+    var recent = entries.slice(-5).reverse();
+    var container = document.getElementById('recentEntries');
+    
+    if (recent.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No hay entradas aún</p><button class="btn btn-accent btn-sm" onclick="showSection(\'add\')" style="margin-top:12px;">➕ Crear primera entrada</button></div>';
+        return;
+    }
+    
+    container.innerHTML = recent.map(function(entry) {
+        var kw = entry.keywords.slice(0, 3).join(', ');
+        if (entry.keywords.length > 3) kw += ' +' + (entry.keywords.length - 3);
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">'
+            + '<div>'
+            + '<span class="tag ' + (entry.isGroup ? 'tag-group' : 'tag-model') + '" style="margin-right:8px;">' + (entry.isGroup ? '🎲' : '🤖') + '</span>'
+            + '<span style="font-size:13px;">' + escHtml(kw) + '</span>'
+            + '</div>'
+            + '<span style="font-size:10px;color:var(--text2);">' + new Date(entry.created).toLocaleDateString('es-ES') + '</span>'
+            + '</div>';
+    }).join('');
 }
 
 // ============ ORDENAR ============
 function sortEntries() {
     var e = getEntries();
-    e.sort(function(a, b) { return (a.keywords[0]||'').localeCompare(b.keywords[0]||''); });
+    e.sort(function(a, b) { return (a.keywords[0] || '').localeCompare(b.keywords[0] || ''); });
     saveEntries(e);
+    showToast('🔤 Entradas ordenadas A-Z', 'success');
 }
-
-// ============ BACKUP ============
-function autoBackup() {
-    var e = getEntries();
-    if (e.length > 0) localStorage.setItem('eva_entries_backup_' + new Date().toISOString().slice(0,10), JSON.stringify(e));
-}
-setInterval(autoBackup, 300000); autoBackup();
-
-// ============ TEMA OSCURO ============
-function toggleTheme() {
-    document.body.classList.toggle('dark');
-    document.getElementById('themeToggle').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-    localStorage.setItem('eva_admin_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-}
-if (localStorage.getItem('eva_admin_theme') === 'dark') { document.body.classList.add('dark'); document.getElementById('themeToggle').textContent = '☀️'; }
 
 // ============ EXPORTAR / IMPORTAR ============
 function exportData() {
-    var e = getEntries(); if (!e.length) { alert('Sin datos'); return; }
+    var e = getEntries();
+    if (!e.length) { showToast('⚠️ No hay datos para exportar', 'error'); return; }
     var b = new Blob([JSON.stringify(e, null, 2)], { type: 'application/json' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'eva_entries_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'eva_entries_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    showToast('📤 Datos exportados', 'success');
 }
+
 function importData() { document.getElementById('importFile').click(); }
+
 function handleImport(ev) {
-    var f = ev.target.files[0]; if (!f) return;
+    var f = ev.target.files[0];
+    if (!f) return;
     var r = new FileReader();
     r.onload = function(e) {
         try {
             var d = JSON.parse(e.target.result);
-            if (Array.isArray(d) && confirm('Importar ' + d.length + ' entradas. ¿Sobrescribir?')) saveEntries(d);
-        } catch(ex) { alert('Error JSON'); }
+            if (Array.isArray(d) && confirm('¿Importar ' + d.length + ' entradas y SOBRESCRIBIR todo?')) {
+                saveEntries(d);
+                showToast('📥 ' + d.length + ' entradas importadas', 'success');
+            }
+        } catch(ex) { showToast('❌ Error: JSON inválido', 'error'); }
     };
-    r.readAsText(f); ev.target.value = '';
+    r.readAsText(f);
+    ev.target.value = '';
 }
+
 function addBatchFromJSON() {
-    var t = prompt('Pega JSON [{...}]:'); if (!t) return;
+    var t = prompt('Pega el JSON [{...}]:');
+    if (!t) return;
     try {
-        var n = JSON.parse(t); if (!Array.isArray(n)) { alert('Debe ser array'); return; }
-        var entries = getEntries().concat(n); saveEntries(entries);
-        alert('✅ ' + n.length + ' agregadas.');
-    } catch(ex) { alert('Error: ' + ex.message); }
+        var n = JSON.parse(t);
+        if (!Array.isArray(n)) { showToast('❌ Debe ser un array', 'error'); return; }
+        var entries = getEntries().concat(n);
+        saveEntries(entries);
+        showToast('✅ ' + n.length + ' entradas agregadas', 'success');
+    } catch(ex) { showToast('❌ Error: ' + ex.message, 'error'); }
 }
-function resetAll() { if (confirm('⚠️ ¿Borrar TODO?')) { localStorage.removeItem('eva_entries'); renderAll(); updateStats(); } }
+
+function resetAll() {
+    if (confirm('⚠️ ¿Estás seguro de BORRAR TODAS las entradas? Esta acción no se puede deshacer.')) {
+        localStorage.removeItem('eva_entries');
+        renderAll();
+        updateStats();
+        updateDashboard();
+        showToast('🗑 Todas las entradas eliminadas', 'error');
+    }
+}
 
 // ============ CONTADORES ============
 document.getElementById('newKeywords').addEventListener('input', function() {
     document.getElementById('keywordsCounter').textContent = this.value.split(',').filter(function(k) { return k.trim(); }).length + ' keywords';
 });
+
 document.getElementById('newResponse').addEventListener('input', function() {
     document.getElementById('responseCounter').textContent = this.value.length + ' caracteres';
 });
 
-function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+// ============ UTILIDADES ============
+function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
 
 // ============ INIT ============
-renderAll();
+showSection('dashboard');
 updateStats();
 updateGroupCounter();
+updateDashboard();
 </script>
 
 </body>

@@ -756,6 +756,7 @@
             </div>
 <button class="btn btn-outline btn-sm" onclick="exportFlows()">📤 Exportar</button>
 <button class="btn btn-outline btn-sm" onclick="importFlows()">📥 Importar</button>
+<button class="btn btn-outline btn-sm" onclick="importFlowsFromClipboard()">📋 Pegar JSON</button>
 <button class="btn btn-red btn-sm" onclick="deleteAllFlows()">🗑 Borrar Todo</button>
 <button class="btn btn-accent btn-sm" onclick="showNewFlowForm()">+ Nuevo Flujo</button>
         </div>
@@ -1727,6 +1728,7 @@ updateFlowCount();
 function exportFlows(){var f=getFlows();if(!f.length){showToast('⚠️ No hay flujos para exportar','error');return}var b=new Blob([JSON.stringify(f,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='eva_flows_'+new Date().toISOString().slice(0,10)+'.json';a.click();showToast('📤 '+f.length+' flujos exportados','success')}
 function importFlows(){document.getElementById('importFlowsFile').click()}
 function handleFlowsImport(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(Array.isArray(d)){var fa=getFlows();var fn=fa.concat(d);saveFlows(fn);updateFlowCount();updateStats();showToast('📥 '+d.length+' flujos agregados (total: '+fn.length+')','success')}}catch(ex){showToast('❌ JSON inválido','error')}};r.readAsText(f);e.target.value=''}
+function importFlowsFromClipboard(){var t=prompt('📋 Pegá el JSON de los flujos acá:');if(!t)return;try{var d=JSON.parse(t);if(!Array.isArray(d)){showToast('❌ El JSON debe ser un array [...]','error');return}var fa=getFlows();var fn=fa.concat(d);saveFlows(fn);updateFlowCount();updateStats();showToast('📥 '+d.length+' flujos agregados (total: '+fn.length+')','success')}catch(ex){showToast('❌ JSON inválido. Revisá el formato.','error')}}
 function deleteAllFlows(){var f=getFlows();if(!f.length){showToast('⚠️ No hay flujos','error');return}if(confirm('¿Borrar TODOS los '+f.length+' flujos?')){localStorage.removeItem('eva_flows');renderFlowsList();updateFlowCount();updateStats();showToast('🗑 Flujos eliminados','error')}}
 function updateFlowCount(){var f=getFlows();var c=document.getElementById('flowCount');if(c)c.textContent=f.length}
 

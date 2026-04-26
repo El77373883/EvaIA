@@ -487,6 +487,8 @@ var responses = [];
 var activeFlow = null;
 var activeFlowStep = 0;
 var flowResponseIndexes = {};
+var temaActual = null; // recuerda el tema de la conversacion
+
 
 function loadFlows() {
     return JSON.parse(localStorage.getItem('eva_flows') || '[]');
@@ -622,10 +624,11 @@ for (var i = 0; i < flows.length; i++) {
     var flowMatch = flowKws.some(function(kw){ return msg.includes(kw); });
     
     if (flowMatch) {
-        activeFlow = flow;
-        activeFlowStep = 0;
-        return getFlowResponse(flow, 0);
-    }
+    activeFlow = flow;
+    activeFlowStep = 0;
+    temaActual = flow.keyword; // guarda el tema actual
+    return getFlowResponse(flow, 0);
+}
 }
 
 return null;
@@ -1343,6 +1346,20 @@ function generateResponse(input) {
 // Buscar tanto en texto original como en texto corregido
 var flowResponse = checkFlows(input) || checkFlows(msg);
 if (flowResponse) return flowResponse;
+
+// Si hay tema activo y el mensaje es corto, buscar en ese flujo
+if (temaActual && msg.trim().split(' ').length <= 3) {
+    var flows = loadFlows();
+    for (var f = 0; f < flows.length; f++) {
+        if (flows[f].keyword === temaActual && flows[f].model === currentModel) {
+            activeFlow = flows[f];
+            var resp = checkFlows(input) || checkFlows(msg);
+            if (resp) return resp;
+            break;
+        }
+    }
+}
+
 
 
 // Si hay flujo activo, no dejar caer a respuesta genérica

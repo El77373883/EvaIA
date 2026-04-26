@@ -1385,16 +1385,6 @@ if (temaActual && msg.trim().split(' ').length <= 3) {
 
 
 
-// Si es confirmación corta, repetir respuesta del paso actual
-var confirmaciones2 = ['si','sí','ok','dale','claro','va','simon','bueno','oka'];
-if (confirmaciones2.indexOf(msg.trim()) !== -1 || msg.trim().split(' ').length <= 2) {
-    return getFlowResponse(flow, activeFlowStep);
-}
-activeFlow = null;
-activeFlowStep = 0;
-return null;
-}
-
 
 
 

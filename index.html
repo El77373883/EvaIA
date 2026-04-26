@@ -48,7 +48,8 @@
         .particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
         @keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
         .thinking-text { font-size: 12px; color: #999; font-style: italic; }
-        .thinking-bubble { background: #F0F0F0; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
+.thinking-bubble { background: #F0F0F0; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.thinking-bubble:active { transform: scale(0.97); }
         .thinking-dot { width: 6px; height: 6px; background: #999; border-radius: 50%; animation: dotPulse 1.4s infinite; }
         .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
         .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -2101,7 +2102,7 @@ function addThinkingIndicator() {
     container.id = id;
     container.className = 'typing-indicator';
     container.innerHTML = '<div class="eva-thinking"><div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div></div>'
-        + '<div class="thinking-bubble"><span class="thinking-text">' + currentModelName + ' pensando</span><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div>';
+        + '<div class="thinking-bubble"><span class="thinking-text">✍️ ' + currentModelName + ' escribiendo</span><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div>';
     chatArea.appendChild(container);
     chatArea.scrollTop = chatArea.scrollHeight;
     return id;
@@ -2476,6 +2477,7 @@ function generateContextualResponse(input, baseResponse) {
 
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('chatArea').classList.add('active');
+    if (navigator.vibrate) navigator.vibrate(30);
     addMessage(message, 'user');
     var typingId = addThinkingIndicator();
 
@@ -2558,6 +2560,20 @@ else if (currentModel === 'deepseek') {
 else {
     baseResponse = generateResponse(message);
 }
+        
+        try {
+    var ctx = new AudioContext();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 440;
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+} catch(e) {}
+
         
         var contextualResponse = generateContextualResponse(message, baseResponse);
         typewriterEffect(contextualResponse, 'eva');

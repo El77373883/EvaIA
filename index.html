@@ -1284,13 +1284,34 @@ function generateResponse(input) {
     
     var msgClean = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
     
-    // Bloquear palabras contextuales sin pregunta pendiente
-    if (isContextualWord(msgClean) && !pendingQuestion) {
+if (isContextualWord(msgClean)) {
+    // Si hay contexto de conversación, continuarlo
+    if (shortTermMemory.length > 0) {
+        var lastEva = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+        var lastUser = shortTermMemory[shortTermMemory.length - 1].user.toLowerCase();
+        var confirmaciones = ['si','sí','dale','ok','oka','claro','bueno','va','simon','simón','obvio'];
+        var negaciones = ['no','nel','nop','no gracias'];
+        
+        if (confirmaciones.indexOf(msgClean) !== -1) {
+            if (lastEva.includes('matemat') || lastUser.includes('matemat')) return '¡Perfecto! Dime el problema y lo resolvemos paso a paso 🔢';
+            if (lastEva.includes('tarea') || lastUser.includes('tarea')) return 'Dale, cuéntame cuál es la tarea exactamente 📚';
+            if (lastEva.includes('trabajo') || lastUser.includes('trabajo')) return '¡Vamos! ¿Qué necesitas? ¿Buscar empleo, CV, entrevista? 💼';
+            if (lastEva.includes('código') || lastEva.includes('programar') || lastUser.includes('codigo')) return 'Perfecto, pégame el código o dime qué quieres hacer 💻';
+            if (lastEva.includes('dinero') || lastUser.includes('dinero')) return 'Cuéntame más sobre la situación del dinero 💰';
+            if (lastEva.includes('?')) return 'Cuéntame más, aquí estoy para ayudarte 😊';
+            return '¡Dale! Cuéntame más 💪';
+        }
+        if (negaciones.indexOf(msgClean) !== -1) {
+            return '¡Está bien! ¿En qué más te puedo ayudar? 😊';
+        }
+    }
+    // Sin contexto previo
+    if (!pendingQuestion) {
         var neutral = {
-            '':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
-            '':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            'si':'¿Sí a qué? ¿En qué te ayudo? 😊',
+            'sí':'¿Sí a qué? ¿En qué te ayudo? 😊',
             'no':'Está bien. ¿Entonces qué necesitas? 🤔',
-            'ok':'¡OK! ¿Qué sigue? 😊',
+            'ok':'¡OK! ¿Qué necesitas? 😊',
             'dale':'¡Vamos! 💪 ¿Qué necesitas?',
             'bien':'¡Qué bueno! ¿En qué te ayudo? 😊',
             'bueno':'¡Perfecto! Dime qué necesitas. 👍',
@@ -1299,6 +1320,8 @@ function generateResponse(input) {
         };
         if (neutral[msgClean]) return neutral[msgClean];
     }
+}
+
     
     var msgOriginal = input.toLowerCase().trim();
 
@@ -1483,6 +1506,28 @@ if (scoredFirst.length > 0) {
     console.log('🔍 Coincidencias encontradas:\n' + debugInfo.join('\n'));
 }
 
+var greetingWords = ['hola','hey','buenas','saludos'];
+scoredFirst = scoredFirst.filter(function(s) {
+    if (shortTermMemory.length === 0) return true;
+    var k = knowledge[s.knowledgeIndex];
+    var soloSaludo = k.keywords.every(function(kw) {
+        return greetingWords.some(function(g) { return kw.includes(g); });
+    });
+    return !soloSaludo;
+});
+
+
+if (shortTermMemory.length > 0) {
+    scoredFirst = scoredFirst.filter(function(s) {
+        var k = knowledge[s.knowledgeIndex];
+        return !k.keywords.every(function(kw) {
+            return ['hola','hey','buenas','saludos','que tal'].some(function(g) { return kw.includes(g); });
+        });
+    });
+}
+
+
+
 if (scoredFirst.length > 0) {
     var bestCat = scoredFirst[0].category;
     
@@ -1554,20 +1599,24 @@ if (isVague) {
 }
 
 
-
-// DETECTAR SALUDOS PRIMERO (antes de cualquier otra cosa)
-var greetings = ['hola','hey','buenas','saludos','que tal','q tal','como estas','como andas','como va','que onda','buen dia','buenas tardes','buenas noches'];
-for (var g = 0; g < greetings.length; g++) {
-    if (msg.includes(greetings[g]) && msg.split(' ').length <= 5) {
-        pendingQuestion = 'saludo';
-        // Si ya hay conversación, responder diferente
-        if (shortTermMemory.length > 0) {
-            var estaRespuestas = ['¡Bien! 😊 ¿En qué te ayudo?', '¡Todo bien! ¿Qué necesitas?', '¡Genial, aquí estoy! ¿Cómo te puedo ayudar?'];
-            return estaRespuestas[Math.floor(Math.random() * estaRespuestas.length)];
+// Continuar contexto si el mensaje es muy corto (1-2 palabras)
+if (msg.trim().split(' ').length <= 2 && shortTermMemory.length > 0) {
+    var lastU = shortTermMemory[shortTermMemory.length - 1].user.toLowerCase();
+    var lastE = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+    // Buscar en admin con contexto de la última conversación
+    var contextBoost = lastU + ' ' + lastE + ' ' + msg;
+    for (var ci = 0; ci < knowledge.length; ci++) {
+        var ck = knowledge[ci];
+        var ckws = Array.isArray(ck.keywords) ? ck.keywords : [];
+        var cMatch = ckws.some(function(kw) { return contextBoost.includes(kw.toLowerCase()); });
+        if (cMatch) {
+            var cResp = responses.filter(function(r) { return r.category === ck.category; });
+            if (cResp.length > 0) return cResp[Math.floor(Math.random() * cResp.length)].text;
         }
-        return '¡Hola! 👋 Soy Eva. ¿En qué puedo ayudarte hoy? 😊✨';
     }
 }
+
+
 
 
 // REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa

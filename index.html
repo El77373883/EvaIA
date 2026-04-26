@@ -20,6 +20,12 @@
 .message-wrapper { position: relative; max-width: 95%; }
         .message-wrapper.user-wrapper { align-self: flex-end; }
         .message-wrapper.eva-wrapper { align-self: flex-start; }
+        .message { -webkit-user-select: none; user-select: none; }
+.msg-menu { position: fixed; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); padding: 8px; z-index: 999; min-width: 180px; animation: fadeIn 0.15s ease; }
+.msg-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; color: #333; transition: background 0.15s; }
+.msg-menu-item:hover { background: #f5f5f5; }
+.msg-menu-item svg { width: 18px; height: 18px; stroke: #555; fill: none; stroke-width: 2; stroke-linecap: round; }
+.msg-menu-divider { height: 1px; background: #eee; margin: 4px 8px; }
         .message { padding: 12px 16px; border-radius: 18px; line-height: 1.4; font-size: 15px; word-wrap: break-word; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .message.user { background: #2563EB; color: #fff; border-bottom-right-radius: 4px; }
@@ -2174,6 +2180,15 @@ function addMessage(text, sender) {
         msgDiv.textContent = text;
     }
     
+    
+    
+    msgDiv.addEventListener('contextmenu', function(e) { showMsgMenu(e, text, wrapper); });
+msgDiv.addEventListener('touchstart', function(e) {
+    var t = setTimeout(function() { showMsgMenu(e.touches[0], text, wrapper); }, 500);
+    msgDiv.addEventListener('touchend', function() { clearTimeout(t); }, { once: true });
+});
+
+    
     wrapper.appendChild(msgDiv);
     chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;
@@ -2564,6 +2579,46 @@ if (baseResponse.includes('```') && !input.toLowerCase().includes('archivo:')) {
 
     return baseResponse + contextualAddon;
 }
+
+
+function showMsgMenu(e, text, wrapper) {
+    e.preventDefault();
+    document.querySelectorAll('.msg-menu').forEach(function(m) { m.remove(); });
+    var menu = document.createElement('div');
+    menu.className = 'msg-menu';
+    var x = Math.min(e.clientX, window.innerWidth - 200);
+    var y = Math.min(e.clientY, window.innerHeight - 200);
+    menu.style.cssText = 'left:' + x + 'px;top:' + y + 'px;';
+    menu.innerHTML = '<div class="msg-menu-item" onclick="copyMsg(this,\'' + text.replace(/'/g,"\\'").replace(/\n/g,'\\n') + '\')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</div>'
+    + '<div class="msg-menu-divider"></div>'
+    + '<div class="msg-menu-item" onclick="shareMsg(\'' + text.replace(/'/g,"\\'").replace(/\n/g,'\\n') + '\')"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Compartir</div>'
+    + '<div class="msg-menu-divider"></div>'
+    + '<div class="msg-menu-item" onclick="deleteMsg(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>Eliminar</div>';
+    document.body.appendChild(menu);
+    setTimeout(function() {
+        document.addEventListener('click', function rm() {
+            menu.remove();
+            document.removeEventListener('click', rm);
+        });
+    }, 100);
+}
+
+function copyMsg(el, text) {
+    navigator.clipboard.writeText(text);
+    el.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#10B981;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="20 6 9 17 4 12"/></svg>Copiado';
+    setTimeout(function() { document.querySelectorAll('.msg-menu').forEach(function(m){ m.remove(); }); }, 800);
+}
+
+function shareMsg(text) {
+    if (navigator.share) navigator.share({ text: text });
+    document.querySelectorAll('.msg-menu').forEach(function(m){ m.remove(); });
+}
+
+function deleteMsg(el) {
+    var menu = el.closest('.msg-menu');
+    menu.remove();
+}
+
 
 function quickSend(text) {
     document.getElementById('chatInput').value = text;

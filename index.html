@@ -1284,8 +1284,8 @@ function generateResponse(input) {
     // Bloquear palabras contextuales sin pregunta pendiente
     if (isContextualWord(msgClean) && !pendingQuestion) {
         var neutral = {
-            'si':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
-            'sí':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            '':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
+            '':'¿Sí a qué? No te sigo 😅 ¿En qué te ayudo?',
             'no':'Está bien. ¿Entonces qué necesitas? 🤔',
             'ok':'¡OK! ¿Qué sigue? 😊',
             'dale':'¡Vamos! 💪 ¿Qué necesitas?',

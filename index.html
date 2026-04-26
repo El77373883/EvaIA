@@ -1381,7 +1381,7 @@ a.download = 'eva_archivo.' + ext;
 document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
-return '📄 ¡Archivo listo!\n\n[btn:⬇️ Descargar .' + ext + '] \n\nO aquí está el código:\n\n```' + ext + '\n' + content + '\n```';
+return '📄 ¡Archivo listo!\n\n```' + ext + '\n' + content + '\n```';
     }
 }
 
@@ -2063,6 +2063,30 @@ img.src = imgUrl;
         actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
         chatArea.scrollTop = chatArea.scrollHeight;
         
+        
+        // Botón descarga si es archivo
+var archivoMatch = text.match(/```(\w+)\n([\s\S]*?)```/);
+if (archivoMatch && sender === 'eva') {
+    var extFile = archivoMatch[1];
+    var contentFile = archivoMatch[2];
+    var dlBtn = document.createElement('button');
+    dlBtn.textContent = '⬇️ Descargar .' + extFile;
+    dlBtn.style.cssText = 'margin-top:10px;padding:10px 20px;background:#2563EB;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:block;';
+    dlBtn.onclick = function() {
+        var blob = new Blob([contentFile], { type: 'text/plain' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'eva_archivo.' + extFile;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+    msgDiv.appendChild(dlBtn);
+}
+
+        
+        
         renderButtons(text, msgDiv);
 
 
@@ -2471,7 +2495,7 @@ function generateContextualResponse(input, baseResponse) {
     var contextualAddon = '';
     
 // Analizar código si existe
-    if (baseResponse.includes('```')) {
+if (baseResponse.includes('```') && !input.toLowerCase().includes('archivo:')) {
         var codeMatch = baseResponse.match(/```(\w+)?\n([\s\S]*?)```/);
         if (codeMatch) {
             var lang = codeMatch[1] || '';

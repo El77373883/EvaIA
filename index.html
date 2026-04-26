@@ -1782,14 +1782,14 @@ function showCodeResponse(text, sender) {
     msgDiv.style.background = '#F0F0F0';
     msgDiv.addEventListener('contextmenu', function(e) { e.preventDefault(); showMsgMenu(e, msgDiv.textContent, wrapper); });
 msgDiv.addEventListener('touchstart', function(e) {
-    var t = setTimeout(function() { showMsgMenu(e.touches[0], msgDiv.textContent, wrapper); }, 600);
+    .message { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
     msgDiv.addEventListener('touchend', function() { clearTimeout(t); }, { once: true });
     msgDiv.addEventListener('touchmove', function() { clearTimeout(t); }, { once: true });
 });
 
 msgDiv.addEventListener('contextmenu', function(e) { e.preventDefault(); showMsgMenu(e, msgDiv.textContent, wrapper); });
 msgDiv.addEventListener('touchstart', function(e) {
-    var t = setTimeout(function() { showMsgMenu(e.touches[0], msgDiv.textContent, wrapper); }, 600);
+    .message { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
     msgDiv.addEventListener('touchend', function() { clearTimeout(t); }, { once: true });
     msgDiv.addEventListener('touchmove', function() { clearTimeout(t); }, { once: true });
 });

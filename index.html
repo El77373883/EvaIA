@@ -1356,6 +1356,36 @@ if (isContextualWord(msgClean)) {
         return '🎨 ¡Imagen generada!\n\n![Imagen](' + imageUrl + ')\n\nPrompt: ' + prompt + '\n\n¿Te gusta? Puedes pedir otra con más detalles.';
     }
     
+    
+    // GENERADOR DE ARCHIVOS
+if (msg.includes('archivo:') || msg.includes('genera archivo') || msg.includes('crea archivo') || msg.includes('descargar')) {
+    var fileMatch = input.match(/archivo:\s*(\w+)\s*\n?([\s\S]*)/i);
+    if (fileMatch) {
+        var ext = fileMatch[1].toLowerCase();
+        var content = fileMatch[2].trim();
+        var mimeTypes = {
+            'txt': 'text/plain',
+            'html': 'text/html',
+            'js': 'text/javascript',
+            'py': 'text/x-python',
+            'css': 'text/css',
+            'json': 'application/json',
+            'csv': 'text/csv'
+        };
+        var mime = mimeTypes[ext] || 'text/plain';
+        var blob = new Blob([content], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+a.href = url;
+a.download = 'eva_archivo.' + ext;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+return '📄 ¡Archivo listo!\n\n[btn:⬇️ Descargar .' + ext + '] \n\nO aquí está el código:\n\n```' + ext + '\n' + content + '\n```';
+    }
+}
+
+    
     // ===== GENERADOR DE IMÁGENES (palabra clave "imagen") =====
     if (msg.startsWith('imagen ') || msg.startsWith('imagen:') || msg.startsWith('dibuja ')) {
         var prompt = msg.replace(/^imagen[: ]|^dibuja /, '').trim();

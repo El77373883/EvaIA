@@ -1506,25 +1506,6 @@ if (scoredFirst.length > 0) {
     console.log('🔍 Coincidencias encontradas:\n' + debugInfo.join('\n'));
 }
 
-var greetingWords = ['hola','hey','buenas','saludos'];
-scoredFirst = scoredFirst.filter(function(s) {
-    if (shortTermMemory.length === 0) return true;
-    var k = knowledge[s.knowledgeIndex];
-    var soloSaludo = k.keywords.every(function(kw) {
-        return greetingWords.some(function(g) { return kw.includes(g); });
-    });
-    return !soloSaludo;
-});
-
-
-if (shortTermMemory.length > 0) {
-    scoredFirst = scoredFirst.filter(function(s) {
-        var k = knowledge[s.knowledgeIndex];
-        return !k.keywords.every(function(kw) {
-            return ['hola','hey','buenas','saludos','que tal'].some(function(g) { return kw.includes(g); });
-        });
-    });
-}
 
 
 

@@ -1,0 +1,3640 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eva - Chat IA</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #FCFCFC; color: #333; display: flex; flex-direction: column; height: 100dvh; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: relative; }
+        .icon-btn { background: #fff; border: 1px solid #eaeaea; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; }
+        .icon-btn:active { transform: scale(0.95); background: #f5f5f5; }
+        .model-selector { font-weight: 500; font-size: 16px; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .chat-area { flex-grow: 1; overflow-y: auto; padding: 20px; display: none; flex-direction: column; gap: 16px; -webkit-overflow-scrolling: touch; }
+        .chat-area.active { display: flex; }
+        main { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        main.hidden { display: none; }
+        .greeting { font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #333; line-height: 1.2; max-width: 300px; }
+.message-wrapper { position: relative; max-width: 95%; }
+        .message-wrapper.user-wrapper { align-self: flex-end; }
+        .message-wrapper.eva-wrapper { align-self: flex-start; }
+        .message { padding: 12px 16px; border-radius: 18px; line-height: 1.4; font-size: 15px; word-wrap: break-word; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { background: #2563EB; color: #fff; border-bottom-right-radius: 4px; }
+        .message.eva { background: #F0F0F0; color: #333; border-bottom-left-radius: 4px; }
+        .copy-btn { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; background: #fff; border: 1px solid #eaeaea; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08); z-index: 2; }
+        .message-wrapper:hover .copy-btn, .message-wrapper:active .copy-btn { opacity: 1; }
+        .copy-btn:active { background: #f0f0f0; transform: scale(0.9); }
+        .copy-btn.copied { background: #2563EB; border-color: #2563EB; }
+        .copy-btn.copied svg { stroke: #fff; }
+        .message-actions { display: flex; align-items: center; gap: 2px; margin-top: 4px; padding-left: 2px; }
+        .action-mini-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; transition: all 0.2s; }
+        .action-mini-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.05); }
+        .action-mini-btn.liked { color: #2563EB; }
+        .action-mini-btn.disliked { color: #EF4444; }
+        .typing-indicator { display: flex; align-items: center; gap: 10px; align-self: flex-start; }
+        .eva-thinking { width: 40px; height: 40px; position: relative; flex-shrink: 0; }
+        .eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c, #D48A72); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(212,138,114,0.4), 0 0 0 4px rgba(212,138,114,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
+        .eva-thinking .sphere::after { content: ''; position: absolute; top: 8px; left: 10px; width: 8px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 12px 4px 0 -2px rgba(255,255,255,0.6); }
+        .eva-thinking .sphere::before { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; animation: mouthTalk 0.6s ease-in-out infinite; }
+        @keyframes float3D { 0%,100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); } 25% { transform: translateY(-6px) rotateY(10deg) rotateX(5deg); } 50% { transform: translateY(-3px) rotateY(-5deg) rotateX(-3deg); } 75% { transform: translateY(-8px) rotateY(-10deg) rotateX(5deg); } }
+        @keyframes mouthTalk { 0%,100% { transform: translateX(-50%) scaleX(1); } 50% { transform: translateX(-50%) scaleX(0.4); } }
+        .eva-particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+        .eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #D48A72; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
+        .particle:nth-child(1) { left: -8px; top: 50%; animation-delay: 0s; }
+        .particle:nth-child(2) { right: -6px; top: 30%; animation-delay: 0.4s; }
+        .particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
+        @keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
+        .thinking-text { font-size: 12px; color: #999; font-style: italic; }
+        .thinking-bubble { background: #F0F0F0; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
+        .thinking-dot { width: 6px; height: 6px; background: #999; border-radius: 50%; animation: dotPulse 1.4s infinite; }
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotPulse { 0%,60%,100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1.3); } }
+        .input-container { padding: 20px; padding-bottom: 30px; }
+        .input-box { background-color: #F4F4F4; border-radius: 24px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+        .input-box input { flex-grow: 1; background: transparent; border: none; outline: none; font-size: 16px; color: #333; }
+        .input-box input::placeholder { color: #888; }
+        .action-icon { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; color: #555; cursor: pointer; }
+        .voice-icon { background-color: #000; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+ .model-dropdown { display: none; position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; min-width: 250px; max-height: 420px; overflow-y: auto; }
+        .model-dropdown.active { display: block; }
+       .model-option { padding: 12px 16px; cursor: pointer; font-size: 14px; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
+        .model-option:hover { background: #f5f5f5; }
+        .model-option.selected { font-weight: 600; color: #2563EB; background: #f8faff; }
+        .model-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+        .disclaimer { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; font-size: 11px; color: #999; text-align: center; }
+        .disclaimer .mini-eva { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c); animation: miniFloat 2s ease-in-out infinite; flex-shrink: 0; box-shadow: 0 2px 4px rgba(212,138,114,0.3); }
+        @keyframes miniFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        svg { width: 20px; height: 20px; fill: currentColor; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .sidebar-overlay.active { display: block; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100dvh; background: #fff; z-index: 300; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.12); transition: left 0.3s ease; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid #eaeaea; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-header h2 { font-size: 16px; font-weight: 600; }
+        .new-chat-btn { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin: 8px; background: #2563EB; color: #fff; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+        .new-chat-btn:active { transform: scale(0.97); }
+        .chats-list { flex-grow: 1; overflow-y: auto; padding: 4px 8px; }
+        .chat-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-bottom: 2px; }
+        .chat-item:hover, .chat-item.active-chat { background: #f5f5f5; }
+        .chat-item-title { font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .chat-item-date { font-size: 11px; color: #bbb; }
+        .chat-delete-btn { width: 24px; height: 24px; border-radius: 6px; border: none; background: transparent; color: #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .chat-delete-btn:hover { background: #fee2e2; color: #EF4444; }
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid #eaeaea; }
+        .clear-all-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eaeaea; background: #fff; font-size: 13px; color: #999; cursor: pointer; }
+        .clear-all-btn:active { background: #fee2e2; color: #EF4444; }
+        .empty-chats { text-align: center; color: #bbb; padding: 40px 20px; font-size: 13px; }
+        
+        .profile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400}
+.profile-overlay.active{display:block}
+.profile-modal{position:fixed;right:16px;top:70px;background:#fff;border-radius:20px;padding:24px 20px 20px;width:280px;z-index:500;box-shadow:0 12px 40px rgba(0,0,0,0.18);text-align:center;display:none}
+.profile-modal.active{display:block}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#1E40AF);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700}
+.profile-name{font-size:16px;font-weight:700;margin-bottom:2px;color:#111}
+.profile-plan{display:inline-block;background:#F0F0F0;color:#666;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:600;margin-bottom:16px}
+.profile-usage{background:#F9FAFB;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left}
+.profile-usage-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:6px;font-weight:600}
+.profile-usage-bar{height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden}
+.profile-usage-fill{height:100%;background:linear-gradient(90deg,#2563EB,#3B82F6);border-radius:3px}
+.profile-stats{display:flex;justify-content:center;gap:24px;margin:14px 0;padding:12px 0;border-top:1px solid #F0F0F0}
+.profile-stat{text-align:center}
+.profile-stat-value{font-size:16px;font-weight:800;color:#111}
+.profile-stat-label{font-size:10px;color:#999}
+.profile-btn{display:block;width:100%;padding:10px;margin-bottom:6px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-weight:600}
+.profile-btn.primary{background:#2563EB;color:#fff}
+.profile-btn.outline{background:#fff;border:1px solid #E5E7EB;color:#555}
+
+.img-loading { width: 260px; height: 260px; border-radius: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: #bbb; font-size: 13px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.img-gen { max-width: 260px; border-radius: 16px; display: block; margin: 8px 0; animation: fadeIn 0.5s ease; }
+        
+        @keyframes genShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes genPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+.img-reveal { max-width: 260px; border-radius: 16px; display: block; margin: 8px 0; filter: blur(24px) brightness(0.7) saturate(0.3); opacity: 0.4; transition: filter 3.5s ease, opacity 3.5s ease; }
+.img-reveal.ready { filter: blur(0px) brightness(1) saturate(1); opacity: 1; }
+
+        
+    </style>
+</head>
+<body>
+
+
+<header>
+    <div class="icon-btn" onclick="openSidebar()">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </div>
+    <div class="model-selector" onclick="toggleModelDropdown()">
+        <span id="currentModelName">Eva Pro</span>
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+ <div class="icon-btn" onclick="toggleProfile()">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+</div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="profile-overlay" id="profileOverlay" onclick="closeProfile()"></div>
+<div class="profile-modal" id="profileModal">
+    <div class="profile-avatar" id="profileAvatar">E</div>
+    <div class="profile-name" id="profileName">Usuario</div>
+    <div class="profile-plan">PLAN GRATUITO</div>
+    <div class="profile-usage">
+        <div class="profile-usage-label">
+            <span>Uso del plan</span>
+            <span id="usagePercent">0%</span>
+        </div>
+        <div class="profile-usage-bar">
+            <div class="profile-usage-fill" id="usageBar" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#AAA;margin-top:8px;">
+            <span>Tokens usados</span>
+            <span id="tokensUsed">0 / 10,000</span>
+        </div>
+    </div>
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <div class="profile-stat-value" id="profileChats">0</div>
+            <div class="profile-stat-label">Conversaciones</div>
+        </div>
+        <div class="profile-stat">
+            <div class="profile-stat-value" id="profileMsgs">0</div>
+            <div class="profile-stat-label">Mensajes</div>
+        </div>
+    </div>
+    <button class="profile-btn primary" onclick="editProfile()">Configurar</button>
+    <button class="profile-btn outline" onclick="closeProfile()">Cerrar sesion</button>
+</div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>💬 Chats</h2>
+        <div class="icon-btn" onclick="closeSidebar()" style="width:32px;height:32px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+    </div>
+    <div class="new-chat-btn" onclick="createNewChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:18px;height:18px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo chat
+    </div>
+    <div class="chats-list" id="chatsList"></div>
+    <div class="sidebar-footer">
+        <button class="clear-all-btn" onclick="deleteAllChats()">🗑 Borrar todos los chats</button>
+    </div>
+</div>
+<div class="model-dropdown" id="modelDropdown"></div>
+
+
+<div class="chat-area" id="chatArea"></div>
+
+<main id="welcomeScreen">
+    <div style="color:#D48A72;margin-bottom:24px;">
+        <div class="eva-thinking" style="width:60px;height:60px;margin:0 auto;">
+            <div class="sphere" style="width:60px;height:60px;">
+                <div class="eva-particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
+    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
+</main>
+
+<div class="input-container">
+    <div class="input-box">
+        <div class="action-icon" onclick="document.getElementById('chatInput').focus()">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <input type="text" id="chatInput" placeholder="Habla con Eva..." onkeydown="if(event.key==='Enter')sendMessage()">
+        <div class="action-icon" onclick="startVoice()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+        </div>
+        <div class="voice-icon" onclick="sendMessage()">
+            <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<div class="disclaimer">
+    <div class="mini-eva"></div>
+    <span>Eva puede cometer errores. Verifique sus respuestas.</span>
+</div>
+
+<script>
+var currentModel = 'eva';
+var currentModelName = 'Eva Pro';
+var isProcessing = false;
+var typewriterTimers = [];
+var currentChatId = null;
+
+// ============ SISTEMA DE CHATS ============
+function getAllChats() {
+    return JSON.parse(localStorage.getItem('eva_chats') || '[]');
+}
+
+function saveAllChats(chats) {
+    localStorage.setItem('eva_chats', JSON.stringify(chats));
+}
+
+function createNewChat() {
+    // Guardar chat actual si tiene mensajes
+    saveCurrentChat();
+    
+    // Limpiar pantalla
+    typewriterTimers.forEach(function(t) { clearTimeout(t); });
+    typewriterTimers = [];
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('chatArea').classList.remove('active');
+    document.getElementById('welcomeScreen').classList.remove('hidden');
+    localStorage.removeItem('eva_chat_history');
+    
+    currentChatId = Date.now().toString();
+    closeSidebar();
+}
+
+function saveCurrentChat() {
+    var messages = [];
+    document.querySelectorAll('#chatArea .message-wrapper').forEach(function(w) {
+        var msg = w.querySelector('.message');
+        if (msg) {
+            messages.push({
+                text: msg.textContent,
+                sender: msg.classList.contains('user') ? 'user' : 'eva'
+            });
+        }
+    });
+    if (messages.length === 0) return;
+    
+    var chats = getAllChats();
+    var existing = chats.findIndex(function(c) { return c.id === currentChatId; });
+    
+    var firstUserMsg = messages.find(function(m) { return m.sender === 'user'; });
+    var title = firstUserMsg ? firstUserMsg.text.slice(0, 40) : 'Chat sin título';
+    
+    var chatData = {
+        id: currentChatId,
+        title: title,
+        messages: messages.slice(-50),
+        date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }),
+        timestamp: Date.now()
+    };
+    
+    if (existing >= 0) {
+        chats[existing] = chatData;
+    } else {
+        chats.unshift(chatData);
+    }
+    
+    if (chats.length > 30) chats = chats.slice(0, 30);
+    saveAllChats(chats);
+    renderChatsList();
+}
+
+function loadChat(chatId) {
+    saveCurrentChat();
+    var chats = getAllChats();
+    var chat = chats.find(function(c) { return c.id === chatId; });
+    if (!chat) return;
+    
+    currentChatId = chatId;
+    typewriterTimers.forEach(function(t) { clearTimeout(t); });
+    typewriterTimers = [];
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('chatArea').classList.add('active');
+    
+    chat.messages.forEach(function(m) { addMessage(m.text, m.sender); });
+    closeSidebar();
+    renderChatsList();
+}
+
+function deleteChat(chatId, e) {
+    e.stopPropagation();
+    var chats = getAllChats().filter(function(c) { return c.id !== chatId; });
+    saveAllChats(chats);
+    
+    if (currentChatId === chatId) {
+        createNewChat();
+    } else {
+        renderChatsList();
+    }
+}
+
+function deleteAllChats() {
+    if (!confirm('¿Borrar todos los chats?')) return;
+    localStorage.removeItem('eva_chats');
+    localStorage.removeItem('eva_chat_history');
+    createNewChat();
+}
+
+function renderChatsList() {
+    var chats = getAllChats();
+    var list = document.getElementById('chatsList');
+    if (!list) return;
+    
+    if (chats.length === 0) {
+        list.innerHTML = '<div class="empty-chats">📭 No hay chats guardados</div>';
+        return;
+    }
+    
+    list.innerHTML = chats.map(function(chat) {
+        var isActive = chat.id === currentChatId ? 'active-chat' : '';
+        return '<div class="chat-item ' + isActive + '" onclick="loadChat(\'' + chat.id + '\')">'
+            + '<div>'
+            + '<div class="chat-item-title">' + escapeHtml(chat.title) + '</div>'
+            + '<div class="chat-item-date">' + chat.date + '</div>'
+            + '</div>'
+            + '<button class="chat-delete-btn" onclick="deleteChat(\'' + chat.id + '\', event)">'
+            + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>'
+            + '</button>'
+            + '</div>';
+    }).join('');
+}
+
+function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function openSidebar() {
+    saveCurrentChat();
+    renderChatsList();
+    document.getElementById('sidebar').classList.add('active');
+    document.getElementById('sidebarOverlay').classList.add('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+function toggleProfile() {
+    var modal = document.getElementById('profileModal');
+    var overlay = document.getElementById('profileOverlay');
+    var chats = getAllChats();
+    document.getElementById('profileChats').textContent = chats.length;
+    var msgCount = 0;
+    chats.forEach(function(c) { msgCount += c.messages ? c.messages.length : 0; });
+    document.getElementById('profileMsgs').textContent = msgCount;
+    var MAX_MSGS = 100; // Límite de mensajes por sesión
+var MAX_TOKENS = 10000;
+var percent = Math.min(100, Math.round((msgCount / MAX_MSGS) * 100));
+var tokens = msgCount * 50;
+var tokenPercent = Math.min(100, Math.round((tokens / MAX_TOKENS) * 100));
+
+document.getElementById('tokensUsed').textContent = msgCount + ' / ' + MAX_MSGS + ' mensajes';
+document.getElementById('usagePercent').textContent = percent + '%';
+document.getElementById('usageBar').style.width = percent + '%';
+    if (longTermMemory.userName) {
+        document.getElementById('profileName').textContent = longTermMemory.userName;
+        document.getElementById('profileAvatar').textContent = longTermMemory.userName.charAt(0).toUpperCase();
+    }
+    modal.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+function closeProfile() {
+    document.getElementById('profileModal').classList.remove('active');
+    document.getElementById('profileOverlay').classList.remove('active');
+}
+function editProfile() {
+    var name = prompt('Tu nombre:', longTermMemory.userName || '');
+    if (name && name.trim()) {
+        longTermMemory.userName = name.trim();
+        saveLongTermMemory();
+        document.getElementById('profileName').textContent = name.trim();
+        document.getElementById('profileAvatar').textContent = name.trim().charAt(0).toUpperCase();
+    }
+    closeProfile();
+}
+
+
+var icons = {
+    eva:    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    selene: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+    nyx:    '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/>',
+    aria:   '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+    duck:   '<circle cx="12" cy="12" r="10"/><path d="M8 7h8v3H8zM8 12h8v1H8zM10 14h4v3h-4z"/><circle cx="8" cy="8" r="1.5" fill="#fff"/><circle cx="16" cy="8" r="1.5" fill="#fff"/>'
+};
+
+// ============ DATOS BASE ============
+var models = [
+    { modelId: 'eva',    name: 'Eva Pro',    greeting: 'Hola, soy Eva.\n¿En qué puedo ayudarte?' },
+    { modelId: 'selene', name: 'Selene',     greeting: 'Hola, soy Selene.\nVamos a crear algo?' },
+    { modelId: 'nyx',    name: 'Nyx',        greeting: 'Nyx te escucha.\nQue inquietud traes?' },
+    { modelId: 'aria',   name: 'Aria',       greeting: 'Aria en linea.\nQue datos necesitas?' },
+    { modelId: 'wiki',   name: '📚 Wiki',    greeting: 'Modo Wikipedia activado.\nBuscaré información por ti.' },
+{ modelId: 'code',   name: '💻 Eva Code', greeting: 'Modo Programador activado.\nPregúntame código y te ayudo.' },
+{ modelId: 'qwen',   name: '🧠 Qwen',      greeting: 'Qwen en línea.\nRazonamiento lógico activado.' },
+{ modelId: 'deepseek', name: '🧠 DeepSeek', greeting: 'DeepSeek en línea.\nRazonamiento profundo activado.' },
+{ modelId: 'gemini', name: '🌟 Gemini', greeting: 'Gemini en línea.\nIA de Google lista para ayudarte.' },
+{ modelId: 'mistral', name: '💨 Mistral', greeting: 'Mistral en línea.\nIA europea rápida y precisa.' },
+{ modelId: 'cloudflare', name: '☁️ Cloudflare', greeting: 'Cloudflare AI en línea.\nModelo Llama ultrarrápido.' },
+{ modelId: 'buscador', name: '🔍 Buscador', greeting: 'Modo búsqueda activado.\nBusco información en tiempo real.' },
+{ modelId: 'duck', name: '🦆 DuckDuckGo', greeting: 'Búsqueda DuckDuckGo activada.\nBusco sin límites ni API Key.' }
+];
+var lastContextualIndex = {};
+var lastResponseIndex = {};
+
+
+var contextualFollowUps = {
+    default: [
+        'Me da gusto! 😊 ¿En qué más te puedo ayudar?',
+        '¡Qué bueno! 💪 ¿Algo más en lo que te ayude?',
+        '¡Perfecto! ✨ Aquí estoy si necesitas algo.',
+        'Genial! 😄 ¿Hay algo más?'
+    ],
+    programacion: [
+        '¡Qué bueno! 💻 ¿Tu código ya funciona bien?',
+        'Me da gusto! 🚀 ¿Algo más con el proyecto?',
+        '¡Perfecto! ¿Necesitas ayuda con algo más del código?'
+    ],
+    salud: [
+        'Me da gusto que estés bien! 💪 ¿Cuídate!',
+        '¡Qué bueno! 😊 La salud es lo primero.',
+        '¡Perfecto! Cualquier duda sobre salud aquí estoy.'
+    ],
+    trabajo: [
+        '¡Qué bueno con el trabajo! 💼 ¿Todo tranquilo?',
+        'Me da gusto! 🙌 ¿Algo más en lo que te ayude?',
+        '¡Perfecto! El trabajo bien es lo que importa. 💪'
+    ],
+    emocional: [
+        'Me da mucho gusto escuchar eso! 🤍',
+        '¡Qué bueno! Siempre es importante estar bien. 😊',
+        'Me alegra! ¿Hay algo más en lo que te pueda ayudar?'
+    ]
+};
+
+
+var knowledge = [];
+
+var responses = [];
+
+
+// ============ CARGAR FLUJOS ============
+var activeFlow = null;
+var activeFlowStep = 0;
+var flowResponseIndexes = {};
+var temaActual = null; // recuerda el tema de la conversacion
+
+
+function loadFlows() {
+    return JSON.parse(localStorage.getItem('eva_flows') || '[]');
+}
+
+function getFlowResponse(flow, stepIndex) {
+    var step = flow.steps[stepIndex];
+    if (!step) return null;
+    var responses = step.responses;
+    if (!responses || responses.length === 0) return null;
+    var key = flow.keyword + '_' + stepIndex;
+
+    if (flow.mode === 'order') {
+        var current = flowResponseIndexes[key] !== undefined ? flowResponseIndexes[key] : -1;
+        var next = (current + 1) % responses.length;
+        flowResponseIndexes[key] = next;
+        return responses[next];
+    } else {
+        var last = flowResponseIndexes[key] !== undefined ? flowResponseIndexes[key] : -1;
+        var idx;
+        if (responses.length === 1) {
+            idx = 0;
+        } else {
+            do { idx = Math.floor(Math.random() * responses.length); } while (idx === last);
+        }
+        flowResponseIndexes[key] = idx;
+        return responses[idx];
+    }
+}
+
+function checkFlows(input) {
+    var msg = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    var flows = loadFlows();
+
+// Si hay flujo activo avanzar al siguiente paso
+if (activeFlow !== null) {
+    var flow = activeFlow;
+
+    // MODO KEYWORD EXACTA: busca el paso que coincida con la keyword
+if (flow.mode === 'keyword') {
+
+// Primero buscar keyword específica en TODOS los pasos
+var matchedStep = null;
+var matchedStepIdx = -1;
+for (var s = 0; s < flow.steps.length; s++) {
+    if (s === activeFlowStep) continue;
+    var step = flow.steps[s];
+    if (!step.keyword) continue;
+    var stepKws = step.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+    
+    var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop'];
+    var soloConfirmaciones = stepKws.every(function(kw){ return confirmaciones.indexOf(kw) !== -1; });
+    if (soloConfirmaciones) continue;
+    
+    var matched = stepKws.some(function(kw){
+        if (confirmaciones.indexOf(kw) !== -1) return false;
+        if (msg.trim() === kw) return true;
+        if (msg.trim().startsWith(kw + ' ')) return true;
+        var msgWords = msg.trim().split(' ');
+        var kwWords = kw.split(' ');
+        if (kwWords.length >= 2) return msg.includes(kw);
+        return msgWords[0] === kw || msgWords[1] === kw;
+    });
+    
+    if (matched) {
+        matchedStep = step;
+        matchedStepIdx = s;
+        break;
+    }
+}
+
+if (matchedStep && matchedStep.responses && matchedStep.responses.length > 0) {
+    activeFlowStep = matchedStepIdx;
+    return matchedStep.responses[Math.floor(Math.random() * matchedStep.responses.length)];
+}
+
+var confirmaciones = ['si','no','ok','dale','claro','bueno','vale','ya','nel','nop','simon'];
+var esConfirmacion = confirmaciones.some(function(c){ 
+    return msg.trim() === c || msg.trim().startsWith(c + ' '); 
+});
+var esMsgCorto = msg.trim().split(' ').length <= 2;
+
+if (esConfirmacion || esMsgCorto) {
+    var nextIdx = activeFlowStep + 1;
+    if (nextIdx < flow.steps.length) {
+        activeFlowStep = nextIdx;
+        return getFlowResponse(flow, activeFlowStep);
+    }
+    activeFlow = null;
+    activeFlowStep = 0;
+    return null;
+}
+
+activeFlow = null;
+activeFlowStep = 0;
+return null;
+}
+
+
+
+
+    // MODO ORDEN o AZAR: avanza al siguiente paso
+    var nextStepIndex = activeFlowStep + 1;
+    if (nextStepIndex < flow.steps.length) {
+        var nextStep = flow.steps[nextStepIndex];
+        var stepKws = nextStep.keyword 
+            ? nextStep.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean) 
+            : [];
+        var stepMatch = stepKws.length === 0 
+            || msg.trim().split(' ').length <= 4
+            || stepKws.some(function(kw){ return msg.includes(kw); });
+        if (stepMatch) {
+            activeFlowStep = nextStepIndex;
+            var resp = getFlowResponse(flow, activeFlowStep);
+            if (activeFlowStep >= flow.steps.length - 1) {
+                activeFlow = null;
+                activeFlowStep = 0;
+            }
+            return resp;
+        }
+    } else {
+        activeFlow = null;
+        activeFlowStep = 0;
+    }
+}
+
+// Buscar si el mensaje dispara un flujo nuevo
+for (var i = 0; i < flows.length; i++) {
+    var flow = flows[i];
+    if (flow.model && flow.model !== currentModel) continue;
+    
+    var flowKws = flow.keyword.toLowerCase().split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+    var flowMatch = flowKws.some(function(kw){ return msg.includes(kw); });
+    
+    if (flowMatch) {
+    activeFlow = flow;
+    activeFlowStep = 0;
+    temaActual = flow.keyword; // guarda el tema actual
+    return getFlowResponse(flow, 0);
+}
+}
+
+return null;
+}
+
+
+
+// ============ CARGAR DEL ADMIN (localStorage) ============
+function loadFromAdmin() {
+    try {
+        var entries = JSON.parse(localStorage.getItem('eva_entries') || '[]');
+        
+        entries.forEach(function(entry, idx) {
+            var catName = 'custom_entry_' + idx;
+            
+            knowledge.push({
+                category: catName,
+                keywords: entry.keywords
+            });
+
+            // GRUPO: múltiples respuestas
+            if (entry.isGroup && Array.isArray(entry.responses)) {
+                entry.responses.forEach(function(r) {
+                    if (!r || !r.trim()) return;
+                    responses.push({
+                        category: catName,
+                        model: entry.model || 'eva',
+                        text: r.trim()
+                    });
+                });
+            }
+            // ÚNICA: una sola respuesta
+            else if (entry.response) {
+                var responseText = entry.response;
+                if (!responseText.includes('```')) {
+                    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        responseText = '```html\n' + responseText + '\n```';
+                    } else if (responseText.includes('function') || responseText.includes('const ') || responseText.includes('let ') || responseText.includes('var ')) {
+                        responseText = '```javascript\n' + responseText + '\n```';
+                    } else if (responseText.includes('def ') || responseText.includes('import ') || responseText.includes('print(')) {
+                        responseText = '```python\n' + responseText + '\n```';
+                    } else if (responseText.includes('{') && responseText.includes(':') && responseText.includes(';')) {
+                        responseText = '```css\n' + responseText + '\n```';
+                    }
+                }
+                responses.push({
+                    category: catName,
+                    model: entry.model || 'eva',
+                    text: responseText
+                });
+            }
+        });
+        
+        console.log('✅ Entradas cargadas: ' + entries.length);
+    } catch(e) {
+        console.log('❌ Error:', e);
+    }
+}
+
+
+// ============ DROPDOWN ============
+// Descripciones de cada modelo
+var modelDescriptions = {
+    eva: 'Asistente general inteligente',
+    selene: 'Creatividad e ideas inspiradoras',
+    nyx: 'Reflexión profunda y consejos',
+    aria: 'Datos precisos y análisis lógico',
+    wiki: 'Búsqueda en Wikipedia',
+    code: 'Programación y código (Groq)',
+    qwen: 'Razonamiento lógico avanzado',
+    deepseek: 'Razonamiento profundo',
+    gemini: 'IA de Google',
+    mistral: 'IA europea rápida',
+    cloudflare: 'Modelo Llama ultrarrápido',
+    buscador: 'Búsqueda en tiempo real',
+    duck: 'Búsqueda DuckDuckGo sin API Key'
+};
+
+function buildModelDropdown() {
+    var dropdown = document.getElementById('modelDropdown');
+    dropdown.innerHTML = models.map(function(m) {
+        var sel = m.modelId === currentModel ? 'selected' : '';
+        var icon = icons[m.modelId] || '<circle cx="12" cy="12" r="10"/>';
+        var desc = modelDescriptions[m.modelId] || '';
+        return '<div class="model-option ' + sel + '" data-model-id="' + m.modelId + '" data-model-name="' + m.name + '">'
+            + '<span class="model-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></span>'
+            + '<div style="display:flex;flex-direction:column;gap:2px;">'
+            + '<span style="font-weight:600;font-size:14px;">' + m.name + '</span>'
+            + '<span style="font-size:11px;color:#999;">' + desc + '</span>'
+            + '</div>'
+            + '</div>';
+    }).join('');
+
+    dropdown.querySelectorAll('.model-option').forEach(function(option) {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentModel = this.dataset.modelId;
+            currentModelName = this.dataset.modelName;
+            document.getElementById('currentModelName').textContent = currentModelName;
+            document.getElementById('welcomeModelName').textContent = currentModelName;
+            var modelData = null;
+            for (var i = 0; i < models.length; i++) { if (models[i].modelId === currentModel) { modelData = models[i]; break; } }
+            if (modelData && modelData.greeting) {
+                document.getElementById('welcomeGreeting').innerHTML = modelData.greeting.replace(/\n/g, '<br>');
+            }
+            dropdown.querySelectorAll('.model-option').forEach(function(o) { o.classList.remove('selected'); });
+            this.classList.add('selected');
+            dropdown.classList.remove('active');
+        });
+    });
+}
+
+function toggleModelDropdown() { document.getElementById('modelDropdown').classList.toggle('active'); }
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.model-selector') && !e.target.closest('.model-dropdown')) {
+        document.getElementById('modelDropdown').classList.remove('active');
+    }
+});
+
+
+// ============ SISTEMA DE INTELIGENCIA AVANZADA ============
+
+// Base de conocimiento para analizar temas
+var currentTopic = null;
+var waitingForCode = false;
+var lastAskedTopic = null;
+
+
+var knowledgeBase = {
+    programacion: {
+        keywords: ['codigo', 'programar', 'html', 'css', 'javascript', 'python', 'function', 'error', 'bug', 'arreglar', 'pagina web', 'pagina', 'web', 'app', 'aplicacion', 'desarrollar', 'developer', 'js', 'react', 'node'],
+        context: 'programacion'
+    },
+    matematicas: {
+        keywords: ['calculo', 'suma', 'resta', 'multiplicar', 'dividir', 'numero', 'ecuacion', 'porcentaje', 'fraccion', 'algebra', 'geometria', 'trigonometria'],
+        context: 'matematicas'
+    },
+    consejos: {
+        keywords: ['consejo', 'recomendacion', 'que hago', 'ayuda', 'problema', 'necesito', 'opinion', 'que piensas', 'me ayudas', 'como hago'],
+        context: 'consejo'
+    },
+    sentimiento: {
+        keywords: ['triste', 'feliz', 'enojado', 'cansado', 'estresado', 'mal', 'bien', 'deprimido', 'ansioso', 'solo', 'aburrido', 'preocupado'],
+        context: 'emocional'
+    },
+    ciencia: {
+        keywords: ['ciencia', 'fisica', 'quimica', 'biologia', 'universo', 'planeta', 'espacio', 'celula', 'adn', 'evolucion', 'gravedad'],
+        context: 'ciencia'
+    },
+    historia: {
+        keywords: ['historia', 'guerra', 'presidente', 'pais', 'cultura', 'civilizacion', 'siglo', 'revolucion', 'independencia'],
+        context: 'historia'
+    },
+    salud: {
+        keywords: ['salud', 'enfermedad', 'dolor', 'medicina', 'doctor', 'sintoma', 'ejercicio', 'dieta', 'comer', 'dormir', 'cansancio'],
+        context: 'salud'
+    },
+    entretenimiento: {
+        keywords: ['pelicula', 'serie', 'musica', 'cancion', 'juego', 'videojuego', 'libro', 'anime', 'netflix', 'spotify', 'youtube'],
+        context: 'entretenimiento'
+    }
+};
+
+
+// Detectar el contexto de la conversación
+function detectContext(input) {
+    var msg = input.toLowerCase();
+    var scores = {};
+    
+    for (var context in knowledgeBase) {
+        scores[context] = 0;
+        knowledgeBase[context].keywords.forEach(function(kw) {
+            if (msg.includes(kw)) scores[context]++;
+        });
+    }
+    
+    var bestContext = 'general';
+    var bestScore = 0;
+    for (var c in scores) {
+        if (scores[c] > bestScore) {
+            bestScore = scores[c];
+            bestContext = c;
+        }
+    }
+    
+    return { context: bestContext, score: bestScore };
+}
+
+// Analizar errores en código
+function analyzeCodeIntelligently(code, lang) {
+    var issues = [];
+    var suggestions = [];
+    
+    if (lang === 'html' || code.includes('<html')) {
+        if (!code.includes('<!DOCTYPE html>')) issues.push('❌ Falta DOCTYPE al inicio');
+        if (!code.includes('<meta charset="UTF-8">')) issues.push('⚠️ Falta meta charset UTF-8');
+        if (!code.includes('<meta name="viewport"')) issues.push('⚠️ Falta viewport para móviles');
+        if (!code.includes('</html>')) issues.push('❌ Falta etiqueta de cierre </html>');
+        if (!code.includes('</body>')) issues.push('❌ Falta etiqueta de cierre </body>');
+        if (!code.includes('lang=')) issues.push('⚠️ Falta atributo lang en <html>');
+        
+        if (code.includes('<img') && !code.includes('alt=')) suggestions.push('💡 Agrega atributo alt a las imágenes');
+        if (code.includes('<a ') && !code.includes('href=')) suggestions.push('💡 Los enlaces necesitan href');
+    }
+    
+    if (lang === 'javascript' || code.includes('function')) {
+        var opens = (code.match(/\{/g) || []).length;
+        var closes = (code.match(/\}/g) || []).length;
+        if (opens !== closes) issues.push('❌ Llaves desbalanceadas: ' + opens + ' abiertas vs ' + closes + ' cerradas');
+        
+        var parensOpen = (code.match(/\(/g) || []).length;
+        var parensClose = (code.match(/\)/g) || []).length;
+        if (parensOpen !== parensClose) issues.push('❌ Paréntesis desbalanceados');
+        
+        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === en vez de == para comparación estricta');
+        if (code.includes('var ')) suggestions.push('💡 Cambia var por let o const');
+        if (code.includes('console.log') && code.includes('//')) suggestions.push('💡 No olvides quitar console.log en producción');
+    }
+    
+    if (lang === 'css' || (code.includes('{') && code.includes(':') && !code.includes('function'))) {
+        var cssOpens = (code.match(/\{/g) || []).length;
+        var cssCloses = (code.match(/\}/g) || []).length;
+        if (cssOpens !== cssCloses) issues.push('❌ Llaves CSS desbalanceadas');
+        if (code.includes('px') && code.includes('px px')) issues.push('⚠️ Valor duplicado en px');
+        if (!code.includes('* {') && !code.includes('box-sizing')) suggestions.push('💡 Agrega box-sizing: border-box al reset');
+    }
+    
+    if (lang === 'python' || code.includes('def ')) {
+        if (code.includes('    ') && code.includes('\t')) issues.push('❌ Mezcla de tabs y espacios');
+        if (code.includes('print ') && !code.includes('(')) issues.push('❌ En Python 3, print necesita paréntesis');
+        if (code.includes('def ') && !code.includes(':')) issues.push('❌ Falta : después de def');
+    }
+    
+    return { issues: issues, suggestions: suggestions };
+}
+
+// Respuesta inteligente según contexto
+function getIntelligentResponse(input, context) {
+    var msg = input.toLowerCase();
+    
+    // Detectar seguimiento de conversación
+    if (shortTermMemory.length > 0) {
+        var lastMsg = shortTermMemory[shortTermMemory.length - 1];
+        var lastContext = detectContext(lastMsg.user).context;
+        
+        // Si el mensaje es muy corto y hay contexto previo, continuarlo
+        if (msg.split(' ').length <= 3 && lastContext !== 'general' && context === 'general') {
+            context = lastContext;
+        }
+        
+        // Si estaba esperando código y llega algo largo
+        if (waitingForCode && msg.length > 30) {
+            waitingForCode = false;
+            return 'Revisando lo que me mandaste... 🔍\n\nSi es código pégalo con los tres backticks (```) para analizarlo mejor.';
+        }
+    }
+    
+    // Actualizar tema actual
+    if (context !== 'general') currentTopic = context;
+    
+    // Respuestas a intenciones específicas
+    if (msg.includes('revisa') || msg.includes('analiza') || msg.includes('checa') || msg.includes('esta bien') || msg.includes('revísalo')) {
+        waitingForCode = true;
+        return 'Claro, pásame el código y lo reviso. 🔍 Pégalo aquí.';
+    }
+    if (msg.includes('mejora') || msg.includes('optimizar') || msg.includes('mejorar')) {
+        waitingForCode = true;
+        return 'Pásame el código y te digo cómo mejorarlo. 💪';
+    }
+    if (msg.includes('no entiendo') || msg.includes('no entendí') || msg.includes('explica') || msg.includes('explicame')) {
+        return 'Claro, te explico. ¿Qué parte exactamente no te queda clara?';
+    }
+    if (msg.includes('gracias') || msg.includes('grax') || msg.includes('ty')) {
+        return '¡De nada! 😊 Si necesitas algo más aquí estoy.';
+    }
+    if (msg.includes('no funciona') || msg.includes('no jala') || msg.includes('no sirve') || msg.includes('falla')) {
+        waitingForCode = true;
+        return 'Cuéntame más. ¿Qué error te sale? Si puedes, pega el código o el mensaje de error. 🐛';
+    }
+    if (msg.includes('como se hace') || msg.includes('como hago') || msg.includes('como puedo')) {
+        return '¡Buena pregunta! Dime más detalles y te explico paso a paso. 📋';
+    }
+    
+    var respuestas = {
+    programacion: [
+
+    ],
+        matematicas: [
+            'Dime la operación o el problema y lo resolvemos. 🔢',
+            'Los números son lo mío. ¿Qué necesitas calcular?',
+            'Escribe el problema completo para ayudarte mejor. ✏️'
+        ],
+        consejos: [
+            'Cuéntame más, quiero entender bien la situación. 👂',
+            'Estoy aquí. ¿Qué está pasando exactamente?',
+            'Dame los detalles y te doy mi opinión. 💬'
+        ],
+        emocional: [
+            'Te escucho. ¿Quieres contarme qué pasó? 💙',
+            'Estoy aquí para ti. Sin juicios, sin prisas.',
+            'A veces solo necesitamos desahogarnos. Cuéntame. 🤍'
+        ],
+        ciencia: [
+            'Buena pregunta científica. ¿Qué quieres saber exactamente? 🔬',
+            'Me gusta el tema. Dame más detalles. 🌌',
+            'Interesante. ¿Es para una tarea o por curiosidad? 🧬'
+        ],
+        historia: [
+            '¿De qué época o lugar hablamos? 📜',
+            'La historia tiene mucho que contar. ¿Qué te interesa saber? 🏛️',
+            'Dame más contexto para responderte bien. ⚔️'
+        ],
+        salud: [
+            'Importante cuidarse. ¿Qué necesitas saber? 🏥',
+            'Cuéntame más, aunque recuerda consultar a un médico para cosas serias. 💊',
+            '¿Es algo que estás sintiendo o info general? 🩺'
+        ],
+        entretenimiento: [
+            '¡Buen tema! ¿Qué estás buscando exactamente? 🎬',
+            'Dime más, te puedo ayudar a encontrar algo bueno. 🎮',
+            '¿Tienes alguna preferencia de género o estilo? 🎵'
+        ],
+        general: [
+            'Cuéntame más, quiero entenderte bien. 🤔',
+            'Interesante. Dame más detalles.',
+            '¿Puedes ser más específico? Quiero ayudarte bien. 💬'
+        ]
+    };
+    
+    var opciones = respuestas[context] || respuestas.general;
+    return opciones[Math.floor(Math.random() * opciones.length)];
+}
+
+
+// Aprender de correcciones del usuario
+function learnFromCorrection(userMsg, evaMsg) {
+    if (userMsg.includes('no es') || userMsg.includes('corrige') || userMsg.includes('mal')) {
+        longTermMemory.learnedInfo.push('El usuario me corrigió sobre: ' + userMsg);
+        if (longTermMemory.learnedInfo.length > 50) longTermMemory.learnedInfo = longTermMemory.learnedInfo.slice(-30);
+        saveLongTermMemory();
+    }
+}
+
+// ============ CORRECCIÓN DE PALABRAS MAL ESCRITAS ============
+var correcciones = {
+    "ola": "hola",
+    "olaq": "hola",
+    "hola": "hola",
+    "olaa": "hola",
+    "ola k ase": "hola",
+    "ola komo estas": "hola como estas",
+    "komo": "como",
+    "cm": "como",
+    "kmo": "como",
+    "komo estas": "como estas",
+    "como estas": "como estas",
+    "q": "que",
+    "ke": "que",
+    "qe": "que",
+    "k": "que",
+    "q tal": "que tal",
+    "q pasa": "que pasa",
+    "q paso": "que paso",
+    "q haces": "que haces",
+    "q hago": "que hago",
+    "q fue": "que fue",
+    "q es": "que es",
+    "q onda": "que onda",
+    "q hay": "que hay",
+    "q mas": "que mas",
+    "q rollo": "que rollo",
+    "q pex": "que pex",
+    "q pedo": "que pedo",
+    "kieres": "quieres",
+    "saber": "saber",
+    "savias": "sabias",
+    "savias que": "sabias que",
+    "noc": "no se",
+    "nose": "no se",
+    "no c": "no se",
+    "noce": "no se",
+    "nse": "no se",
+    "tons": "entonces",
+    "tonces": "entonces",
+    "ntonces": "entonces",
+    "tngo": "tengo",
+    "tng": "tengo",
+    "teng": "tengo",
+    "tienens": "tienes",
+    "tines": "tienes",
+    "porq": "porque",
+    "por que": "porque",
+    "pq": "porque",
+    "xq": "porque",
+    "xque": "porque",
+    "x q": "porque",
+    "prque": "porque",
+    "porke": "porque",
+    "pork": "porque",
+    "pa": "para",
+    "pra": "para",
+    "pa q": "para que",
+    "pa k": "para que",
+    "xfa": "por favor",
+    "porfa": "por favor",
+    "plis": "por favor",
+    "pls": "por favor",
+    "pf": "por favor",
+    "grax": "gracias",
+    "gracias": "gracias",
+    "grasias": "gracias",
+    "graxs": "gracias",
+    "thx": "gracias",
+    "tkm": "te quiero mucho",
+    "tqm": "te quiero mucho",
+    "tkiro": "te quiero",
+    "tk": "te quiero",
+    "bno": "bueno",
+    "bien": "bien",
+    "bn": "bien",
+    "mal": "mal",
+    "ml": "mal",
+    "muy bn": "muy bien",
+    "mui bien": "muy bien",
+    "mui bn": "muy bien",
+    "muxo": "mucho",
+    "muxas": "muchas",
+    "muxas grasias": "muchas gracias",
+    "adios": "adios",
+    "adio": "adios",
+    "adiosh": "adios",
+    "chau": "chao",
+    "chao": "chao",
+    "chaoo": "chao",
+    "xau": "chao",
+    "bye": "chao",
+    "bai": "chao",
+    "wena": "buena",
+    "wenas": "buenas",
+    "wnas": "buenas",
+    "wena onda": "buena onda",
+    "wen dia": "buen dia",
+    "wenos dias": "buenos dias",
+    "wuenos dias": "buenos dias",
+    "buenos diaz": "buenos dias",
+    "buenas tardez": "buenas tardes",
+    "buenas nochs": "buenas noches",
+    "buenas noxes": "buenas noches",
+    "wenas noches": "buenas noches",
+    "dnd": "donde",
+    "dnde": "donde",
+    "dond": "donde",
+    "donde estas": "donde estas",
+    "cuand": "cuando",
+    "cuand": "cuando",
+    "kando": "cuando",
+    "kien": "quien",
+    "kin": "quien",
+    "quien eres": "quien eres",
+    "qien eres": "quien eres",
+    "eres": "eres",
+    "herez": "eres",
+    "como te llamas": "como te llamas",
+    "como te yamas": "como te llamas",
+    "komo te llamas": "como te llamas",
+    "cual es tu nombre": "cual es tu nombre",
+    "nombre": "nombre",
+    "nobre": "nombre",
+    "nomre": "nombre",
+    "aiuda": "ayuda",
+    "ayuda": "ayuda",
+    "aiura": "ayuda",
+    "aida": "ayuda",
+    "help": "ayuda",
+    "helpm": "ayuda",
+    "socorro": "ayuda",
+    "trist": "triste",
+    "triste": "triste",
+    "trizte": "triste",
+    "deprimido": "triste",
+    "depre": "triste",
+    "felis": "feliz",
+    "feliz": "feliz",
+    "felisidad": "felicidad",
+    "contento": "feliz",
+    "kontento": "feliz",
+    "enojado": "enojado",
+    "enoxado": "enojado",
+    "furioso": "enojado",
+    "rabia": "enojado",
+    "ravia": "enojado",
+    "estres": "estres",
+    "estresado": "estresado",
+    "estrez": "estres",
+    "estrezado": "estresado",
+    "ansieda": "ansiedad",
+    "anciedad": "ansiedad",
+    "ansiedad": "ansiedad",
+    "cansado": "cansado",
+    "cansao": "cansado",
+    "cansancio": "cansado",
+    "agotado": "cansado",
+    "miedo": "miedo",
+    "mied": "miedo",
+    "miedoo": "miedo",
+    "temor": "miedo",
+    "soledad": "soledad",
+    "solo": "solo",
+    "solito": "solo",
+    "solitaria": "soledad",
+    "amor": "amor",
+    "amr": "amor",
+    "amoor": "amor",
+    "amistad": "amistad",
+    "amig": "amigo",
+    "amigo": "amigo",
+    "amiga": "amiga",
+    "amikos": "amigos",
+    "compas": "amigos",
+    "hermano": "hermano",
+    "ermano": "hermano",
+    "hermana": "hermana",
+    "ermana": "hermana",
+    "hermanos": "hermanos",
+    "familia": "familia",
+    "familia": "familia",
+    "familiar": "familia",
+    "papa": "papa",
+    "papá": "papa",
+    "mama": "mama",
+    "mamá": "mama",
+    "padres": "padres",
+    "padre": "papa",
+    "madre": "mama",
+    "novia": "novia",
+    "novio": "novio",
+    "novi": "novia",
+    "exnovia": "ex novia",
+    "exnovio": "ex novio",
+    "ex": "ex",
+    "trabajo": "trabajo",
+    "trabajo": "trabajo",
+    "trabajar": "trabajo",
+    "chamba": "trabajo",
+    "jale": "trabajo",
+    "jefe": "jefe",
+    "jefa": "jefe",
+    "patron": "jefe",
+    "dinero": "dinero",
+    "varo": "dinero",
+    "lana": "dinero",
+    "pasta": "dinero",
+    "dineo": "dinero",
+    "deuda": "deuda",
+    "debo": "deuda",
+    "pobre": "pobre",
+    "problemas": "problemas",
+    "problema": "problemas",
+    "problemita": "problemas",
+    "bronca": "problemas",
+    "pedo": "problemas",
+    "solucion": "solucion",
+    "solucionar": "solucion",
+    "resolver": "solucion",
+    "arreglar": "solucion",
+    "pienso": "pienso",
+    "pensar": "pienso",
+    "pensando": "pienso",
+    "kreo": "pienso",
+    "siento": "siento",
+    "sient": "siento",
+    "sintiendo": "siento",
+    "necesito": "necesito",
+    "nesesito": "necesito",
+    "necesit": "necesito",
+    "ocupo": "necesito",
+    "quiero": "quiero",
+    "kiero": "quiero",
+    "qiero": "quiero",
+    "deseo": "quiero",
+    "codigo": "codigo",
+    "codig": "codigo",
+    "codigos": "codigo",
+    "programar": "programar",
+    "programacion": "programar",
+    "python": "python",
+    "piton": "python",
+    "html": "html",
+    "css": "css",
+    "javascript": "javascript",
+    "java": "javascript",
+    "js": "javascript",
+    "programador": "programador",
+    "desarrollador": "programador",
+    "developer": "programador",
+    "celular": "celular",
+    "telefono": "celular",
+    "movil": "celular",
+    "iphone": "celular",
+    "android": "celular",
+    "computadora": "computadora",
+    "compu": "computadora",
+    "pc": "computadora",
+    "laptop": "computadora",
+    "internet": "internet",
+    "intenet": "internet",
+    "wifi": "internet",
+    "red": "internet",
+    "descargar": "descargar",
+    "bajar": "descargar",
+    "download": "descargar",
+    "subir": "subir",
+    "upload": "subir",
+    "archivo": "archivo",
+    "archiv": "archivo",
+    "documento": "archivo"
+};
+
+function corregirTexto(texto) {
+    var palabras = texto.toLowerCase().split(' ');
+    var corregido = [];
+    
+    for (var i = 0; i < palabras.length; i++) {
+        var palabra = palabras[i];
+        // Buscar frases de 2-3 palabras primero
+        var frase2 = palabras[i] + ' ' + (palabras[i+1] || '');
+        var frase3 = frase2 + ' ' + (palabras[i+2] || '');
+        
+        if (correcciones[frase3]) {
+            corregido.push(correcciones[frase3]);
+            i += 2;
+        } else if (correcciones[frase2]) {
+            corregido.push(correcciones[frase2]);
+            i += 1;
+        } else if (correcciones[palabra]) {
+            corregido.push(correcciones[palabra]);
+        } else {
+            corregido.push(palabra);
+        }
+    }
+    
+    return corregido.join(' ');
+}
+
+
+// ============ GENERAR RESPUESTA ============
+function generateResponse(input) {
+    var msg = corregirTexto(input);
+    // Buscar en internet si es una pregunta que Eva no puede responder
+    if (msg.includes('?') || msg.includes('que es') || msg.includes('quien es') || msg.includes('capital de') || msg.includes('cuanto mide') || msg.includes('donde queda') || msg.includes('cuando fue') || msg.includes('busca en internet') || msg.includes('googlea') || msg.includes('busca')) {
+    }
+    
+    var msgClean = input.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    
+if (isContextualWord(msgClean)) {
+    // Si hay contexto de conversación, continuarlo
+    if (shortTermMemory.length > 0) {
+        var lastEva = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+        var lastUser = shortTermMemory[shortTermMemory.length - 1].user.toLowerCase();
+        var confirmaciones = ['si','sí','dale','ok','oka','claro','bueno','va','simon','simón','obvio'];
+        var negaciones = ['no','nel','nop','no gracias'];
+        
+        if (confirmaciones.indexOf(msgClean) !== -1) {
+            if (lastEva.includes('matemat') || lastUser.includes('matemat')) return '¡Perfecto! Dime el problema y lo resolvemos paso a paso 🔢';
+            if (lastEva.includes('tarea') || lastUser.includes('tarea')) return 'Dale, cuéntame cuál es la tarea exactamente 📚';
+            if (lastEva.includes('trabajo') || lastUser.includes('trabajo')) return '¡Vamos! ¿Qué necesitas? ¿Buscar empleo, CV, entrevista? 💼';
+            if (lastEva.includes('código') || lastEva.includes('programar') || lastUser.includes('codigo')) return 'Perfecto, pégame el código o dime qué quieres hacer 💻';
+            if (lastEva.includes('dinero') || lastUser.includes('dinero')) return 'Cuéntame más sobre la situación del dinero 💰';
+            if (lastEva.includes('?')) return 'Cuéntame más, aquí estoy para ayudarte 😊';
+            return '¡Dale! Cuéntame más 💪';
+        }
+        if (negaciones.indexOf(msgClean) !== -1) {
+            return '¡Está bien! ¿En qué más te puedo ayudar? 😊';
+        }
+    }
+    // Sin contexto previo
+    if (!pendingQuestion) {
+        var neutral = {
+            'si':'¿Sí a qué? ¿En qué te ayudo? 😊',
+            'sí':'¿Sí a qué? ¿En qué te ayudo? 😊',
+            'no':'Está bien. ¿Entonces qué necesitas? 🤔',
+            'ok':'¡OK! ¿Qué necesitas? 😊',
+            'dale':'¡Vamos! 💪 ¿Qué necesitas?',
+            'bien':'¡Qué bueno! ¿En qué te ayudo? 😊',
+            'bueno':'¡Perfecto! Dime qué necesitas. 👍',
+            'vale':'¡Vale! ¿En qué te ayudo?',
+            'claro':'¡Claro! Dime. 😊'
+        };
+        if (neutral[msgClean]) return neutral[msgClean];
+    }
+}
+
+    
+    var msgOriginal = input.toLowerCase().trim();
+
+    // Modo creación activo
+    if (creationState !== null) {
+        var creationResp = handleCreationMode(input);
+        if (creationResp) return creationResp;
+    }
+
+    // Detectar intención de crear
+    if (detectCreationIntent(msg)) {
+        var detectedType = detectPageType(msg);
+        if (detectedType) {
+            creationData = { type: detectedType };
+            creationState = 'ask_name';
+            return '¡Con gusto! Vamos a crear tu ' + pageTypes[detectedType] + ' 🚀\n\n¿Cómo se llama tu proyecto o negocio?';
+        } else {
+            creationState = 'ask_type';
+            return '¡Claro que sí! ¿Qué tipo de página quieres?\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
+        }
+    }
+    
+    
+    // ===== GENERADOR DE IMÁGENES CON IA =====
+    if (msg.includes('imagen:') || msg.includes('imagen de') || msg.includes('genera una imagen') || msg.includes('crea una imagen') || msg.includes('dibuja') || msg.includes('generar imagen')) {
+        var prompt = msg.replace(/imagen:|imagen de|genera una imagen|crea una imagen|dibuja|generar imagen/gi, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Imagen generada!\n\n![Imagen](' + imageUrl + ')\n\nPrompt: ' + prompt + '\n\n¿Te gusta? Puedes pedir otra con más detalles.';
+    }
+    
+    // ===== GENERADOR DE IMÁGENES (palabra clave "imagen") =====
+    if (msg.startsWith('imagen ') || msg.startsWith('imagen:') || msg.startsWith('dibuja ')) {
+        var prompt = msg.replace(/^imagen[: ]|^dibuja /, '').trim();
+        if (prompt.length < 3) return '¿Qué imagen quieres que genere? Escribe: **imagen: descripción** 🎨';
+        
+        var imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nofeed=true';
+        
+        return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
+    }
+    
+// FLUJOS INTELIGENTES: tienen máxima prioridad
+// Buscar tanto en texto original como en texto corregido
+var flowResponse = checkFlows(input) || checkFlows(msg);
+if (flowResponse) return flowResponse;
+
+// Si hay tema activo y el mensaje es corto, buscar en ese flujo
+if (temaActual && msg.trim().split(' ').length <= 3) {
+    var flows = loadFlows();
+    for (var f = 0; f < flows.length; f++) {
+        if (flows[f].keyword === temaActual && flows[f].model === currentModel) {
+            activeFlow = flows[f];
+            var resp = checkFlows(input) || checkFlows(msg);
+            if (resp) return resp;
+            break;
+        }
+    }
+}
+
+
+
+
+
+
+// PALABRAS CONVERSACIONALES: tienen prioridad sobre TODO, incluso la base de datos
+var conversacionales = [
+    'bien','muy bien','todo bien','excelente','de lujo','perfecto','genial',
+    'mal','muy mal','fatal','triste','cansado','estresado','regular','mas o menos',
+    'ok','oka','vale','dale','claro','obvio'
+];
+var msgParaChequear = msg.trim().toLowerCase().replace(/[!¡?¿.,]/g, '').replace(/ (bro|hermano|hermana|amigo|wey|mano)$/g, '').trim();
+
+if (conversacionales.indexOf(msgParaChequear) !== -1) {
+    var respConv = {
+        'bien':       ['¡Qué bueno! Me alegra mucho 😊 ¿En qué te ayudo?', 'Me da gusto! 💪 ¿Qué necesitas?', '¡Genial! ¿En qué te ayudo hoy? 😄'],
+        'muy bien':   ['¡Qué bien! Me alegra 🙌 ¿Qué necesitas?', '¡Excelente! ¿En qué te ayudo? 😊'],
+        'todo bien':  ['¡Me alegra! 😊 ¿En qué te puedo ayudar?', '¡Qué bueno! Cuéntame qué necesitas 💪'],
+        'excelente':  ['¡Eso es genial! 🔥 ¿En qué te ayudo?', '¡Me da gusto! 😊 ¿Qué necesitas?'],
+        'de lujo':    ['¡Qué buena onda! 😄 ¿Qué necesitas?', '¡Me da gusto! 💪 ¿En qué te ayudo?'],
+        'perfecto':   ['¡Genial! 😊 ¿Qué necesitas?', '¡Qué bueno! Dime en qué te ayudo.'],
+        'genial':     ['¡Me alegra! 😄 ¿En qué te ayudo?', '¡Qué bueno! 🔥 ¿Qué necesitas?'],
+        'mal':        ['Ay no 😟 ¿Qué pasó? Cuéntame.', 'Lo siento 🤍 ¿Qué está pasando?', '¿Qué pasó? Aquí estoy 💙'],
+        'muy mal':    ['Lo siento mucho 😟 ¿Qué pasó?', 'Ay no 🤍 Cuéntame qué pasó.'],
+        'fatal':      ['Ay lo siento 😟 ¿Qué pasó?', 'No me digas... cuéntame 💙'],
+        'triste':     ['Lo siento 🤍 ¿Quieres contarme?', 'Aquí estoy para escucharte 💙 ¿Qué pasó?'],
+        'cansado':    ['Normal, a todos nos pasa 💪 ¿Qué pasó?', 'Descansa un poco 😊 ¿Cuéntame?'],
+        'estresado':  ['Respira hondo 😌 ¿Qué está pasando?', 'Tranquilo/a, cuéntame 🤍'],
+        'regular':    ['¿Qué pasó? ¿Estás bien? 😊', 'Espero que mejore tu día 💪 ¿En qué te ayudo?'],
+        'mas o menos':['Ah, ¿qué pasó? Cuéntame 🤔', '¿Todo bien? ¿En qué te ayudo? 😊'],
+        'ok':         ['¡Oye qué bien! 😊 ¿En qué te ayudo?', '¡Entendido! ¿Qué necesitas?'],
+        'oka':        ['¡Qué bueno! 😊 ¿En qué te ayudo?', '¡Perfecto! ¿Qué necesitas?'],
+        'vale':       ['¡Vale! ¿En qué te ayudo? 😊', '¡Perfecto! Dime qué necesitas.'],
+        'dale':       ['¡Vamos! 💪 ¿Qué necesitas?', '¡Dale! ¿En qué te ayudo?'],
+        'claro':      ['¡Claro que sí! 😊 ¿Qué necesitas?', '¡Por supuesto! Dime.'],
+        'obvio':      ['¡Obvio! 😄 ¿En qué te ayudo?', '¡Claro! Dime qué necesitas.']
+    };
+
+    var opciones = respConv[msgParaChequear];
+    if (opciones) {
+        var ultima = lastResponseIndex['conv_' + msgParaChequear] !== undefined ? lastResponseIndex['conv_' + msgParaChequear] : -1;
+        var idx;
+        if (opciones.length === 1) {
+            idx = 0;
+        } else {
+            do { idx = Math.floor(Math.random() * opciones.length); } while (idx === ultima);
+        }
+        lastResponseIndex['conv_' + msgParaChequear] = idx;
+        return opciones[idx];
+    }
+}
+
+
+// ============ BUSCAR EN ADMIN PRIMERO (PRIORIDAD MÁXIMA) ============
+// Busca tanto en el mensaje corregido como en el original
+var searchText = msg; // texto corregido
+var searchTextOriginal = input.toLowerCase().trim(); // texto original sin corregir
+
+var scoredFirst = [];
+for (var i = 0; i < knowledge.length; i++) {
+    var k = knowledge[i];
+    var keywords = Array.isArray(k.keywords) ? k.keywords : [];
+    var score = 0;
+    var bestKwLen = 0;
+    
+    for (var j = 0; j < keywords.length; j++) {
+        var kw = keywords[j].toLowerCase().trim();
+        var kwLen = kw.split(' ').length;
+        
+        // Buscar en texto corregido
+        if (searchText.includes(kw)) {
+            score += kwLen * 10;
+// Penalizar keywords genéricas de 1 palabra si el mensaje es largo
+if (kwLen === 1 && msg.trim().split(' ').length > 3) score -= 15;
+            if (kwLen > bestKwLen) bestKwLen = kwLen;
+        }
+        
+        // Buscar en texto original (sin corregir)
+        if (searchTextOriginal.includes(kw)) {
+            score += kwLen * 8;
+            if (kwLen > bestKwLen) bestKwLen = kwLen;
+        }
+        
+        // Coincidencia exacta = bonus masivo
+        if (searchText.trim() === kw || searchTextOriginal.trim() === kw) {
+            score += 100;
+        }
+        
+        // Si la frase está al inicio del mensaje = bonus
+        if (searchText.startsWith(kw) || searchTextOriginal.startsWith(kw)) {
+            score += 20;
+        }
+    }
+    
+    if (score > 0) {
+        scoredFirst.push({ 
+            score: score, 
+            category: k.category, 
+            knowledgeIndex: i,
+            bestKwLen: bestKwLen
+        });
+    }
+}
+
+// Ordenar por score, luego por longitud de keyword
+scoredFirst.sort(function(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    return b.bestKwLen - a.bestKwLen;
+});
+
+// DEBUG - Para ver qué encuentra en consola (F12)
+if (scoredFirst.length > 0) {
+    var debugInfo = scoredFirst.slice(0, 3).map(function(s) {
+        var k = knowledge[s.knowledgeIndex];
+        return '  Score:' + s.score + ' | ' + k.keywords.join(', ');
+    });
+    console.log('🔍 Coincidencias encontradas:\n' + debugInfo.join('\n'));
+}
+
+
+
+
+if (scoredFirst.length > 0) {
+    var bestCat = scoredFirst[0].category;
+    
+    // Buscar respuesta del modelo actual
+    var catResp = responses.filter(function(r) { 
+        return r.category === bestCat && r.model === currentModel; 
+    });
+    
+    if (catResp.length > 0) {
+        var lastIdx = lastResponseIndex[bestCat] !== undefined ? lastResponseIndex[bestCat] : -1;
+        var idx;
+        if (catResp.length === 1) {
+            idx = 0;
+        } else {
+            do { 
+                idx = Math.floor(Math.random() * catResp.length); 
+            } while (idx === lastIdx && catResp.length > 1);
+        }
+        lastResponseIndex[bestCat] = idx;
+        console.log('✅ Respuesta (modelo ' + currentModel + '):', catResp[idx].text.slice(0, 80));
+        return catResp[idx].text;
+    }
+    
+    // Si no hay del modelo actual, buscar cualquier modelo
+    var anyResp = responses.filter(function(r) { return r.category === bestCat; });
+    if (anyResp.length > 0) {
+        var lastIdx2 = lastResponseIndex[bestCat + '_any'] !== undefined ? lastResponseIndex[bestCat + '_any'] : -1;
+        var idx2;
+        if (anyResp.length === 1) {
+            idx2 = 0;
+        } else {
+            do { 
+                idx2 = Math.floor(Math.random() * anyResp.length); 
+            } while (idx2 === lastIdx2 && anyResp.length > 1);
+        }
+        lastResponseIndex[bestCat + '_any'] = idx2;
+        console.log('✅ Respuesta (cualquier modelo):', anyResp[idx2].text.slice(0, 80));
+        return anyResp[idx2].text;
+    }
+    
+    console.log('⚠️ Categoría encontrada pero sin respuestas:', bestCat);
+}
+
+// RESPUESTAS CONTEXTUALES (todo bien, bien, ok, etc)
+var vaguePhrases = ['todo bien','bien','todo ok','ok','oka','de lujo','excelente','perfecto','muy bien','todo tranquilo'];
+var isVague = vaguePhrases.some(function(p) { return msg.trim() === p || msg.trim() === p + '!' || msg.trim() === p + ' bro' || msg.trim() === p + ' hermano'; });
+
+if (isVague) {
+    // Detectar contexto de conversación anterior
+    var ctx = 'default';
+    if (shortTermMemory.length > 0) {
+        var lastMsgs = shortTermMemory.slice(-3).map(function(m) { return m.user.toLowerCase(); }).join(' ');
+        if (lastMsgs.includes('codigo') || lastMsgs.includes('html') || lastMsgs.includes('js') || lastMsgs.includes('programar')) ctx = 'programacion';
+        else if (lastMsgs.includes('salud') || lastMsgs.includes('dolor') || lastMsgs.includes('enferm')) ctx = 'salud';
+        else if (lastMsgs.includes('trabajo') || lastMsgs.includes('jefe') || lastMsgs.includes('chamba')) ctx = 'trabajo';
+        else if (lastMsgs.includes('triste') || lastMsgs.includes('mal') || lastMsgs.includes('estres')) ctx = 'emocional';
+    }
+    
+    var opts = contextualFollowUps[ctx] || contextualFollowUps.default;
+    var lastI = lastContextualIndex[ctx] !== undefined ? lastContextualIndex[ctx] : -1;
+    var newI;
+    if (opts.length === 1) {
+        newI = 0;
+    } else {
+        do { newI = Math.floor(Math.random() * opts.length); } while (newI === lastI);
+    }
+    lastContextualIndex[ctx] = newI;
+    return opts[newI];
+}
+
+
+// Continuar contexto si el mensaje es muy corto (1-2 palabras)
+if (msg.trim().split(' ').length <= 2 && shortTermMemory.length > 0) {
+    var lastU = shortTermMemory[shortTermMemory.length - 1].user.toLowerCase();
+    var lastE = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+    // Buscar en admin con contexto de la última conversación
+    var contextBoost = lastU + ' ' + lastE + ' ' + msg;
+    for (var ci = 0; ci < knowledge.length; ci++) {
+        var ck = knowledge[ci];
+        var ckws = Array.isArray(ck.keywords) ? ck.keywords : [];
+        var cMatch = ckws.some(function(kw) { return contextBoost.includes(kw.toLowerCase()); });
+        if (cMatch) {
+            var cResp = responses.filter(function(r) { return r.category === ck.category; });
+            if (cResp.length > 0) return cResp[Math.floor(Math.random() * cResp.length)].text;
+        }
+    }
+}
+
+
+
+
+// REVISAR MEMORIA DE CONVERSACIÓN - Si hay conversación activa
+    if (shortTermMemory.length > 0) {
+        var lastEvaMsg = shortTermMemory[shortTermMemory.length - 1].eva.toLowerCase();
+        var msgWords = msg.trim().split(/\s+/);
+        
+        // Si Eva preguntó "en qué puedo ayudarte" y usuario responde palabra suelta
+        if ((lastEvaMsg.includes('en qué puedo ayudarte') || lastEvaMsg.includes('ayudarte hoy')) && msgWords.length <= 2) {
+            var topicResponses = {
+                'programacion': '¡Me encanta programar! 💻 ¿Qué lenguaje: Java, JavaScript, Python, HTML, CSS?',
+                'codigo': '¿Necesitas ayuda con código? 💻 Dime qué lenguaje.',
+            };
+            for (var key in topicResponses) {
+                if (msg.includes(key)) return topicResponses[key];
+            }
+        }
+    }
+
+
+    // Buscar por SCORE: contar cuántas keywords de cada entrada coinciden
+    var scored = [];
+
+    for (var i = 0; i < knowledge.length; i++) {
+        var k = knowledge[i];
+        var keywords = Array.isArray(k.keywords) ? k.keywords : [];
+        
+        var score = 0;
+        var maxKwLen = 0;
+
+        for (var j = 0; j < keywords.length; j++) {
+            var kw = keywords[j].toLowerCase();
+            if (msg.includes(kw)) {
+                var kwWords = kw.split(' ').length;
+                score += kwWords; // frases largas valen más
+                if (kwWords > maxKwLen) maxKwLen = kwWords;
+            }
+            // Coincidencia exacta = bonus grande
+            if (msg.trim() === kw) score += 50;
+        }
+
+        if (score > 0) {
+            scored.push({
+                score: score,
+                maxKwLen: maxKwLen,
+                category: k.category,
+                knowledgeIndex: i
+            });
+        }
+    }
+
+    // Ordenar: mayor score primero, desempate por keyword más larga
+    scored.sort(function(a, b) {
+        if (b.score !== a.score) return b.score - a.score;
+        return b.maxKwLen - a.maxKwLen;
+    });
+
+    var matches = scored; // compatibilidad con el código de abajo
+
+    
+    // Si no hay matches y el mensaje parece pregunta, buscar en DuckDuckGo
+
+if (matches.length > 0) {
+    var bestMatch = matches[0];
+    var k = knowledge[bestMatch.knowledgeIndex];
+    
+    // Guardar tema para seguimiento
+    pendingQuestion = k.keywords[0];
+    
+    var catResp = responses.filter(function(r) { return r.category === k.category && r.model === currentModel; });
+    if (catResp.length > 0) return catResp[Math.floor(Math.random() * catResp.length)].text;
+    
+    var anyResp = responses.filter(function(r) { return r.category === k.category; });
+    if (anyResp.length > 0) return anyResp[Math.floor(Math.random() * anyResp.length)].text;
+}
+
+        
+
+    if (msg.includes('hora')) return 'Son las ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
+    if (msg.includes('fecha') || msg.includes('hoy') || (msg.includes('que') && msg.includes('dia'))) return 'Hoy es ' + new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.';
+
+    var exprMatch = msg.match(/[\d\s+\-*/.()]+/);
+    if (exprMatch && exprMatch[0].trim().length > 2) {
+        try {
+            var expr = exprMatch[0].replace(/[^0-9+\-*/.()]/g, '');
+            var result = Function('"use strict"; return (' + expr + ')')();
+            if (typeof result === 'number' && isFinite(result)) {
+                var calcResp = { eva: 'Resultado: ' + result + '.', selene: 'El universo dice: ' + result + '.', nyx: result + '. Los numeros no mienten.', aria: 'Calculo: ' + result + '. Precision: 100%.' };
+                return calcResp[currentModel] || 'Resultado: ' + result + '.';
+            }
+        } catch(ex) {}
+    }
+
+    if (msg.includes('chiste') || msg.includes('broma')) {
+        var jokes = ['Por que los programadores prefieren el modo oscuro? Porque la luz atrae a los bugs.','Que le dice un bit al otro? Nos vemos en el bus.','Como se despide un quimico? Acido un placer.','Por que el libro de matematicas estaba triste? Porque tenia demasiados problemas.'];
+        return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    var contextual = {
+        eva:    ['Buena pregunta. Te respondo directo.', 'Entiendo. Vamos al grano.', 'Interesante. Dame mas contexto.'],
+        selene: ['Interesante. Dejame darle un toque creativo.', 'Veo posibilidades infinitas en tu pregunta.', 'Me inspiras. Cuentame mas.'],
+        nyx:    ['Profundo. Exploremos las capas de eso.', 'Hay mas de lo que parece en esa pregunta.', 'Que te llevo a pensar en eso?'],
+        aria:   ['Analizando entrada. Procesando.', 'Logica aplicada. Respuesta generada.', 'Input recibido. Calculando parametros.']
+    };
+    var detected = detectContext(msg);
+    return getIntelligentResponse(msg, detected.context);
+}
+
+
+// ============ CHAT UI ============
+function showCodeResponse(text, sender) {
+    var chatArea = document.getElementById('chatArea');
+    var wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper ' + sender + '-wrapper';
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + sender;
+    msgDiv.style.whiteSpace = 'pre-wrap';
+    msgDiv.style.wordBreak = 'break-word';
+    msgDiv.style.background = '#F0F0F0';
+    wrapper.appendChild(msgDiv);
+    chatArea.appendChild(wrapper);
+
+    var parts = text.split(/(```[\s\S]*?```)/g);
+    var allLines = [];
+
+    parts.forEach(function(part) {
+        if (part.startsWith('```') && part.endsWith('```')) {
+            var lines = part.split('\n');
+            var lang = lines[0].replace('```', '').trim();
+            var codeLines = lines.slice(1, -1);
+
+            var containerDiv = document.createElement('div');
+containerDiv.style.cssText = 'background:#ffffff;border-radius:16px;margin:10px 0;overflow:hidden;border:1px solid #e8e8e8;font-family:SF Mono,Menlo,Monaco,monospace;font-size:13px;line-height:1.9;box-shadow:0 4px 20px rgba(0,0,0,0.08);width:100%;max-width:100%;';
+            msgDiv.appendChild(containerDiv);
+
+            if (lang) {
+                var langLabel = document.createElement('div');
+                langLabel.style.cssText = 'color:#e94560;font-size:10px;font-weight:bold;margin-bottom:8px;';
+                langLabel.textContent = '📄 ' + lang.toUpperCase();
+                containerDiv.appendChild(langLabel);
+            }
+
+            codeLines.forEach(function(line, i) {
+                var num = (i + 1).toString();
+                var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                lineContent = lineContent
+                    .replace(/(".*?"|'.*?')/g, '<span style="color:#c3e88d;">$1</span>')
+                    .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
+                    .replace(/(\/?&gt;)/g, '<span style="color:#e94560;">$1</span>')
+                    .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|def|print)\b/g, '<span style="color:#c792ea;">$1</span>')
+                    .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
+                    .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+
+                var lineDiv = document.createElement('div');
+                lineDiv.innerHTML = '<span style="color:#bbb;margin-right:12px;user-select:none;display:inline-block;width:25px;text-align:right;">' + num + '</span>' + lineContent;
+                allLines.push({ container: containerDiv, el: lineDiv });
+            });
+        } else if (part.trim()) {
+            var spanEl = document.createElement('span');
+            spanEl.textContent = part;
+            allLines.push({ container: msgDiv, el: spanEl });
+        }
+    });
+
+    var li = 0;
+    function addLine() {
+        if (li < allLines.length) {
+            allLines[li].container.appendChild(allLines[li].el);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            li++;
+            setTimeout(addLine, 40);
+        }
+    }
+    addLine();
+
+    var copyBtn = document.createElement('div');
+    copyBtn.className = 'copy-btn';
+    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    copyBtn.onclick = function(e) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(text).then(function() {
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            setTimeout(function() { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'; }, 2000);
+        });
+    };
+    wrapper.appendChild(copyBtn);
+
+    var actionsDiv = document.createElement('div');
+    actionsDiv.className = 'message-actions';
+    actionsDiv.innerHTML = '<button class="action-mini-btn like-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>'
+        + '<button class="action-mini-btn dislike-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg></button>'
+        + '<button class="action-mini-btn refresh-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>';
+    wrapper.appendChild(actionsDiv);
+    actionsDiv.querySelector('.like-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('liked'); actionsDiv.querySelector('.dislike-action').classList.remove('disliked'); };
+    actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
+    actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
+
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var cleanText = text.replace(/\*\*/g, '').replace(/```[\s\S]*?```/g, ' [código omitido] ').replace(/!\[.*?\]\(.*?\)/g, '').replace(/[#*_~`>|-]/g, '').trim();
+        var utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 500));
+        utterance.lang = 'es-MX';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        var voices = speechSynthesis.getVoices();
+        var spanishVoice = voices.find(function(v) { return v.lang.startsWith('es'); });
+        if (spanishVoice) utterance.voice = spanishVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+
+function renderButtons(text, msgDiv) {
+    var btnRegex = /\[btn:([^\]]+)\]/g;
+    var match;
+    var hasButtons = false;
+    var cleanText = text.replace(btnRegex, '').trim();
+    var btnDiv = document.createElement('div');
+    btnDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
+    while ((match = btnRegex.exec(text)) !== null) {
+        hasButtons = true;
+        var label = match[1];
+        var btn = document.createElement('button');
+        btn.textContent = label;
+        btn.style.cssText = 'padding:8px 16px;background:#2563EB;color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;';
+        btn.onclick = function(l) {
+            return function() {
+                document.getElementById('chatInput').value = l;
+                sendMessage();
+            };
+        }(label);
+        btnDiv.appendChild(btn);
+    }
+    if (hasButtons) msgDiv.appendChild(btnDiv);
+}
+
+
+
+function typewriterEffect(text, sender) {
+    var chatArea = document.getElementById('chatArea');
+    var wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper ' + sender + '-wrapper';
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + sender;
+    msgDiv.style.whiteSpace = 'pre-wrap';
+    msgDiv.style.wordBreak = 'break-word';
+    wrapper.appendChild(msgDiv);
+    chatArea.appendChild(wrapper);
+
+    var parts = text.split(/(```[\s\S]*?```)/g);
+    var queue = []; // { type: 'text'|'code', content }
+
+    parts.forEach(function(part) {
+        if (part.startsWith('```') && part.endsWith('```')) {
+            var lines = part.split('\n');
+            var lang = lines[0].replace('```', '').trim();
+            var codeLines = lines.slice(1, -1);
+            queue.push({ type: 'code', lang: lang, lines: codeLines });
+        } else if (part.trim()) {
+            queue.push({ type: 'text', content: part });
+        }
+    });
+
+    function processQueue(qIdx) {
+        if (qIdx >= queue.length) {
+            finalize();
+            return;
+        }
+        var item = queue[qIdx];
+
+        if (item.type === 'text') {
+    // Detectar imagen markdown ![...](url)
+    var imgMatch = item.content.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
+    if (imgMatch) {
+        var imgUrl = imgMatch[1];
+        // Texto antes de la imagen
+        var beforeImg = item.content.split(/!\[.*?\]\(.*?\)/)[0];
+        var afterImg = item.content.split(/!\[.*?\]\(.*?\)/).slice(1).join('');
+        
+        if (beforeImg.trim()) {
+            var preSpan = document.createElement('span');
+            preSpan.textContent = beforeImg;
+            msgDiv.appendChild(preSpan);
+        }
+        
+        // Loader animado
+var loader = document.createElement('div');
+loader.style.cssText = 'position:relative;width:260px;height:260px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#ede8ff,#f5e8ff,#e8f0ff);margin:8px 0;';
+
+var shimmer = document.createElement('div');
+shimmer.style.cssText = 'position:absolute;inset:0;background:linear-gradient(90deg,transparent 25%,rgba(255,255,255,0.5) 50%,transparent 75%);background-size:200% 100%;animation:genShimmer 1.4s infinite linear;';
+
+var dots = document.createElement('div');
+dots.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;';
+dots.innerHTML = '<div style="font-size:28px;animation:genPulse 1.2s infinite;">🎨</div><div style="font-size:12px;color:#9b7dff;font-weight:700;letter-spacing:1px;animation:genPulse 1.2s infinite;">Generando imagen...</div>';
+
+loader.appendChild(shimmer);
+loader.appendChild(dots);
+msgDiv.appendChild(loader);
+chatArea.scrollTop = chatArea.scrollHeight;
+
+var img = document.createElement('img');
+img.className = 'img-reveal';
+img.onload = function() {
+    loader.replaceWith(img);
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            img.classList.add('ready');
+        });
+    });
+    chatArea.scrollTop = chatArea.scrollHeight;
+};
+img.onerror = function() {
+    loader.innerHTML = '<div style="padding:20px;text-align:center;color:#EF4444;">❌ No se pudo generar la imagen.</div>';
+};
+img.src = imgUrl;
+
+        
+        if (afterImg.trim()) {
+            var afterSpan = document.createElement('span');
+            afterSpan.textContent = afterImg;
+            msgDiv.appendChild(afterSpan);
+        }
+        
+        processQueue(qIdx + 1);
+        return;
+    }
+    
+    var span = document.createElement('span');
+    msgDiv.appendChild(span);
+    var i = 0;
+    function typeChar() {
+
+                if (i < item.content.length) {
+                    span.textContent += item.content.charAt(i);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                    i++;
+                    typewriterTimers.push(setTimeout(typeChar, 18));
+                } else {
+                    processQueue(qIdx + 1);
+                }
+            }
+            typeChar();
+
+        } else if (item.type === 'code') {
+            var containerDiv = document.createElement('div');
+            containerDiv.style.cssText = 'background:#f6f8fa;border-radius:12px;margin:10px 0;overflow:hidden;border:1px solid #e0e0e0;font-family:SF Mono,Menlo,Monaco,monospace;font-size:12px;line-height:1.8;';
+
+            msgDiv.appendChild(containerDiv);
+
+            // Header profesional
+            var headerBar = document.createElement('div');
+              headerBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#f7f7f7;border-bottom:1px solid #eeeeee;';
+            var langBadge = document.createElement('span');
+            langBadge.style.cssText = 'font-size:11px;font-weight:700;color:#666;font-family:-apple-system,sans-serif;text-transform:uppercase;letter-spacing:1px;';
+            langBadge.textContent = item.lang || 'code';
+            
+            var copyCodeBtn = document.createElement('button');
+            copyCodeBtn.style.cssText = 'background:#fff;border:1px solid #e0e0e0;color:#666;padding:4px 12px;border-radius:8px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;transition:all 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.06);';
+            copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+            
+            var codeContent = item.lines.join('\n');
+            copyCodeBtn.onclick = function() {
+                navigator.clipboard.writeText(codeContent).then(function() {
+                    copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> <span style="color:#3fb950;">Copiado</span>';
+                    setTimeout(function() {
+                        copyCodeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+                    }, 2000);
+                });
+            };
+            
+            headerBar.appendChild(langBadge);
+            headerBar.appendChild(copyCodeBtn);
+            containerDiv.appendChild(headerBar);
+            
+            // Área de código
+            var codeArea = document.createElement('div');
+             codeArea.style.cssText = 'padding:16px;overflow-x:auto;color:#333;background:#ffffff;white-space:pre;word-break:normal;min-width:0;';
+            containerDiv.appendChild(codeArea);
+
+
+            var lineIdx = 0;
+            function addLine() {
+                if (lineIdx < item.lines.length) {
+                    var line = item.lines[lineIdx];
+                    var num = (lineIdx + 1).toString();
+                    var lineContent = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    lineContent = lineContent
+                        .replace(/(&lt;\/?[a-zA-Z0-9]+)/g, '<span style="color:#e94560;">$1</span>')
+                        .replace(/\b(function|const|let|var|return|if|else|for|while|class|def|print|import|export|from|async|await)\b/g, '<span style="color:#c792ea;">$1</span>')
+                        .replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#c3e88d;">$1</span>')
+                        .replace(/\b(\d+)\b/g, '<span style="color:#f78c6c;">$1</span>')
+                        .replace(/(\/\/.*)/g, '<span style="color:#546e7a;font-style:italic;">$1</span>');
+
+                                        var lineDiv = document.createElement('div');
+                    lineDiv.innerHTML = '<span style="color:#484f58;margin-right:14px;user-select:none;display:inline-block;width:25px;text-align:right;font-size:11px;">' + num + '</span>' + lineContent;
+                    codeArea.appendChild(lineDiv);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                    lineIdx++;
+                    typewriterTimers.push(setTimeout(addLine, 30));
+                } else {
+                    processQueue(qIdx + 1);
+                }
+            }
+            addLine();
+        }
+    }
+
+    function finalize() {
+        var copyBtn = document.createElement('div');
+        copyBtn.className = 'copy-btn';
+        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        copyBtn.onclick = function(e) {
+            e.stopPropagation();
+            navigator.clipboard.writeText(text).then(function() {
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(function() { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'; }, 2000);
+            });
+        };
+        wrapper.appendChild(copyBtn);
+
+        var actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
+        actionsDiv.innerHTML = '<button class="action-mini-btn like-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>'
+            + '<button class="action-mini-btn dislike-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg></button>'
+            + '<button class="action-mini-btn refresh-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>';
+        wrapper.appendChild(actionsDiv);
+        actionsDiv.querySelector('.like-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('liked'); actionsDiv.querySelector('.dislike-action').classList.remove('disliked'); };
+        actionsDiv.querySelector('.dislike-action').onclick = function(e) { e.stopPropagation(); this.classList.toggle('disliked'); actionsDiv.querySelector('.like-action').classList.remove('liked'); };
+        actionsDiv.querySelector('.refresh-action').onclick = function(e) { e.stopPropagation(); clearChat(); };
+        chatArea.scrollTop = chatArea.scrollHeight;
+        
+        renderButtons(text, msgDiv);
+
+
+        // Botón preview si hay HTML generado
+        if (lastGeneratedHTML) {
+            var previewBtn = document.createElement('button');
+            previewBtn.textContent = '👁 Ver Preview';
+            previewBtn.style.cssText = 'margin-top:10px;padding:10px 20px;background:#2563EB;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:block;transition:all 0.2s;';
+            previewBtn.onmouseenter = function(){ this.style.opacity='0.85'; };
+            previewBtn.onmouseleave = function(){ this.style.opacity='1'; };
+      var htmlSnapshot = lastGeneratedHTML;
+previewBtn.onclick = function() {
+    var blob = new Blob([htmlSnapshot], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    var win = window.open(url, '_blank');
+    if (!win) {
+        // Si el popup fue bloqueado, abrir en misma pestaña
+        window.location.href = url;
+    }
+};
+wrapper.appendChild(previewBtn);
+lastGeneratedHTML = '';
+        }
+    }
+
+    processQueue(0);
+}
+
+
+function addMessage(text, sender) {
+    var chatArea = document.getElementById('chatArea');
+    var wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper ' + sender + '-wrapper';
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + sender;
+    
+    // Detectar si hay una imagen Markdown ![Imagen](url)
+    if (text.includes('![') && text.includes('](')) {
+        var parts = text.split(/(!\[.*?\]\(.*?\))/);
+        parts.forEach(function(part) {
+            if (part.startsWith('![') && part.includes('](')) {
+                var url = part.split('](')[1].split(')')[0];
+                var imgEl = document.createElement('img');
+                imgEl.src = url;
+                imgEl.style.cssText = 'max-width:100%;border-radius:12px;margin:8px 0;display:block;';
+                imgEl.onload = function() { chatArea.scrollTop = chatArea.scrollHeight; };
+                msgDiv.appendChild(imgEl);
+            } else if (part.trim()) {
+                var textEl = document.createElement('div');
+                textEl.textContent = part;
+                msgDiv.appendChild(textEl);
+            }
+        });
+    } else {
+        msgDiv.textContent = text;
+    }
+    
+    wrapper.appendChild(msgDiv);
+    chatArea.appendChild(wrapper);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function addThinkingIndicator() {
+    var chatArea = document.getElementById('chatArea');
+    var id = 'thinking-' + Date.now();
+    var container = document.createElement('div');
+    container.id = id;
+    container.className = 'typing-indicator';
+    container.innerHTML = '<div class="eva-thinking"><div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div></div>'
+        + '<div class="thinking-bubble"><span class="thinking-text">' + currentModelName + ' pensando</span><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div>';
+    chatArea.appendChild(container);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    return id;
+}
+
+function removeThinkingIndicator(id) { var el = document.getElementById(id); if (el) el.remove(); }
+
+function clearChat() {
+    typewriterTimers.forEach(function(t) { clearTimeout(t); });
+    typewriterTimers = [];
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('chatArea').classList.remove('active');
+    document.getElementById('welcomeScreen').classList.remove('hidden');
+}
+
+
+// ============ MEMORIA DE CONVERSACIÓN ============
+var shortTermMemory = [];
+var pendingQuestion = null;
+
+var contextualWords = ['si','sí','no','nop','nel','dale','va','ok','oka','vale','bien','bueno','claro','obvio','simón','quizás','tal vez','puede ser'];
+
+function isContextualWord(msg) {
+    var clean = msg.toLowerCase().trim().replace(/[!¡?¿.,]/g, '');
+    return contextualWords.indexOf(clean) !== -1;
+}
+
+function startVoice() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var recognition = new SR();
+        recognition.lang = 'es-MX';
+        recognition.interimResults = true;
+        var finalText = '';
+        
+        recognition.onresult = function(event) {
+            var input = document.getElementById('chatInput');
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalText += event.results[i][0].transcript + ' ';
+                } else {
+                    input.value = finalText + event.results[i][0].transcript;
+                }
+            }
+            if (event.results[event.results.length - 1].isFinal) {
+                input.value = finalText.trim();
+                setTimeout(function() { sendMessage(); }, 300);
+            }
+        };
+        
+        recognition.onerror = function() {
+            document.getElementById('chatInput').focus();
+        };
+        
+        recognition.onend = function() {
+            document.getElementById('chatInput').placeholder = 'Habla con Eva...';
+        };
+        
+        document.getElementById('chatInput').placeholder = '🎤 Escuchando...';
+        document.getElementById('chatInput').value = '';
+        finalText = '';
+        recognition.start();
+    } else {
+        document.getElementById('chatInput').focus();
+    }
+}
+// ============ MEMORIA DE CONVERSACIÓN (NUEVO) ============
+
+
+// Memoria a largo plazo (datos aprendidos sobre el usuario)
+var longTermMemory = {
+    userName: '',
+    userTopics: [],        // temas que le interesan
+    userFacts: [],         // datos que ha compartido
+    emotionalHistory: [],  // historial emocional
+    learnedInfo: [],       // información nueva que Eva ha aprendido
+    conversationCount: 0
+};
+
+// Cargar memoria a largo plazo de localStorage
+function loadLongTermMemory() {
+    try {
+        var saved = JSON.parse(localStorage.getItem('eva_long_term_memory'));
+        if (saved) {
+            longTermMemory = saved;
+        }
+    } catch(e) {}
+}
+
+// Guardar memoria a largo plazo
+function saveLongTermMemory() {
+    try {
+        // Limitar tamaño para no sobrecargar localStorage
+        if (longTermMemory.userFacts.length > 100) longTermMemory.userFacts = longTermMemory.userFacts.slice(-50);
+        if (longTermMemory.learnedInfo.length > 100) longTermMemory.learnedInfo = longTermMemory.learnedInfo.slice(-50);
+        if (longTermMemory.emotionalHistory.length > 50) longTermMemory.emotionalHistory = longTermMemory.emotionalHistory.slice(-25);
+        localStorage.setItem('eva_long_term_memory', JSON.stringify(longTermMemory));
+    } catch(e) {}
+}
+
+// Agregar a memoria a corto plazo
+function addToShortTermMemory(userMsg, evaMsg) {
+    shortTermMemory.push({
+        user: userMsg,
+        eva: evaMsg,
+        timestamp: Date.now(),
+        sentiment: analyzeSentiment(userMsg)
+    });
+    if (shortTermMemory.length > 100000000) shortTermMemory.shift();
+}
+
+// ============ ANÁLISIS DE SENTIMIENTO ============
+function analyzeSentiment(text) {
+    var msg = text.toLowerCase();
+    
+    var positiveWords = ['gracias', 'genial', 'excelente', 'bueno', 'feliz', 'amor', 'increíble', 'perfecto', 'bien', 'gusta', 'hermoso', 'divertido', 'genio', 'crack', 'uff', 'jaja', 'jeje', ':D', ':)', '❤️', '💪'];
+    var negativeWords = ['mal', 'triste', 'enojado', 'furioso', 'odio', 'horrible', 'terrible', 'estresado', 'cansado', 'harto', 'decepcion', 'miedo', 'ansiedad', ':(', ':/'];
+    var questionWords = ['?', 'por qué', 'como', 'cuando', 'donde', 'quien', 'que es', 'cual', 'puedes', 'podrias', 'explica', 'dime'];
+    
+    var positiveScore = 0;
+    var negativeScore = 0;
+    var questionScore = 0;
+    
+    positiveWords.forEach(function(w) { if (msg.includes(w)) positiveScore++; });
+    negativeWords.forEach(function(w) { if (msg.includes(w)) negativeScore++; });
+    questionWords.forEach(function(w) { if (msg.includes(w)) questionScore++; });
+    
+    if (positiveScore > negativeScore && positiveScore > questionScore) return 'positivo';
+    if (negativeScore > positiveScore && negativeScore > questionScore) return 'negativo';
+    if (questionScore > 0) return 'curioso';
+    return 'neutral';
+}
+
+// ============ RECOPILAR INFORMACIÓN NUEVA ============
+function learnFromUserInput(input) {
+    var msg = input.toLowerCase();
+    
+    // Detectar nombre del usuario
+    var namePatterns = [
+        /me llamo (\w+)/i,
+        /soy (\w+)/i,
+        /mi nombre es (\w+)/i,
+        /puedes llamarme (\w+)/i
+    ];
+    
+    namePatterns.forEach(function(pattern) {
+        var match = msg.match(pattern);
+        if (match && !longTermMemory.userName) {
+            longTermMemory.userName = match[1];
+            longTermMemory.userFacts.push('Nombre: ' + match[1]);
+        }
+    });
+    
+    // Detectar temas de interés
+    var interestPatterns = [
+        /me gusta (\w+)/gi,
+        /me interesa (\w+)/gi,
+        /estudio (\w+)/gi,
+        /trabajo en (\w+)/gi,
+        /soy (programador|doctor|estudiante|ingeniero|diseñador|artista|músico|profesor)/gi
+    ];
+    
+    interestPatterns.forEach(function(pattern) {
+        var matches = msg.match(pattern);
+        if (matches) {
+            matches.forEach(function(m) {
+                var topic = m.replace(/me gusta |me interesa |estudio |trabajo en |soy /gi, '').trim();
+                if (topic && longTermMemory.userTopics.indexOf(topic) === -1) {
+                    longTermMemory.userTopics.push(topic);
+                }
+            });
+        }
+    });
+    
+    // Aprender datos nuevos (patrón: "X es Y" o "X significa Y")
+    var factPatterns = [
+        /(\w+) es ([\w\s]+)/gi,
+        /(\w+) significa ([\w\s]+)/gi,
+        /sabias que ([\w\s]+)/gi
+    ];
+    
+    factPatterns.forEach(function(pattern) {
+        var matches = msg.match(pattern);
+        if (matches) {
+            matches.forEach(function(m) {
+                if (longTermMemory.learnedInfo.length < 50 && longTermMemory.learnedInfo.indexOf(m) === -1) {
+                    longTermMemory.learnedInfo.push(m);
+                }
+            });
+        }
+    });
+    
+    longTermMemory.conversationCount++;
+    saveLongTermMemory();
+}
+
+// ============ BUSCAR EN MEMORIA ============
+function searchMemory(query) {
+    var msg = query.toLowerCase();
+    var results = [];
+    
+    // Buscar en memoria a corto plazo
+    shortTermMemory.forEach(function(item) {
+        if (item.user.toLowerCase().includes(msg) || item.eva.toLowerCase().includes(msg)) {
+            results.push({ type: 'reciente', content: 'Hablamos de: "' + item.user + '"' });
+        }
+    });
+    
+    // Buscar en datos del usuario
+    longTermMemory.userFacts.forEach(function(fact) {
+        if (fact.toLowerCase().includes(msg)) {
+            results.push({ type: 'usuario', content: 'Sé que ' + fact });
+        }
+    });
+    
+    // Buscar en información aprendida
+    longTermMemory.learnedInfo.forEach(function(info) {
+        if (info.toLowerCase().includes(msg)) {
+            results.push({ type: 'aprendido', content: 'Aprendí: ' + info });
+        }
+    });
+    
+    return results.slice(0, 3); // máximo 3 resultados
+}
+
+// ============ ANÁLISIS DE CÓDIGO ============
+function analyzeCodeIntelligently(code, lang) {
+    var issues = [];
+    var suggestions = [];
+    var description = '';
+    var format = lang || '';
+    
+    // Detectar formato si no viene
+    if (!format) {
+        if (code.includes('<!DOCTYPE') || code.includes('<html')) format = 'HTML';
+        else if (code.includes('function') || code.includes('const ') || code.includes('let ')) format = 'JavaScript';
+        else if (code.includes('def ') || code.includes('import ')) format = 'Python';
+        else if (code.includes('{') && code.includes(':') && code.includes(';')) format = 'CSS';
+        else format = 'desconocido';
+    }
+    
+    // HTML
+    if (format === 'html' || format === 'HTML') {
+        if (code.includes('<html') && code.includes('<body')) description = 'una página HTML completa';
+        else if (code.includes('<h1') || code.includes('<p')) description = 'elementos HTML sueltos';
+        else description = 'código HTML';
+        
+        if (!code.includes('<!DOCTYPE')) issues.push('❌ Falta DOCTYPE');
+        if (!code.includes('<meta charset=')) issues.push('⚠️ Falta meta charset');
+        if (!code.includes('<meta name="viewport"')) issues.push('⚠️ Falta viewport para responsive');
+        if (!code.includes('<title>')) suggestions.push('💡 Agrega <title> para la pestaña');
+        if (!code.includes('</html>')) issues.push('❌ Falta </html>');
+        if (!code.includes('</body>')) issues.push('❌ Falta </body>');
+        if (!code.includes('lang=')) suggestions.push('💡 Agrega lang="es" al HTML');
+        if (!code.includes('<link') && !code.includes('<style')) suggestions.push('💡 Agrega CSS para darle estilo');
+        if (code.includes('<img') && !code.includes('alt=')) suggestions.push('💡 Agrega alt a las imágenes');
+    }
+    
+    // JavaScript
+    if (format === 'javascript' || format === 'JavaScript') {
+        if (code.includes('function') && code.includes('return')) description = 'una función con retorno';
+        else if (code.includes('function')) description = 'una función JavaScript';
+        else description = 'código JavaScript';
+        
+        var oB = (code.match(/\{/g) || []).length;
+        var cB = (code.match(/\}/g) || []).length;
+        if (oB !== cB) issues.push('❌ Llaves: ' + oB + ' vs ' + cB);
+        
+        var pO = (code.match(/\(/g) || []).length;
+        var pC = (code.match(/\)/g) || []).length;
+        if (pO !== pC) issues.push('❌ Paréntesis desbalanceados');
+        
+        if (code.includes('var ')) suggestions.push('💡 Usa let o const en vez de var');
+        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === para comparación estricta');
+        if (code.includes('function') && !code.includes('return') && !code.includes('console.log')) suggestions.push('💡 La función no retorna ni muestra nada');
+    }
+    
+    // Python
+    if (format === 'python' || format === 'Python') {
+        description = code.includes('def ') ? 'una función Python' : 'código Python';
+        if (code.includes('print ') && !code.includes('(')) issues.push('❌ print necesita paréntesis');
+        if (code.includes('def ') && !code.includes('return') && !code.includes('print')) suggestions.push('💡 La función no retorna ni imprime');
+    }
+    
+    // CSS
+    if (format === 'css' || format === 'CSS') {
+        description = 'estilos CSS';
+        var oC = (code.match(/\{/g) || []).length;
+        var cC = (code.match(/\}/g) || []).length;
+        if (oC !== cC) issues.push('❌ Llaves CSS: ' + oC + ' vs ' + cC);
+        if (!code.includes('box-sizing')) suggestions.push('💡 Agrega box-sizing: border-box');
+    }
+    
+    return { format: format, description: description, issues: issues, suggestions: suggestions };
+}
+
+// ============ GENERAR RESPUESTA CONTEXTUAL ============
+function generateContextualResponse(input, baseResponse) {
+    var msg = input.toLowerCase();
+    var sentiment = analyzeSentiment(msg);
+    var memoryResults = searchMemory(msg);
+    var contextualAddon = '';
+    
+// Analizar código si existe
+    if (baseResponse.includes('```')) {
+        var codeMatch = baseResponse.match(/```(\w+)?\n([\s\S]*?)```/);
+        if (codeMatch) {
+            var lang = codeMatch[1] || '';
+            var code = codeMatch[2];
+            var analysis = analyzeCodeIntelligently(code, lang);
+            var lineCount = code.split('\n').length;
+            
+            contextualAddon += '\n\n📋 **Análisis de tu código:**';
+            contextualAddon += '\n📄 Formato: **' + analysis.format + '**';
+            contextualAddon += '\n👀 Veo que es ' + analysis.description;
+            contextualAddon += '\n📏 ' + lineCount + ' líneas de código';
+            
+            if (analysis.issues.length > 0) {
+                contextualAddon += '\n\n🔍 **Errores:**\n' + analysis.issues.join('\n');
+            }
+            if (analysis.suggestions.length > 0) {
+                contextualAddon += '\n\n💡 **Ideas:**\n' + analysis.suggestions.join('\n');
+            }
+            if (analysis.issues.length === 0 && analysis.suggestions.length === 0) {
+                contextualAddon += '\n\n✅ ¡Sin errores! Buen trabajo.';
+            }
+        }
+    }
+    
+
+// Memoria desactivada
+    // Nombre desactivado
+
+    return baseResponse + contextualAddon;
+}
+
+// ============ REEMPLAZAR sendMessage() ============
+    async function sendMessage() {
+    if (isProcessing) return;
+    
+    // ===== LÍMITE DE 5 HORAS =====
+    var now = Date.now();
+    var sessionStart = parseInt(localStorage.getItem('eva_session_start') || '0');
+    var FIVE_HOURS = 5 * 60 * 60 * 1000;
+
+    if (!sessionStart || (now - sessionStart) > FIVE_HOURS) {
+        localStorage.setItem('eva_session_start', now);
+        document.getElementById('chatArea').innerHTML = '';
+        document.getElementById('chatArea').classList.remove('active');
+        document.getElementById('welcomeScreen').classList.remove('hidden');
+        localStorage.removeItem('eva_chat_history');
+        shortTermMemory = [];
+        pendingQuestion = null;
+        
+        var aviso = document.createElement('div');
+        aviso.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;color:#fff;padding:24px 36px;border-radius:20px;text-align:center;z-index:9999;font-size:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
+        aviso.innerHTML = '🕐 <b>Sesión reiniciada</b><br><span style="font-size:12px;color:#aaa;">Límite: 5 horas</span>';
+        document.body.appendChild(aviso);
+        setTimeout(function(){ aviso.remove(); }, 2500);
+    }
+    
+    
+    var input = document.getElementById('chatInput');
+    var message = input.value.trim();
+    if (!message) return;
+    input.value = '';
+    isProcessing = true;
+    
+    learnFromUserInput(message);
+        if (message.trim().split(/\s+/).length > 2) lastAskedTopic = null;
+
+
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('chatArea').classList.add('active');
+    addMessage(message, 'user');
+    var typingId = addThinkingIndicator();
+
+    var delay = 800 + Math.random() * 1200;
+    
+    setTimeout(async function() {
+        removeThinkingIndicator(typingId);
+        
+        var baseResponse = '';
+        
+        // 🌐 WIKI: Solo Wikipedia
+        if (currentModel === 'wiki') {
+            var wikiResult = await searchDuckDuckGo(message);
+            if (wikiResult) {
+                baseResponse = '📚 **Wikipedia:**\n\n' + wikiResult;
+            } else {
+                baseResponse = 'No encontré nada en Wikipedia sobre eso. 🤔';
+            }
+        }
+        // 💻 CODE: Solo Groq (Llama)
+        else if (currentModel === 'code') {
+    var groqResult = await askGroq(message);
+    if (groqResult) {
+        baseResponse = groqResult;
+    } else {
+        baseResponse = 'Lo siento, no pude procesar tu código ahora. 💻';
+    }
+}
+// 🧠 QWEN: Groq con Qwen
+else if (currentModel === 'qwen') {
+    var qwenResult = await askQwen(message);
+    if (qwenResult) {
+        baseResponse = qwenResult;
+    } else {
+        baseResponse = 'Qwen no está disponible ahora. 🧠';
+    }
+}
+
+// 🌟 GEMINI
+else if (currentModel === 'gemini') {
+    var geminiResult = await askGemini(message);
+    if (geminiResult) { baseResponse = geminiResult; }
+    else { baseResponse = 'Gemini no está disponible ahora. 🌟'; }
+}
+// 💨 MISTRAL
+else if (currentModel === 'mistral') {
+    var mistralResult = await askMistral(message);
+    if (mistralResult) { baseResponse = mistralResult; }
+    else { baseResponse = 'Mistral no está disponible ahora. 💨'; }
+}
+// ☁️ CLOUDFLARE
+else if (currentModel === 'cloudflare') {
+    var cfResult = await askCloudflareAI(message);
+    if (cfResult) { baseResponse = cfResult; }
+    else { baseResponse = 'Cloudflare AI no está disponible ahora. ☁️'; }
+}
+
+else if (currentModel === 'duck') {
+    var duckResult = await askDuck(message);
+    if (duckResult) { baseResponse = duckResult; }
+    else { baseResponse = 'No encontré resultados con DuckDuckGo. 🦆'; }
+}
+
+else if (currentModel === 'buscador') {
+    var buscaResult = await askBuscador(message);
+    if (buscaResult) { baseResponse = buscaResult; }
+    else { baseResponse = 'No encontré información. Intenta ser más específico. 🔍'; }
+}
+
+
+// 🧠 DEEPSEEK
+else if (currentModel === 'deepseek') {
+    var deepseekResult = await askDeepSeek(message);
+    if (deepseekResult) {
+        baseResponse = deepseekResult;
+    } else {
+        baseResponse = 'DeepSeek no está disponible ahora. 🧠';
+    }
+}
+else {
+    baseResponse = generateResponse(message);
+}
+        
+        var contextualResponse = generateContextualResponse(message, baseResponse);
+        typewriterEffect(contextualResponse, 'eva');
+        if (typeof voiceEnabled === 'undefined') var voiceEnabled = true;
+if (voiceEnabled) speakText(contextualResponse);
+        
+        addToShortTermMemory(message, contextualResponse);
+        saveChatHistory();
+        isProcessing = false;
+    }, delay);
+};
+
+
+// ============ GUARDAR HISTORIAL DEL CHAT ============
+function saveChatHistory() {
+    try {
+        var messages = [];
+        document.querySelectorAll('#chatArea .message-wrapper').forEach(function(w) {
+            var msg = w.querySelector('.message');
+            if (msg) {
+                messages.push({
+                    text: msg.textContent,
+                    sender: msg.classList.contains('user') ? 'user' : 'eva'
+                });
+            }
+        });
+        // Solo guardar últimos 50 mensajes para no saturar
+        if (messages.length > 50) messages = messages.slice(-50);
+        localStorage.setItem('eva_chat_history', JSON.stringify(messages));
+    } catch(e) {}
+}
+
+// Cargar historial al iniciar
+function loadChatHistory() {
+    try {
+        var data = JSON.parse(localStorage.getItem('eva_chat_history') || '[]');
+        if (data.length > 0) {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('chatArea').classList.add('active');
+            data.forEach(function(m) {
+                addMessage(m.text, m.sender);
+            });
+        }
+    } catch(e) {}
+}
+
+// ============ MODO CREACIÓN DE PÁGINAS ============
+var creationState = null;
+var creationData = {};
+var lastGeneratedHTML = '';
+
+
+var pageTypes = {
+    landing: 'Landing Page',
+    login: 'Página de Login',
+    portfolio: 'Portfolio',
+    calculadora: 'Calculadora',
+    formulario: 'Formulario de Contacto',
+    dashboard: 'Dashboard / Panel',
+    tienda: 'Tienda / E-commerce',
+    blog: 'Blog',
+    comingsoon: 'Coming Soon',
+    todo: 'To-Do List'
+};
+
+var creationKeywords = ['hazme', 'crea', 'genera', 'hacer una', 'quiero una', 'necesito una', 'diseña', 'arma', 'construye', 'haz una', 'haz un', 'crea un', 'hazme un'];
+
+function detectCreationIntent(msg) {
+    var lower = msg.toLowerCase();
+    for (var i = 0; i < creationKeywords.length; i++) {
+        if (lower.includes(creationKeywords[i])) return true;
+    }
+    return false;
+}
+
+function detectPageType(msg) {
+    var lower = msg.toLowerCase();
+    if (lower.includes('landing') || lower.includes('inicio') || lower.includes('presentacion')) return 'landing';
+    if (lower.includes('login') || lower.includes('iniciar sesion') || lower.includes('acceso')) return 'login';
+    if (lower.includes('portfolio') || lower.includes('portafolio')) return 'portfolio';
+    if (lower.includes('calculadora') || lower.includes('calcular')) return 'calculadora';
+    if (lower.includes('formulario') || lower.includes('contacto')) return 'formulario';
+if (lower.includes('dashboard') || lower.includes('panel')) return 'dashboard';
+    if (lower.includes('tienda') || lower.includes('ecommerce') || lower.includes('shop') || lower.includes('comprar')) return 'tienda';
+    if (lower.includes('blog') || lower.includes('articulos') || lower.includes('noticias')) return 'blog';
+    if (lower.includes('coming soon') || lower.includes('proximamente') || lower.includes('en construccion') || lower.includes('cuenta regresiva')) return 'comingsoon';
+    if (lower.includes('todo') || lower.includes('lista de tareas') || lower.includes('pendientes') || lower.includes('checklist')) return 'todo';
+    return null;
+}
+
+function handleCreationMode(input) {
+    var msg = input.trim();
+
+    if (creationState === 'ask_type') {
+        var type = detectPageType(msg);
+        if (!type) {
+            // intentar por número
+            var opts = Object.keys(pageTypes);
+            var num = parseInt(msg) - 1;
+            if (num >= 0 && num < opts.length) type = opts[num];
+        }
+        if (!type) {
+            return '¿Qué tipo de página? Dime el número:\n\n1. Landing Page\n2. Login\n3. Portfolio\n4. Calculadora\n5. Formulario de Contacto\n6. Dashboard';
+        }
+        creationData.type = type;
+        creationState = 'ask_name';
+        return '¿Cómo se llama tu proyecto o negocio?';
+    }
+
+    if (creationState === 'ask_name') {
+        creationData.name = msg;
+        creationState = 'ask_color';
+        return '¿Qué color principal quieres?\n\nEjemplos: azul, rojo, negro, morado, verde\nO escribe "Eva elige" y yo decido 🎨';
+    }
+
+    if (creationState === 'ask_color') {
+        var colorMap = {
+            'azul': '#2563EB', 'rojo': '#EF4444', 'negro': '#111111',
+            'morado': '#7C3AED', 'verde': '#10B981', 'naranja': '#F97316',
+            'rosa': '#EC4899', 'amarillo': '#F59E0B', 'cyan': '#06B6D4',
+            'gris': '#6B7280'
+        };
+        var lower = msg.toLowerCase();
+        var color = '#2563EB';
+        if (lower === 'eva elige') {
+            var palettes = ['#2563EB','#7C3AED','#10B981','#EF4444','#F97316','#0F172A'];
+            color = palettes[Math.floor(Math.random() * palettes.length)];
+        } else {
+            for (var k in colorMap) {
+                if (lower.includes(k)) { color = colorMap[k]; break; }
+            }
+            if (msg.startsWith('#')) color = msg;
+        }
+        creationData.lastColor = color;
+        creationState = 'ask_desc';
+        return '¿Una descripción corta de tu proyecto? (1 o 2 líneas)\n\nO escribe "sin descripción" para omitir.';
+    }
+
+        if (creationState === 'ask_desc') {
+        creationData.desc = (msg.toLowerCase() === 'sin descripcion' || msg.toLowerCase() === 'sin descripción') ? '' : msg;
+        creationState = null;
+        return generatePageCode(creationData);
+    }
+
+    if (creationState === 'ask_extras') {
+        var lower = msg.toLowerCase().trim();
+        
+        if (lower === 'listo' || lower === 'ya' || lower === 'no' || lower === 'no gracias') {
+            creationState = null;
+            lastGeneratedHTML = '';
+            return '¡Perfecto! Tu página está lista. 🎉 Cópiala y guárdala como `index.html`.';
+        }
+
+        var extraHTML = '';
+        var color = creationData.lastColor || '#2563EB';
+
+        if (lower.includes('precio')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#f9f9f9;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:12px;">Precios</h2>
+  <p style="color:#999;margin-bottom:48px;">Elige el plan que mejor se adapte a ti.</p>
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+    <div style="background:#fff;border-radius:20px;padding:36px 28px;width:260px;border:2px solid #eee;">
+      <div style="font-size:13px;font-weight:700;color:#999;margin-bottom:12px;">BÁSICO</div>
+      <div style="font-size:48px;font-weight:900;color:#111;">$9<span style="font-size:16px;color:#999;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#555;font-size:14px;line-height:2;">
+        <li>✅ 1 proyecto</li><li>✅ 5 GB almacenamiento</li><li>❌ Soporte prioritario</li>
+      </ul>
+      <a href="#" style="display:block;background:#f0f0f0;color:#333;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Empezar</a>
+    </div>
+    <div style="background:#111;border-radius:20px;padding:36px 28px;width:260px;border:2px solid ${color};transform:scale(1.05);">
+      <div style="font-size:13px;font-weight:700;color:${color};margin-bottom:12px;">PRO ⭐</div>
+      <div style="font-size:48px;font-weight:900;color:#fff;">$29<span style="font-size:16px;color:#888;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#aaa;font-size:14px;line-height:2;">
+        <li>✅ Proyectos ilimitados</li><li>✅ 50 GB almacenamiento</li><li>✅ Soporte prioritario</li>
+      </ul>
+      <a href="#" style="display:block;background:${color};color:#fff;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Empezar</a>
+    </div>
+    <div style="background:#fff;border-radius:20px;padding:36px 28px;width:260px;border:2px solid #eee;">
+      <div style="font-size:13px;font-weight:700;color:#999;margin-bottom:12px;">EMPRESA</div>
+      <div style="font-size:48px;font-weight:900;color:#111;">$99<span style="font-size:16px;color:#999;">/mes</span></div>
+      <ul style="list-style:none;margin:24px 0;color:#555;font-size:14px;line-height:2;">
+        <li>✅ Todo ilimitado</li><li>✅ 1 TB almacenamiento</li><li>✅ Manager dedicado</li>
+      </ul>
+      <a href="#" style="display:block;background:#f0f0f0;color:#333;padding:14px;border-radius:12px;font-weight:700;text-decoration:none;">Contactar</a>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('testimonio')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#fff;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;">Lo que dicen nuestros clientes</h2>
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"Increíble servicio. Superó todas mis expectativas. Lo recomiendo 100%."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">A</div>
+        <div><div style="font-weight:700;font-size:14px;">Ana García</div><div style="font-size:12px;color:#999;">Cliente desde 2023</div></div>
+      </div>
+    </div>
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"El mejor producto que he usado. Simple, rápido y efectivo."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">C</div>
+        <div><div style="font-weight:700;font-size:14px;">Carlos López</div><div style="font-size:12px;color:#999;">CEO en StartupX</div></div>
+      </div>
+    </div>
+    <div style="background:#f9f9f9;border-radius:20px;padding:32px;max-width:280px;text-align:left;">
+      <div style="font-size:24px;margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:20px;">"Atención al cliente de 10. Resolvieron todo en minutos."</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">M</div>
+        <div><div style="font-weight:700;font-size:14px;">María Torres</div><div style="font-size:12px;color:#999;">Diseñadora freelance</div></div>
+      </div>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('equipo')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#f9f9f9;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:12px;">Nuestro Equipo</h2>
+  <p style="color:#999;margin-bottom:48px;">Las personas detrás del proyecto.</p>
+  <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👩</div>
+      <div style="font-weight:700;font-size:16px;">Laura M.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">CEO & Fundadora</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👨</div>
+      <div style="font-weight:700;font-size:16px;">Pedro R.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">CTO</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${color},#111);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">👩</div>
+      <div style="font-weight:700;font-size:16px;">Sofía K.</div>
+      <div style="font-size:13px;color:#999;margin-top:4px;">Diseño UX</div>
+    </div>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('faq') || lower.includes('preguntas')) {
+            extraHTML = `
+<section style="padding:80px 40px;max-width:700px;margin:0 auto;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;text-align:center;">Preguntas Frecuentes</h2>
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Cómo puedo empezar?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Es muy sencillo. Solo regístrate, elige tu plan y listo. El proceso toma menos de 2 minutos.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Puedo cancelar en cualquier momento?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Sí, sin contratos ni penalizaciones. Cancela cuando quieras desde tu panel.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Tienen soporte en español?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">¡Por supuesto! Nuestro equipo habla español y está disponible 24/7.</p>
+    </details>
+    <details style="background:#f9f9f9;border-radius:16px;padding:20px 24px;cursor:pointer;">
+      <summary style="font-weight:700;font-size:15px;list-style:none;">¿Es seguro pagar aquí?</summary>
+      <p style="margin-top:12px;color:#666;font-size:14px;line-height:1.7;">Sí, usamos encriptación SSL y procesadores de pago certificados.</p>
+    </details>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('redes') || lower.includes('social')) {
+            extraHTML = `
+<section style="padding:60px 40px;background:#111;text-align:center;">
+  <h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">Síguenos</h2>
+  <p style="color:#888;font-size:14px;margin-bottom:32px;">Estamos en todas las redes</p>
+  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#1877F2;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">📘 Facebook</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">📸 Instagram</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#1DA1F2;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">🐦 Twitter</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#FF0000;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">▶️ YouTube</a>
+    <a href="#" style="display:flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
+  </div>
+</section>`;
+        }
+
+        else if (lower.includes('galeria') || lower.includes('galería') || lower.includes('fotos')) {
+            extraHTML = `
+<section style="padding:80px 40px;background:#fff;text-align:center;">
+  <h2 style="font-size:32px;font-weight:900;margin-bottom:48px;">Galería</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto;">
+    <div style="background:linear-gradient(135deg,${color}44,${color}22);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}33,${color}11);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}55,${color}33);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}22,${color}44);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}44,${color}11);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+    <div style="background:linear-gradient(135deg,${color}11,${color}55);border-radius:16px;height:160px;display:flex;align-items:center;justify-content:center;font-size:40px;">🖼️</div>
+  </div>
+</section>`;
+        }
+
+        else {
+            return 'No reconocí eso. Puedes escribir: **precios, galería, testimonios, equipo, faq, redes**\nO escribe **listo** para terminar.';
+        }
+
+        if (extraHTML && lastGeneratedHTML) {
+            lastGeneratedHTML = lastGeneratedHTML.replace('</body>', extraHTML + '\n</body>');
+        }
+
+        return '✅ Sección agregada. ¿Quieres agregar algo más?\n\nprecios / galería / testimonios / equipo / faq / redes\nO escribe **listo** para terminar.';
+    }
+
+    return null;
+}
+
+function generatePageCode(data) {
+    var name = data.name || 'Mi Proyecto';
+    var color = data.color || '#2563EB';
+    var desc = data.desc || '';
+    var type = data.type || 'landing';
+
+    // Color oscuro para texto sobre fondo de color
+    var darkColor = shadeColor(color, -40);
+    var lightColor = shadeColor(color, 80);
+
+    var html = '';
+
+    if (type === 'landing') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #333; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid #eee; }
+    nav .logo { font-weight: 800; font-size: 22px; color: ${color}; }
+    nav a { text-decoration: none; color: #555; margin-left: 20px; font-size: 14px; }
+    .hero { text-align: center; padding: 100px 20px 80px; background: linear-gradient(135deg, ${lightColor} 0%, #fff 100%); }
+    .hero h1 { font-size: 48px; font-weight: 900; color: #111; margin-bottom: 20px; line-height: 1.1; }
+    .hero h1 span { color: ${color}; }
+    .hero p { font-size: 18px; color: #666; max-width: 520px; margin: 0 auto 40px; line-height: 1.6; }
+    .btn { display: inline-block; background: ${color}; color: #fff; padding: 16px 36px; border-radius: 50px; font-size: 16px; font-weight: 700; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 24px ${color}55; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px ${color}77; }
+    .features { display: flex; justify-content: center; gap: 32px; padding: 80px 40px; flex-wrap: wrap; }
+    .feature { background: #f9f9f9; border-radius: 20px; padding: 32px; max-width: 280px; text-align: center; }
+    .feature .icon { font-size: 40px; margin-bottom: 16px; }
+    .feature h3 { font-size: 18px; margin-bottom: 10px; }
+    .feature p { font-size: 14px; color: #777; line-height: 1.6; }
+    footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
+    footer span { color: ${color}; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">${name}</div>
+    <div>
+      <a href="#">Inicio</a>
+      <a href="#">Servicios</a>
+      <a href="#">Contacto</a>
+    </div>
+  </nav>
+  <section class="hero">
+    <h1>Bienvenido a <span>${name}</span></h1>
+    <p>${desc || 'Una experiencia increíble te espera. Descubre todo lo que tenemos para ti.'}</p>
+    <a href="#" class="btn">Comenzar ahora</a>
+  </section>
+  <section class="features">
+    <div class="feature"><div class="icon">⚡</div><h3>Rápido</h3><p>Resultados inmediatos sin esperas.</p></div>
+    <div class="feature"><div class="icon">🔒</div><h3>Seguro</h3><p>Tu información siempre protegida.</p></div>
+    <div class="feature"><div class="icon">🎯</div><h3>Preciso</h3><p>Exactamente lo que necesitas.</p></div>
+  </section>
+  <footer>© 2025 <span>${name}</span>. Todos los derechos reservados.</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'login') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: ${color}; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 24px 80px rgba(0,0,0,0.2); }
+    .logo { font-size: 26px; font-weight: 900; color: ${color}; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #999; font-size: 14px; margin-bottom: 36px; }
+    label { font-size: 12px; font-weight: 700; color: #555; display: block; margin-bottom: 6px; }
+    input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s; margin-bottom: 20px; }
+    input:focus { border-color: ${color}; }
+    .btn { width: 100%; padding: 16px; background: ${color}; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .footer-link { text-align: center; margin-top: 20px; font-size: 13px; color: #999; }
+    .footer-link a { color: ${color}; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">${name}</div>
+    <p class="subtitle">${desc || 'Inicia sesión para continuar'}</p>
+    <label>Correo electrónico</label>
+    <input type="email" placeholder="tu@correo.com">
+    <label>Contraseña</label>
+    <input type="password" placeholder="••••••••">
+    <button class="btn">Iniciar sesión</button>
+    <p class="footer-link">¿No tienes cuenta? <a href="#">Regístrate</a></p>
+  </div>
+</body>
+</html>`;
+    }
+
+    else if (type === 'portfolio') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #fff; }
+    header { padding: 40px; display: flex; justify-content: space-between; align-items: center; }
+    header .logo { font-weight: 900; font-size: 20px; color: ${color}; }
+    nav a { color: #888; text-decoration: none; margin-left: 24px; font-size: 14px; transition: color 0.2s; }
+    nav a:hover { color: ${color}; }
+    .hero { padding: 100px 40px; max-width: 800px; }
+    .tag { display: inline-block; background: ${color}22; color: ${color}; padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+    .hero h1 { font-size: 64px; font-weight: 900; line-height: 1.05; margin-bottom: 24px; }
+    .hero p { font-size: 18px; color: #888; line-height: 1.7; max-width: 520px; margin-bottom: 40px; }
+    .btns { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-main { background: ${color}; color: #fff; padding: 16px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; font-size: 15px; }
+    .btn-sec { background: transparent; color: #fff; padding: 16px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; font-size: 15px; border: 1px solid #333; }
+    .projects { padding: 80px 40px; }
+    .projects h2 { font-size: 32px; font-weight: 900; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .project-card { background: #1a1a1a; border-radius: 20px; padding: 32px; border: 1px solid #222; transition: border-color 0.2s; }
+    .project-card:hover { border-color: ${color}; }
+    .project-card h3 { font-size: 18px; margin-bottom: 10px; }
+    .project-card p { color: #888; font-size: 14px; line-height: 1.6; }
+    .project-tag { display: inline-block; background: #222; color: #aaa; padding: 4px 12px; border-radius: 50px; font-size: 11px; margin-top: 16px; margin-right: 6px; }
+    footer { text-align: center; padding: 60px 40px; border-top: 1px solid #222; color: #555; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">${name}</div>
+    <nav><a href="#">Sobre mí</a><a href="#">Proyectos</a><a href="#">Contacto</a></nav>
+  </header>
+  <section class="hero">
+    <div class="tag">✨ Disponible para proyectos</div>
+    <h1>Hola, soy<br>${name}</h1>
+    <p>${desc || 'Desarrollador creativo apasionado por construir experiencias digitales increíbles.'}</p>
+    <div class="btns">
+      <a href="#" class="btn-main">Ver proyectos</a>
+      <a href="#" class="btn-sec">Contactarme</a>
+    </div>
+  </section>
+  <section class="projects">
+    <h2>Proyectos</h2>
+    <div class="grid">
+      <div class="project-card"><h3>Proyecto Alpha</h3><p>Descripción breve del proyecto y su impacto.</p><span class="project-tag">HTML</span><span class="project-tag">CSS</span></div>
+      <div class="project-card"><h3>Proyecto Beta</h3><p>Otra aplicación o sitio web increíble.</p><span class="project-tag">JavaScript</span></div>
+      <div class="project-card"><h3>Proyecto Gamma</h3><p>Un tercer proyecto destacado aquí.</p><span class="project-tag">Firebase</span></div>
+    </div>
+  </section>
+  <footer>© 2025 ${name}. Hecho con 💙</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'calculadora') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Calculadora</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    h2 { color: ${color}; font-size: 18px; font-weight: 700; }
+    .calc { background: #1a1a1a; border-radius: 28px; padding: 24px; width: 320px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); }
+    .display { background: #111; border-radius: 16px; padding: 20px 20px 12px; margin-bottom: 20px; text-align: right; }
+    .display .expr { color: #555; font-size: 14px; min-height: 20px; word-break: break-all; }
+    .display .result { color: #fff; font-size: 40px; font-weight: 300; word-break: break-all; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button { padding: 20px 0; border: none; border-radius: 14px; font-size: 18px; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+    button:active { transform: scale(0.94); }
+    .btn-op { background: #2a2a2a; color: ${color}; font-weight: 700; }
+    .btn-num { background: #222; color: #fff; }
+    .btn-eq { background: ${color}; color: #fff; font-weight: 700; }
+    .btn-clear { background: #333; color: #fff; }
+    .btn-zero { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h2>${name}</h2>
+  <div class="calc">
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="result" id="result">0</div>
+    </div>
+    <div class="grid">
+      <button class="btn-clear" onclick="clearCalc()">AC</button>
+      <button class="btn-op" onclick="appendOp('%')">%</button>
+      <button class="btn-op" onclick="appendOp('**')">^</button>
+      <button class="btn-op" onclick="appendOp('/')">÷</button>
+      <button class="btn-num" onclick="appendNum('7')">7</button>
+      <button class="btn-num" onclick="appendNum('8')">8</button>
+      <button class="btn-num" onclick="appendNum('9')">9</button>
+      <button class="btn-op" onclick="appendOp('*')">×</button>
+      <button class="btn-num" onclick="appendNum('4')">4</button>
+      <button class="btn-num" onclick="appendNum('5')">5</button>
+      <button class="btn-num" onclick="appendNum('6')">6</button>
+      <button class="btn-op" onclick="appendOp('-')">−</button>
+      <button class="btn-num" onclick="appendNum('1')">1</button>
+      <button class="btn-num" onclick="appendNum('2')">2</button>
+      <button class="btn-num" onclick="appendNum('3')">3</button>
+      <button class="btn-op" onclick="appendOp('+')">+</button>
+      <button class="btn-num btn-zero" onclick="appendNum('0')">0</button>
+      <button class="btn-num" onclick="appendNum('.')">.</button>
+      <button class="btn-eq" onclick="calculate()">=</button>
+    </div>
+  </div>
+  <script>
+    var expr = '';
+    function appendNum(n) { expr += n; document.getElementById('result').textContent = expr; }
+    function appendOp(op) { if(expr) { expr += op; document.getElementById('expr').textContent = expr; document.getElementById('result').textContent = expr; } }
+    function clearCalc() { expr = ''; document.getElementById('result').textContent = '0'; document.getElementById('expr').textContent = ''; }
+    function calculate() {
+      try {
+        var r = Function('"use strict";return(' + expr + ')')();
+        document.getElementById('expr').textContent = expr + ' =';
+        document.getElementById('result').textContent = parseFloat(r.toFixed(10));
+        expr = String(r);
+      } catch(e) { document.getElementById('result').textContent = 'Error'; expr = ''; }
+    }
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'formulario') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Contacto</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, ${color}22, #fff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+    h1 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+    h1 span { color: ${color}; }
+    p { color: #999; font-size: 14px; margin-bottom: 32px; line-height: 1.6; }
+    label { font-size: 12px; font-weight: 700; color: #555; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, textarea { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s; margin-bottom: 20px; font-family: inherit; }
+    input:focus, textarea:focus { border-color: ${color}; }
+    textarea { resize: vertical; min-height: 120px; }
+    .btn { width: 100%; padding: 16px; background: ${color}; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .success { display: none; text-align: center; padding: 20px; color: #10B981; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Contacta a <span>${name}</span></h1>
+    <p>${desc || 'Déjanos tu mensaje y te responderemos lo antes posible.'}</p>
+    <label>Nombre</label>
+    <input type="text" placeholder="Tu nombre" id="nombre">
+    <label>Correo</label>
+    <input type="email" placeholder="tu@correo.com" id="correo">
+    <label>Mensaje</label>
+    <textarea placeholder="¿En qué podemos ayudarte?" id="mensaje"></textarea>
+    <button class="btn" onclick="enviar()">Enviar mensaje</button>
+    <div class="success" id="ok">✅ ¡Mensaje enviado! Te contactaremos pronto.</div>
+  </div>
+  <script>
+    function enviar() {
+      var n = document.getElementById('nombre').value;
+      var c = document.getElementById('correo').value;
+      var m = document.getElementById('mensaje').value;
+      if (!n || !c || !m) { alert('Por favor llena todos los campos.'); return; }
+      document.getElementById('ok').style.display = 'block';
+    }
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'dashboard') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f5f7; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: #111; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .sidebar .logo { color: ${color}; font-weight: 900; font-size: 18px; padding: 0 12px; margin-bottom: 28px; }
+    .sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; color: #888; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .sidebar a:hover, .sidebar a.active { background: #1f1f1f; color: #fff; }
+    .sidebar a.active { color: ${color}; }
+    .main { flex-grow: 1; padding: 32px; overflow-y: auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header h1 { font-size: 24px; font-weight: 800; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .stat { background: #fff; border-radius: 20px; padding: 24px; border-left: 4px solid ${color}; }
+    .stat .label { font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    .stat .value { font-size: 32px; font-weight: 900; color: #111; }
+    .stat .change { font-size: 12px; color: #10B981; margin-top: 4px; }
+    .table-card { background: #fff; border-radius: 20px; padding: 24px; }
+    .table-card h2 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; color: #999; font-weight: 700; text-transform: uppercase; padding: 0 0 12px; border-bottom: 1px solid #eee; }
+    td { padding: 14px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; background: ${color}22; color: ${color}; }
+    @media(max-width:600px){ .sidebar{display:none;} }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">${name}</div>
+    <a href="#" class="active">📊 Dashboard</a>
+    <a href="#">👥 Usuarios</a>
+    <a href="#">📦 Productos</a>
+    <a href="#">📈 Analytics</a>
+    <a href="#">⚙️ Config</a>
+  </div>
+  <div class="main">
+    <div class="header">
+      <h1>Dashboard</h1>
+      <div class="avatar">A</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="label">Usuarios</div><div class="value">1,284</div><div class="change">↑ +12% este mes</div></div>
+      <div class="stat"><div class="label">Ventas</div><div class="value">$8,430</div><div class="change">↑ +8% este mes</div></div>
+      <div class="stat"><div class="label">Pedidos</div><div class="value">342</div><div class="change">↑ +5% este mes</div></div>
+      <div class="stat"><div class="label">Activos</div><div class="value">97</div><div class="change">↑ +2 hoy</div></div>
+    </div>
+    <div class="table-card">
+      <h2>Actividad reciente</h2>
+      <table>
+        <tr><th>Usuario</th><th>Acción</th><th>Estado</th><th>Fecha</th></tr>
+        <tr><td>Carlos M.</td><td>Nuevo pedido</td><td><span class="badge">Activo</span></td><td>Hoy</td></tr>
+        <tr><td>Ana P.</td><td>Registro</td><td><span class="badge">Nuevo</span></td><td>Hoy</td></tr>
+        <tr><td>Luis R.</td><td>Pago completado</td><td><span class="badge">Listo</span></td><td>Ayer</td></tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+    
+    
+    else if (type === 'tienda') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Tienda</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f9; }
+    header { background: #fff; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+    .logo { font-weight: 900; font-size: 20px; color: ${color}; }
+    .cart { background: ${color}; color: #fff; padding: 8px 16px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .hero { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, ${color}11, #fff); }
+    .hero h1 { font-size: 36px; font-weight: 900; margin-bottom: 12px; }
+    .hero p { color: #888; font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 40px; max-width: 1000px; margin: 0 auto; }
+    .product { background: #fff; border-radius: 20px; padding: 0 0 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06); transition: transform 0.2s; }
+    .product:hover { transform: translateY(-4px); }
+    .product-img { height: 180px; background: linear-gradient(135deg, ${color}44, ${color}22); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .product-info { padding: 16px; }
+    .product-info h3 { font-size: 16px; margin-bottom: 6px; }
+    .product-info p { color: #999; font-size: 13px; margin-bottom: 12px; }
+    .price { font-size: 20px; font-weight: 900; color: ${color}; }
+    .btn-buy { display: block; margin: 0 16px 16px; padding: 12px; background: ${color}; color: #fff; text-align: center; border-radius: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }
+    footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header><div class="logo">${name}</div><div class="cart">🛒 0</div></header>
+  <section class="hero">
+    <h1>${name}</h1>
+    <p>${desc || 'Descubre los mejores productos para ti.'}</p>
+  </section>
+  <section class="grid">
+    <div class="product"><div class="product-img">📱</div><div class="product-info"><h3>Producto 1</h3><p>Descripción breve</p><span class="price">$29.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">🎧</div><div class="product-info"><h3>Producto 2</h3><p>Descripción breve</p><span class="price">$49.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">⌚</div><div class="product-info"><h3>Producto 3</h3><p>Descripción breve</p><span class="price">$99.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+    <div class="product"><div class="product-img">💻</div><div class="product-info"><h3>Producto 4</h3><p>Descripción breve</p><span class="price">$199.99</span></div><a href="#" class="btn-buy">Comprar</a></div>
+  </section>
+  <footer>© 2025 ${name}. Todos los derechos reservados.</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'blog') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Blog</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', serif; background: #fafafa; color: #333; }
+    header { padding: 20px 40px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 900; font-size: 22px; color: ${color}; }
+    nav a { margin-left: 20px; text-decoration: none; color: #888; font-size: 14px; }
+    .hero { text-align: center; padding: 80px 20px 40px; }
+    .hero h1 { font-size: 40px; font-weight: 900; }
+    .hero p { color: #999; margin-top: 12px; }
+    .posts { max-width: 700px; margin: 0 auto; padding: 0 20px 60px; }
+    .post { background: #fff; border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .post .date { font-size: 12px; color: #999; margin-bottom: 8px; }
+    .post h2 { font-size: 22px; margin-bottom: 10px; }
+    .post h2 a { color: #111; text-decoration: none; }
+    .post p { color: #777; line-height: 1.7; font-size: 15px; }
+    .tag { display: inline-block; background: ${color}22; color: ${color}; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+    footer { text-align: center; padding: 30px; background: #111; color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header><div class="logo">${name}</div><nav><a href="#">Inicio</a><a href="#">Blog</a><a href="#">Contacto</a></nav></header>
+  <section class="hero"><h1>${name}</h1><p>${desc || 'Historias, ideas y conocimientos compartidos.'}</p></section>
+  <section class="posts">
+    <div class="post"><div class="date">Abril 2025</div><h2><a href="#">Primer artículo del blog</a></h2><p>Un breve resumen del contenido del artículo. Lorem ipsum dolor sit amet consectetur.</p><span class="tag">Tecnología</span></div>
+    <div class="post"><div class="date">Marzo 2025</div><h2><a href="#">Otra entrada interesante</a></h2><p>Compartiendo conocimiento sobre temas relevantes para la comunidad.</p><span class="tag">Diseño</span></div>
+    <div class="post"><div class="date">Febrero 2025</div><h2><a href="#">Tutorial paso a paso</a></h2><p>Aprende a hacer esto en 5 minutos con nuestra guía completa.</p><span class="tag">Tutorial</span></div>
+  </section>
+  <footer>© 2025 ${name}. Hecho con ❤️</footer>
+</body>
+</html>`;
+    }
+
+    else if (type === 'comingsoon') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - Coming Soon</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: ${color}; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .content { padding: 40px; }
+    .badge { display: inline-block; padding: 8px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 50px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+    h1 { font-size: 56px; font-weight: 900; margin-bottom: 16px; }
+    p { font-size: 18px; opacity: 0.7; margin-bottom: 40px; }
+    .countdown { display: flex; justify-content: center; gap: 20px; }
+    .box { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 80px; }
+    .box .num { font-size: 32px; font-weight: 900; }
+    .box .label { font-size: 10px; opacity: 0.6; margin-top: 4px; text-transform: uppercase; }
+    .subscribe { margin-top: 40px; display: flex; gap: 10px; justify-content: center; }
+    .subscribe input { padding: 14px 18px; border-radius: 12px; border: none; outline: none; font-size: 14px; width: 260px; }
+    .subscribe button { padding: 14px 24px; background: #fff; color: ${color}; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="badge">🚀 Coming Soon</div>
+    <h1>${name}</h1>
+    <p>${desc || 'Estamos construyendo algo increíble. Vuelve pronto.'}</p>
+    <div class="countdown">
+      <div class="box"><div class="num" id="dias">00</div><div class="label">Días</div></div>
+      <div class="box"><div class="num" id="horas">00</div><div class="label">Horas</div></div>
+      <div class="box"><div class="num" id="minutos">00</div><div class="label">Min</div></div>
+      <div class="box"><div class="num" id="segundos">00</div><div class="label">Seg</div></div>
+    </div>
+    <div class="subscribe"><input type="email" placeholder="Tu correo"><button>Notificarme</button></div>
+  </div>
+  <script>
+    var target = new Date();
+    target.setDate(target.getDate() + 30);
+    setInterval(function(){
+      var now = new Date().getTime();
+      var d = Math.max(0, target - now);
+      document.getElementById('dias').textContent = String(Math.floor(d/(1000*60*60*24))).padStart(2,'0');
+      document.getElementById('horas').textContent = String(Math.floor((d%(1000*60*60*24))/(1000*60*60))).padStart(2,'0');
+      document.getElementById('minutos').textContent = String(Math.floor((d%(1000*60*60))/(1000*60))).padStart(2,'0');
+      document.getElementById('segundos').textContent = String(Math.floor((d%(1000*60))/1000)).padStart(2,'0');
+    },1000);
+  <\/script>
+</body>
+</html>`;
+    }
+
+    else if (type === 'todo') {
+        html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} - To-Do</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, ${color}22 0%, #fff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 28px; padding: 36px 28px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+    h1 { font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+    h1 span { color: ${color}; }
+    .date { font-size: 13px; color: #999; margin-bottom: 24px; }
+    .input-row { display: flex; gap: 8px; margin-bottom: 24px; }
+    .input-row input { flex-grow: 1; padding: 14px 16px; border: 2px solid #eee; border-radius: 14px; font-size: 14px; outline: none; }
+    .input-row input:focus { border-color: ${color}; }
+    .input-row button { padding: 14px 20px; background: ${color}; color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 20px; }
+    .task { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+    .task input[type=checkbox] { width: 22px; height: 22px; accent-color: ${color}; }
+    .task span { flex-grow: 1; font-size: 15px; }
+    .task span.done { text-decoration: line-through; color: #bbb; }
+    .delete-btn { background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 18px; }
+    .footer { text-align: center; margin-top: 16px; font-size: 12px; color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1><span>${name}</span></h1>
+    <div class="date" id="today"></div>
+    <div class="input-row">
+      <input type="text" id="taskInput" placeholder="Agregar tarea..." onkeydown="if(event.key==='Enter')addTask()">
+      <button onclick="addTask()">+</button>
+    </div>
+    <div id="taskList"></div>
+    <div class="footer">${desc || 'Organiza tu día'}</div>
+  </div>
+  <script>
+    var tasks = JSON.parse(localStorage.getItem('todo_${name.replace(/\s/g,'')}')||'[]');
+    var d = new Date();
+    document.getElementById('today').textContent = d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+    function render(){var h='';tasks.forEach(function(t,i){h+='<div class="task"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggle('+i+')"><span class="'+(t.done?'done':'')+'">'+t.text+'</span><button class="delete-btn" onclick="del('+i+')">✕</button></div>';});document.getElementById('taskList').innerHTML=h||'<div style="text-align:center;color:#ccc;padding:30px;">Sin tareas ✨</div>';}
+    function addTask(){var v=document.getElementById('taskInput').value.trim();if(!v)return;tasks.push({text:v,done:false});save();render();document.getElementById('taskInput').value='';}
+    function toggle(i){tasks[i].done=!tasks[i].done;save();render();}
+    function del(i){tasks.splice(i,1);save();render();}
+    function save(){localStorage.setItem('todo_${name.replace(/\s/g,'')}',JSON.stringify(tasks));}
+    render();
+  <\/script>
+</body>
+</html>`;
+    }
+
+
+        creationData = {};
+    lastGeneratedHTML = html;
+    creationState = 'ask_extras';
+    return '¡Listo! Aquí está tu ' + pageTypes[type] + ' 🎉\n\n```html\n' + html + '\n```\n\n➕ ¿Quieres agregar algo más?\n\nEscribe: precios, galería, testimonios, equipo, faq, redes\nO escribe **listo** para terminar.';
+}
+
+function shadeColor(color, percent) {
+    var num = parseInt(color.replace('#',''), 16);
+    var amt = Math.round(2.55 * percent);
+    var R = Math.min(255, Math.max(0, (num >> 16) + amt));
+    var G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+    var B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+    return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1);
+}
+
+async function searchDuckDuckGo(query) {
+    try {
+        var cleanQuery = query
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        if (cleanQuery.length < 3) return null;
+        var resp = await fetch('/api/search?q=' + encodeURIComponent(cleanQuery));
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 10) {
+            return '🔍 ' + data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askQwen(message) {
+    try {
+        var resp = await fetch('/api/qwen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askGemini(message) {
+    try {
+        var resp = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askMistral(message) {
+    try {
+        var resp = await fetch('/api/mistral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askCloudflareAI(message) {
+    try {
+        var resp = await fetch('/api/cloudflare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+async function askDeepSeek(message) {
+    try {
+        var resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+async function askBuscador(message) {
+    try {
+        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) return data.answer;
+    } catch(e) {}
+    return null;
+}
+
+
+async function askDuck(message) {
+    try {
+        var cleanQuery = message
+            .replace(/busca en internet /gi, '')
+            .replace(/busca /gi, '')
+            .replace(/que es /gi, '')
+            .replace(/quien es /gi, '')
+            .replace(/que son /gi, '')
+            .replace(/\?/g, '')
+            .trim();
+        
+        if (cleanQuery.length < 2) return 'Escribe una pregunta más específica. 🦆';
+        
+        // Intentar API JSON de DuckDuckGo
+        var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&format=json&no_html=1&skip_disambig=1';
+        
+        var resp = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        
+        var data = await resp.json();
+        var answer = '';
+        
+        // Buscar en todos los campos posibles
+        if (data.Abstract && data.Abstract.length > 10) {
+            answer = '📚 ' + data.Abstract;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.AbstractText && data.AbstractText.length > 10) {
+            answer = '📚 ' + data.AbstractText;
+            if (data.AbstractURL) answer += '\n\n🔗 ' + data.AbstractURL;
+        } else if (data.Answer && data.Answer.length > 2) {
+            answer = '💡 ' + data.Answer;
+        } else if (data.Definition && data.Definition.length > 2) {
+            answer = '📝 ' + data.Definition;
+            if (data.DefinitionSource) answer += '\n\n🔗 ' + data.DefinitionSource;
+        } else if (data.Heading && data.Heading.length > 2) {
+            answer = '📌 ' + data.Heading;
+        } else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+            answer = '🔍 Resultados:\n';
+            var count = 0;
+            for (var i = 0; i < data.RelatedTopics.length && count < 5; i++) {
+                var t = data.RelatedTopics[i];
+                if (t.Text && t.Text.length > 5) {
+                    count++;
+                    answer += '\n• ' + t.Text.split(' - ')[0].trim();
+                    if (t.FirstURL) answer += '\n  🔗 ' + t.FirstURL;
+                }
+            }
+        } else {
+            // Si no hay nada, sugerir búsqueda en Google
+            answer = 'No encontré resultados para "' + cleanQuery + '".\n\n🔍 Puedes buscar en Google: https://www.google.com/search?q=' + encodeURIComponent(cleanQuery);
+        }
+        
+        return answer || 'No encontré resultados. Intenta con otras palabras. 🦆';
+        
+    } catch(e) {
+        console.log('Error DuckDuckGo:', e.message);
+        
+        // Si falla la API, dar opción de buscar en Google
+        var fallbackQuery = message.replace(/\?/g, '').trim();
+return 'No pude conectar con DuckDuckGo. 🦆\n\n🔍 Busca en Google: https://www.google.com/search?q=' + encodeURIComponent(fallbackQuery);
+    }
+}
+
+async function askGroq(message) {
+    try {
+        var resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        var data = await resp.json();
+        if (data.answer && data.answer.length > 5) {
+            return data.answer;
+        }
+    } catch(e) {}
+    return null;
+}
+
+
+// ============ INIT ============
+console.log('🧠 Eva: Sistema de memoria y razonamiento activado');
+console.log('📝 Memoria a largo plazo cargada:', longTermMemory);
+
+// Esperar a que cargue el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    currentChatId = Date.now().toString();
+    loadFromAdmin();
+    loadLongTermMemory();
+    loadChatHistory();
+    buildModelDropdown();
+    renderChatsList();
+
+    // Mensaje de bienvenida personalizado si ya conoce al usuario
+    if (longTermMemory.userName) {
+        var welcome = document.getElementById('welcomeGreeting');
+        if (welcome && document.getElementById('welcomeScreen').classList.contains('hidden') === false) {
+            welcome.innerHTML = '¡Hola de nuevo, ' + longTermMemory.userName + '!<br>¿En qué puedo ayudarte hoy?';
+        }
+    }
+});
+
+
+</script>
+
+</body>
+</html>

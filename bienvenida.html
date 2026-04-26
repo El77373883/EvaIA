@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eva IA - Tu Asistente Inteligente</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1a1a25;
+            --border: #252535;
+            --accent: #D48A72;
+            --accent2: #e8a87c;
+            --text: #fff;
+            --text2: #888;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============ HEADER CON HAMBURGUESA ============ */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 101;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .header-logo .mini-sphere {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            box-shadow: 0 4px 12px rgba(212,138,114,0.4);
+        }
+
+        .hamburger-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 102;
+        }
+
+        .hamburger-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hamburger-line {
+            width: 20px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active .hamburger-line:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* ============ OVERLAY ============ */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 150;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            height: 100dvh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: 8px 0 40px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-logo .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .sidebar-logo-text {
+            font-weight: 800;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .sidebar-close {
+            width: 32px;
+            height: 32px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(239,68,68,0.2);
+            color: #EF4444;
+            border-color: rgba(239,68,68,0.3);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 16px 12px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: rgba(212,138,114,0.15);
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-footer .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--surface2);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .user-plan {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ============ FONDO ANIMADO ============ */
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: floatCircle 20s infinite ease-in-out;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 400px; height: 400px;
+            background: var(--accent);
+            top: -100px; left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 300px; height: 300px;
+            background: #7C3AED;
+            bottom: -50px; right: -50px;
+            animation-delay: -7s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 250px; height: 250px;
+            background: #2563EB;
+            top: 50%; left: 50%;
+            animation-delay: -14s;
+        }
+
+        @keyframes floatCircle {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -50px) scale(1.1); }
+            50% { transform: translate(-50px, 100px) scale(0.9); }
+            75% { transform: translate(-100px, -100px) scale(1.05); }
+        }
+
+        /* Partículas */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: particleFloat 6s infinite ease-in-out;
+            opacity: 0;
+        }
+
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-100vh) scale(1); }
+        }
+
+        /* Contenido principal */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px 40px;
+            text-align: center;
+        }
+
+        /* Esfera de Eva */
+        .eva-sphere-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .eva-sphere {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent));
+            position: relative;
+            animation: float3D 3s ease-in-out infinite;
+            box-shadow: 
+                0 20px 60px rgba(212, 138, 114, 0.5),
+                0 0 0 8px rgba(212, 138, 114, 0.15),
+                inset 0 -10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .eva-sphere::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 25px 8px 0 -3px rgba(255, 255, 255, 0.5);
+        }
+
+        .eva-sphere::before {
+            content: '';
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            animation: mouthTalk 1s ease-in-out infinite;
+        }
+
+        @keyframes float3D {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            25% { transform: translateY(-10px) rotateY(10deg); }
+            50% { transform: translateY(-5px) rotateY(-5deg); }
+            75% { transform: translateY(-15px) rotateY(-10deg); }
+        }
+
+        @keyframes mouthTalk {
+            0%, 100% { transform: translateX(-50%) scaleX(1); }
+            50% { transform: translateX(-50%) scaleX(0.4); }
+        }
+
+        /* Órbitas */
+        .orbit-ring {
+            position: absolute;
+            border: 1px solid rgba(212, 138, 114, 0.2);
+            border-radius: 50%;
+            animation: orbitSpin 8s linear infinite;
+        }
+
+        .orbit-ring:nth-child(2) {
+            width: 180px; height: 180px;
+            top: -30px; left: -30px;
+            animation-duration: 12s;
+        }
+
+        .orbit-ring:nth-child(3) {
+            width: 220px; height: 220px;
+            top: -50px; left: -50px;
+            animation-duration: 16s;
+            animation-direction: reverse;
+        }
+
+        @keyframes orbitSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Textos */
+        .title {
+            font-size: clamp(28px, 8vw, 48px);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: clamp(16px, 4vw, 20px);
+            color: var(--text2);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(212, 138, 114, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(212, 138, 114, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Características */
+        .features {
+            display: flex;
+            gap: 24px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            width: 200px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            background: rgba(212, 138, 114, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer-text {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .feature-card {
+                width: 150px;
+                padding: 16px;
+            }
+            
+            .eva-sphere {
+                width: 100px;
+                height: 100px;
+            }
+
+            .orbit-ring:nth-child(2) {
+                width: 140px; height: 140px;
+                top: -20px; left: -20px;
+            }
+
+            .orbit-ring:nth-child(3) {
+                width: 180px; height: 180px;
+                top: -40px; left: -40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ HEADER CON HAMBURGUESA ============ -->
+<header class="header">
+    <div class="header-logo">
+        <div class="mini-sphere"></div>
+        <span>Eva IA</span>
+    </div>
+    
+    <!-- Botón hamburguesa con íconos SVG profesionales -->
+    <div class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </div>
+</header>
+
+<!-- ============ OVERLAY ============ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+    
+    <!-- Header del sidebar -->
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <div class="logo-icon">E</div>
+            <span class="sidebar-logo-text">Eva IA</span>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav">
+        
+        <span class="sidebar-section-title">Principal</span>
+        
+        <a href="index.html" class="nav-item active">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </span>
+            Chatear con Eva
+            <span class="nav-badge">Nuevo</span>
+        </a>
+        
+        <a href="login.html" class="nav-item">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+            </span>
+            Iniciar Sesión
+        </a>
+        
+        <span class="sidebar-section-title">Explorar</span>
+        
+        <a href="#features" class="nav-item" onclick="closeSidebar()">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </span>
+            Características
+        </a>
+        
+        <a href="#features" class="nav-item" onclick="closeSidebar()">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </span>
+            Acerca de
+        </a>
+        
+        <span class="sidebar-section-title">Más</span>
+        
+        <a href="#" class="nav-item" onclick="closeSidebar()">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </span>
+            Contacto
+        </a>
+        
+        <a href="#" class="nav-item" onclick="closeSidebar()">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </span>
+            Configuración
+        </a>
+        
+    </nav>
+
+    <!-- Footer del sidebar -->
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar">E</div>
+            <div class="user-info">
+                <div class="user-name">Eva IA</div>
+                <div class="user-plan">Plan Gratuito</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: var(--accent);">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+        </div>
+    </div>
+
+</aside>
+
+<!-- Fondo animado -->
+<div class="bg-animation">
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+</div>
+
+<!-- Partículas -->
+<div class="particles" id="particles"></div>
+
+<!-- Contenido principal -->
+<div class="main-content">
+    
+    <!-- Esfera de Eva con órbitas -->
+    <div class="eva-sphere-container">
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring"></div>
+        <div class="eva-sphere"></div>
+    </div>
+
+    <!-- Título -->
+    <h1 class="title">Hola, soy Eva</h1>
+    
+    <!-- Descripción -->
+    <p class="subtitle">
+        Tu asistente personal con inteligencia artificial. 
+        Aprendo, razono y me adapto a ti para ayudarte 
+        con lo que necesites.
+    </p>
+
+    <!-- Botones -->
+    <div class="btn-group">
+        <a href="login.html" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Comenzar ahora
+        </a>
+        <a href="#features" class="btn btn-secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Conocer más
+        </a>
+    </div>
+
+    <!-- Características -->
+    <div class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <div class="feature-title">Inteligente</div>
+            <div class="feature-desc">Aprendo de cada conversación para ayudarte mejor</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Rápida</div>
+            <div class="feature-desc">Respuestas instantáneas sin esperas</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Segura</div>
+            <div class="feature-desc">Tus conversaciones están protegidas</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer-text">
+    💙 Hecho con amor • Eva IA v1.0 • 2025
+</div>
+
+<script>
+// ============ SIDEBAR TOGGLE ============
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+    document.getElementById('hamburgerBtn').classList.toggle('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+    document.getElementById('hamburgerBtn').classList.remove('active');
+}
+
+// Cerrar con tecla Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidebar();
+});
+
+// ============ PARTÍCULAS ============
+const particlesContainer = document.getElementById('particles');
+
+for (let i = 0; i < 50; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 6 + 's';
+    particle.style.animationDuration = (4 + Math.random() * 8) + 's';
+    particle.style.width = (1 + Math.random() * 3) + 'px';
+    particle.style.height = particle.style.width;
+    particlesContainer.appendChild(particle);
+}
+
+// ============ SCROLL SUAVE ============
+document.querySelectorAll('a[href="#features"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector('#features');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+});
+
+// ============ PARALLAX ============
+window.addEventListener('mousemove', (e) => {
+    const circles = document.querySelectorAll('.bg-circle');
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+    
+    circles.forEach((circle, index) => {
+        const speed = (index + 1) * 20;
+        circle.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+    });
+});
+</script>
+
+</body>
+</html>

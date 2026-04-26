@@ -202,8 +202,16 @@
             </div>
         </div>
     </div>
-    <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
-    <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
+<h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
+<p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
+<div id="quickSuggestions" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:24px;padding:0 20px;">
+    <button onclick="quickSend('💰 Dinero')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">💰 Dinero</button>
+    <button onclick="quickSend('📚 Tareas')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">📚 Tareas</button>
+    <button onclick="quickSend('💻 Código')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">💻 Código</button>
+    <button onclick="quickSend('❤️ Consejos')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">❤️ Consejos</button>
+    <button onclick="quickSend('😂 Chiste')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">😂 Chiste</button>
+    <button onclick="quickSend('🎨 Imagen')" style="padding:10px 18px;background:#fff;border:1.5px solid #eaeaea;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s;">🎨 Imagen</button>
+</div>
 </main>
 
 <div class="input-container">
@@ -2556,6 +2564,12 @@ if (baseResponse.includes('```') && !input.toLowerCase().includes('archivo:')) {
 
     return baseResponse + contextualAddon;
 }
+
+function quickSend(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
 
 // ============ REEMPLAZAR sendMessage() ============
     async function sendMessage() {

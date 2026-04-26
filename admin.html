@@ -807,8 +807,22 @@
             </div>
         </div>
 
-        <!-- LISTA DE FLUJOS -->
-        <div id="flowsList" style="margin-top:20px;"></div>
+      <!-- BUSCADOR DE FLUJOS -->
+<div class="search-container" style="margin-top:20px;">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="flowSearchInput" placeholder="Buscar en flujos por keyword, respuesta, modelo..." oninput="searchFlows()">
+    <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="flowSearchInfo"></div>
+</div>
+<div id="flowsList" style="margin-top:12px;"></div>
+<div id="flowBulkActions" style="display:none;margin-top:16px;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--yellow);">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <span style="font-size:13px;font-weight:600;color:var(--yellow);"><span id="flowSelectedCount">0</span> flujos encontrados</span>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-red btn-sm" onclick="deleteFoundFlows()">🗑 Borrar Estos</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearFlowSearch()">✕ Limpiar</button>
+        </div>
+    </div>
+</div>
     </div>
 </section>
 
@@ -1715,6 +1729,56 @@ function importFlows(){document.getElementById('importFlowsFile').click()}
 function handleFlowsImport(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(Array.isArray(d)&&confirm('¿Reemplazar todos los flujos con '+d.length+' importados?')){saveFlows(d);updateFlowCount();updateStats();showToast('📥 '+d.length+' flujos importados','success')}}catch(ex){showToast('❌ JSON inválido','error')}};r.readAsText(f);e.target.value=''}
 function deleteAllFlows(){var f=getFlows();if(!f.length){showToast('⚠️ No hay flujos','error');return}if(confirm('¿Borrar TODOS los '+f.length+' flujos?')){localStorage.removeItem('eva_flows');renderFlowsList();updateFlowCount();updateStats();showToast('🗑 Flujos eliminados','error')}}
 function updateFlowCount(){var f=getFlows();var c=document.getElementById('flowCount');if(c)c.textContent=f.length}
+
+function searchFlows(){
+var t=document.getElementById('flowSearchInput').value.trim().toLowerCase();
+var flows=getFlows();
+if(!t){renderFlowsList();document.getElementById('flowSearchInfo').textContent='';document.getElementById('flowBulkActions').style.display='none';return}
+var r=flows.filter(function(f){
+if(f.keyword.toLowerCase().includes(t))return true;
+if((f.model||'').toLowerCase().includes(t))return true;
+var mt=f.mode==='random'?'azar':f.mode==='keyword'?'keyword':'orden';
+if(mt.includes(t))return true;
+return f.steps.some(function(s){
+if((s.keyword||'').toLowerCase().includes(t))return true;
+return s.responses.some(function(rp){return rp.toLowerCase().includes(t)})
+})
+});
+window._foundFlows=r;
+document.getElementById('flowSearchInfo').textContent='🔍 '+r.length+' de '+flows.length+' flujos';
+if(r.length>0){document.getElementById('flowBulkActions').style.display='block';document.getElementById('flowSelectedCount').textContent=r.length}else{document.getElementById('flowBulkActions').style.display='none'}
+var list=document.getElementById('flowsList');
+if(r.length===0){list.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Sin resultados</p></div>';return}
+list.innerHTML=r.map(function(f,i){
+var tr=f.steps.reduce(function(a,s){return a+s.responses.length},0);
+return '<div class="entry-card" style="border-left:3px solid var(--yellow);"><div class="entry-header"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="tag tag-model">🔍 FLUJO</span><span class="tag tag-group">'+(f.model||'eva').toUpperCase()+'</span><span style="font-size:12px;font-weight:700;color:var(--accent2);">'+escHtml(f.keyword)+'</span><span style="font-size:10px;color:var(--text2);">'+f.steps.length+' pasos · '+tr+' resp</span></div><div class="entry-actions" style="opacity:1;"><button class="btn btn-red btn-xs" onclick="deleteFlowByKeyword(\''+f.keyword.replace(/'/g,"\\'")+'\')">🗑 Borrar</button></div></div></div>'
+}).join('')
+}
+function deleteFoundFlows(){
+var r=window._foundFlows||[];
+if(!r.length){showToast('⚠️ No hay flujos para borrar','error');return}
+if(!confirm('¿Borrar '+r.length+' flujos encontrados?'))return;
+var flows=getFlows();
+var keywords=r.map(function(f){return f.keyword});
+var filtrados=flows.filter(function(f){return keywords.indexOf(f.keyword)===-1});
+saveFlows(filtrados);updateFlowCount();updateStats();
+document.getElementById('flowSearchInput').value='';
+document.getElementById('flowBulkActions').style.display='none';
+renderFlowsList();
+showToast('🗑 '+r.length+' flujos borrados','error')
+}
+function clearFlowSearch(){
+document.getElementById('flowSearchInput').value='';
+document.getElementById('flowBulkActions').style.display='none';
+renderFlowsList()
+}
+function deleteFlowByKeyword(kw){
+if(!confirm('¿Borrar flujo "'+kw+'"?'))return;
+var flows=getFlows().filter(function(f){return f.keyword!==kw});
+saveFlows(flows);updateFlowCount();updateStats();
+searchFlows();
+showToast('🗑 Flujo eliminado','error');
+}
 
 </script>
 

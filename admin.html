@@ -621,6 +621,7 @@
             <div class="stat-card"><div class="stat-icon">🔑</div><div class="stat-value" id="dashKeywords">0</div><div class="stat-label">Keywords</div></div>
             <div class="stat-card"><div class="stat-icon">🎲</div><div class="stat-value" id="dashGroups">0</div><div class="stat-label">Grupos</div></div>
             <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-value" id="dashAvg">0</div><div class="stat-label">Resp x Grupo</div></div>
+            <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-value" id="dashFlows">0</div><div class="stat-label">Flujos</div></div>
         </div>
         <div class="card">
             <div class="card-header">
@@ -628,6 +629,7 @@
                 <button class="btn btn-ghost btn-sm" onclick="showSection('entries')">Ver todas →</button>
             </div>
             <div id="recentEntries"></div>
+            <div id="recentFlows"></div>
         </div>
     </section>
 
@@ -726,6 +728,7 @@
                 <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="searchInfo"></div>
             </div>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+                <input type="file" id="importFlowsFile" accept=".json" style="display:none" onchange="handleFlowsImport(event)">
             <div id="entriesList"></div>
         </div>
     </section>
@@ -748,10 +751,13 @@
     <div class="card">
         <div class="card-header">
             <div>
-                <span class="card-title">🔄 Flujos Inteligentes</span>
+      <span class="card-title">🔄 Flujos Inteligentes (<span id="flowCount">0</span>)</span>
                 <p class="card-subtitle">Define conversaciones paso a paso para Eva, Selene, Nyx y Aria</p>
             </div>
-            <button class="btn btn-accent btn-sm" onclick="showNewFlowForm()">+ Nuevo Flujo</button>
+<button class="btn btn-outline btn-sm" onclick="exportFlows()">📤 Exportar</button>
+<button class="btn btn-outline btn-sm" onclick="importFlows()">📥 Importar</button>
+<button class="btn btn-red btn-sm" onclick="deleteAllFlows()">🗑 Borrar Todo</button>
+<button class="btn btn-accent btn-sm" onclick="showNewFlowForm()">+ Nuevo Flujo</button>
         </div>
 
         <!-- FORMULARIO NUEVO FLUJO -->
@@ -1350,6 +1356,10 @@ function updateStats() {
     document.getElementById('dashGroups').textContent = g;
     document.getElementById('dashAvg').textContent = g > 0 ? Math.round(tr / g) : 0;
     document.getElementById('totalEntries').textContent = e.length;
+    
+    // ✅ Flujos en Dashboard
+    var flows = getFlows();
+    document.getElementById('dashFlows').textContent = flows.length;
 }
 
 function updateDashboard() {
@@ -1697,6 +1707,15 @@ updateStats();
 updateGroupCounter();
 updateDashboard();
 renderFlowsList();
+updateFlowCount();
+
+
+function exportFlows(){var f=getFlows();if(!f.length){showToast('⚠️ No hay flujos para exportar','error');return}var b=new Blob([JSON.stringify(f,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='eva_flows_'+new Date().toISOString().slice(0,10)+'.json';a.click();showToast('📤 '+f.length+' flujos exportados','success')}
+function importFlows(){document.getElementById('importFlowsFile').click()}
+function handleFlowsImport(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(Array.isArray(d)&&confirm('¿Reemplazar todos los flujos con '+d.length+' importados?')){saveFlows(d);updateFlowCount();updateStats();showToast('📥 '+d.length+' flujos importados','success')}}catch(ex){showToast('❌ JSON inválido','error')}};r.readAsText(f);e.target.value=''}
+function deleteAllFlows(){var f=getFlows();if(!f.length){showToast('⚠️ No hay flujos','error');return}if(confirm('¿Borrar TODOS los '+f.length+' flujos?')){localStorage.removeItem('eva_flows');renderFlowsList();updateFlowCount();updateStats();showToast('🗑 Flujos eliminados','error')}}
+function updateFlowCount(){var f=getFlows();var c=document.getElementById('flowCount');if(c)c.textContent=f.length}
+
 </script>
 
 </body>

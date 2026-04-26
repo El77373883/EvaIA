@@ -1396,6 +1396,20 @@ return '📄 ¡Archivo listo!\n\n```' + ext + '\n' + content + '\n```';
         return '🎨 ¡Aquí está tu imagen!\n\n![Imagen](' + imageUrl + ')\n\n*Prompt:* ' + prompt;
     }
     
+    
+    var enojado = ['que coraje','me enoja','estoy enojado','que asco','odio','me desespera','que idiota','estupido','inutil','no sirve','me tiene harto','ya me canse'];
+var estaEnojado = enojado.some(function(p) { return msg.includes(p); });
+if (estaEnojado) {
+    var respEnojo = [
+        'Oye tranquilo, aquí estoy para ayudarte 🤍',
+        'Entiendo tu frustración, cuéntame qué pasó 💙',
+        'Respira, vamos a resolverlo juntos 💪',
+        'Oye no te desesperes, dime qué necesitas 😊'
+    ];
+    return respEnojo[Math.floor(Math.random() * respEnojo.length)];
+}
+
+    
 // FLUJOS INTELIGENTES: tienen máxima prioridad
 // Buscar tanto en texto original como en texto corregido
 var flowResponse = checkFlows(input) || checkFlows(msg);
@@ -1554,6 +1568,14 @@ if (scoredFirst.length > 0) {
                 idx = Math.floor(Math.random() * catResp.length); 
             } while (idx === lastIdx && catResp.length > 1);
         }
+        
+        var entries = JSON.parse(localStorage.getItem('eva_entries') || '[]');
+if (entries[scoredFirst[0].knowledgeIndex]) {
+    entries[scoredFirst[0].knowledgeIndex].usageCount = (entries[scoredFirst[0].knowledgeIndex].usageCount || 0) + 1;
+    localStorage.setItem('eva_entries', JSON.stringify(entries));
+}
+
+        
         lastResponseIndex[bestCat] = idx;
         console.log('✅ Respuesta (modelo ' + currentModel + '):', catResp[idx].text.slice(0, 80));
         return catResp[idx].text;
@@ -2492,6 +2514,14 @@ function generateContextualResponse(input, baseResponse) {
     var msg = input.toLowerCase();
     var sentiment = analyzeSentiment(msg);
     var memoryResults = searchMemory(msg);
+    var userName = longTermMemory.userName ? longTermMemory.userName : '';
+if (userName && Math.random() > 0.6) {
+    baseResponse = baseResponse.replace('bro', userName).replace('hermano', userName);
+    if (!baseResponse.includes(userName)) {
+        baseResponse = userName + ', ' + baseResponse;
+    }
+}
+
     var contextualAddon = '';
     
 // Analizar código si existe

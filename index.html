@@ -3798,29 +3798,55 @@ function generatePageCode(data) {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     
-    .think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:998;animation:fadeIn 0.2s ease}
-.think-panel{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:420px;background:#fff;border-radius:20px;z-index:999;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:thinkIn 0.3s ease;overflow:hidden}
-@keyframes thinkIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.think-panel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #f0f0f0}
-.think-panel-title{font-weight:700;font-size:15px;color:#111;display:flex;align-items:center;gap:8px}
-.think-panel-close{width:32px;height:32px;border-radius:50%;border:none;background:#f5f5f5;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#999}
-.think-steps{padding:16px 20px}
-.think-step{display:flex;align-items:center;gap:12px;padding:10px 0;opacity:0;transform:translateX(-10px);animation:stepIn 0.3s ease forwards}
-@keyframes stepIn{to{opacity:1;transform:translateX(0)}}
-.think-step-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.think-step-icon.blue{background:#eff6ff;color:#3b82f6}
-.think-step-icon.green{background:#ecfdf5;color:#10b981}
-.think-step-icon.purple{background:#f5f3ff;color:#8b5cf6}
-.think-step-icon.orange{background:#fff7ed;color:#f97316}
-.think-step-text{flex:1;font-size:13px;color:#555;font-weight:500}
-.think-step.done .think-step-text{color:#10b981}
+.think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:998;animation:fadeIn 0.2s ease;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.think-panel{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:999;box-shadow:0 -12px 50px rgba(0,0,0,0.18);animation:thinkSlideUp 0.38s cubic-bezier(0.34,1.4,0.64,1);overflow:hidden}
+@keyframes thinkSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes thinkStepIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spinAnim{to{transform:rotate(360deg)}}
+.think-handle{width:36px;height:4px;background:#E5E7EB;border-radius:2px;margin:12px auto 0}
+.think-panel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 12px}
+.think-title-row{display:flex;align-items:center;gap:10px}
+.think-title-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(37,99,235,0.3)}
+.think-title-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.think-title-info{display:flex;flex-direction:column;gap:1px}
+.think-title-label{font-size:15px;font-weight:700;color:#111;line-height:1.2}
+.think-title-sub{font-size:11px;font-weight:400;color:#9CA3AF}
+.think-panel-close{width:32px;height:32px;border-radius:50%;border:none;background:#F4F4F5;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.think-panel-close:active{background:#E5E7EB;transform:scale(0.92)}
+.think-panel-close svg{width:13px;height:13px;stroke:#555;fill:none;stroke-width:2.5;stroke-linecap:round}
+.think-steps{padding:6px 20px 4px}
+.think-step{display:flex;align-items:center;gap:12px;padding:11px 0;opacity:0;animation:thinkStepIn 0.3s ease forwards;border-bottom:1px solid #F9FAFB}
+.think-step:last-child{border-bottom:none}
+.think-step-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.35s}
+.think-step-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.think-step-icon.blue{background:#EFF6FF;color:#2563EB}
+.think-step-icon.violet{background:#F5F3FF;color:#7C3AED}
+.think-step-icon.green{background:#ECFDF5;color:#059669}
+.think-step-icon.orange{background:#FFF7ED;color:#EA580C}
+.think-step-icon.rose{background:#FFF1F2;color:#E11D48}
+.think-step-icon.teal{background:#F0FDFA;color:#0D9488}
+.think-step-icon.amber{background:#FFFBEB;color:#D97706}
+.think-step-right{flex:1;min-width:0}
+.think-step-text{font-size:13px;color:#9CA3AF;font-weight:400;transition:all 0.3s}
 .think-step.current .think-step-text{color:#111;font-weight:600}
-.think-step-check{font-size:14px;opacity:0}
-.think-step.done .think-step-check{opacity:1}
-.think-bar{height:4px;background:#f0f0f0;margin:0 20px 16px;border-radius:2px;overflow:hidden}
-.think-bar-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width 0.5s ease}
-.think-panel-btn{display:block;width:calc(100% - 40px);margin:0 20px 16px;padding:12px;border-radius:12px;border:none;background:#f5f5f5;color:#666;font-weight:600;cursor:pointer;font-size:13px}
-    
+.think-step.done .think-step-text{color:#9CA3AF}
+.think-step-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:3px;opacity:0;transition:opacity 0.3s}
+.think-step.current .think-step-badge{opacity:1;background:#EFF6FF;color:#2563EB}
+.think-step.done .think-step-badge{opacity:1;background:#ECFDF5;color:#059669}
+.think-check{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.3s;transform:scale(0.5);opacity:0}
+.think-check svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.think-step.current .think-check{background:#EFF6FF;opacity:1;transform:scale(1)}
+.think-step.current .think-check svg{stroke:#2563EB;animation:spinAnim 1s linear infinite}
+.think-step.done .think-check{background:#059669;opacity:1;transform:scale(1)}
+.think-step.done .think-check svg{animation:none;stroke:#fff}
+.think-progress-wrap{padding:4px 20px 8px}
+.think-progress-meta{display:flex;justify-content:space-between;font-size:11px;color:#9CA3AF;font-weight:500;margin-bottom:6px}
+.think-bar{height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden}
+.think-bar-fill{height:100%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:2px;transition:width 0.5s ease}
+.think-panel-footer{padding:10px 20px 32px}
+.think-panel-btn{display:block;width:100%;padding:13px;border-radius:14px;border:none;background:#F4F4F5;color:#555;font-weight:600;cursor:pointer;font-size:13px;text-align:center;transition:all 0.2s;letter-spacing:0.01em}
+.think-panel-btn:active{background:#E5E7EB;transform:scale(0.98)}
+
     
   </style>
 </head>
@@ -4075,86 +4101,192 @@ document.addEventListener('DOMContentLoaded', function() {
 var thinkSteps = [];
 var thinkInterval = null;
 
+var THINK_ICONS = {
+  book: '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  cpu: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
+  search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+  code: '<svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+  pen: '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+  zap: '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  shield: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+  globe: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  download: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  layers: '<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+  brain: '<svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.44-4.14z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.44-4.14z"/></svg>',
+  image: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+  spin: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>'
+};
+
 function openThinkPanel(thinkingId) {
-    var existing = document.querySelector('.think-panel');
-    if (existing) { closeThinkPanel(); return; }
-    if (document.querySelector('.think-overlay')) { closeThinkPanel(); return; }
-    if (thinkInterval) clearInterval(thinkInterval);
-    
-    var overlay = document.createElement('div');
-    overlay.className = 'think-overlay';
-    overlay.id = 'thinkOverlay';
-    overlay.onclick = closeThinkPanel;
-    document.body.appendChild(overlay);
-    
-    var msg = (document.getElementById('chatInput')?.value || '').toLowerCase();
-    var steps = [];
-    
-    if (currentModel === 'wiki') {
-        steps = ['Buscando en Wikipedia', 'Extrayendo articulo', 'Resumiendo informacion', 'Resultado listo'];
-    } else if (currentModel === 'code') {
-        steps = ['Analizando codigo', 'Buscando errores', 'Optimizando', 'Codigo procesado'];
-    } else if (currentModel === 'qwen' || currentModel === 'deepseek') {
-        steps = ['Razonando', 'Analizando logica', 'Formulando respuesta', 'Respuesta lista'];
-    } else if (currentModel === 'gemini') {
-        steps = ['Consultando Gemini', 'Procesando', 'Generando respuesta', 'Listo'];
-    } else if (currentModel === 'duck' || currentModel === 'buscador') {
-        steps = ['Buscando en internet', 'Rastreando resultados', 'Organizando informacion', 'Resultados listos'];
-    } else if (msg.includes('archivo') || msg.includes('descargar')) {
-        steps = ['Creando estructura', 'Escribiendo contenido', 'Verificando formato', 'Preparando descarga', 'Archivo listo'];
-    } else if (msg.includes('codigo') || msg.includes('html') || msg.includes('programa') || msg.includes('calculadora') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera')) {
-        steps = ['Analizando requisitos', 'Disenando estructura', 'Escribiendo funciones', 'Aplicando estilos', 'Verificando logica', 'Codigo completado'];
-    } else if (msg.includes('imagen') || msg.includes('dibuja')) {
-        steps = ['Interpretando prompt', 'Definiendo estilo', 'Generando imagen', 'Imagen lista'];
-    } else {
-        steps = ['Leyendo tu mensaje', 'Interpretando contexto', 'Analizando intencion', 'Redactando respuesta', 'Listo'];
+  var existing = document.querySelector('.think-panel');
+  if (existing) { closeThinkPanel(); return; }
+  if (document.querySelector('.think-overlay')) { closeThinkPanel(); return; }
+  if (thinkInterval) clearInterval(thinkInterval);
+
+  var msg = (document.getElementById('chatInput')?.value || '').toLowerCase();
+  var steps = [];
+
+  if (currentModel === 'wiki') {
+    steps = [
+      {icon:'globe',color:'blue',text:'Buscando en Wikipedia',done:'Artículo encontrado'},
+      {icon:'download',color:'violet',text:'Extrayendo artículo',done:'Extraído'},
+      {icon:'layers',color:'teal',text:'Resumiendo información',done:'Resumido'},
+      {icon:'sparkle',color:'green',text:'Resultado listo',done:'Completado'}
+    ];
+  } else if (currentModel === 'code') {
+    steps = [
+      {icon:'book',color:'blue',text:'Analizando código',done:'Analizado'},
+      {icon:'search',color:'violet',text:'Buscando errores',done:'Sin errores'},
+      {icon:'zap',color:'orange',text:'Optimizando lógica',done:'Optimizado'},
+      {icon:'shield',color:'green',text:'Verificando seguridad',done:'Verificado'},
+      {icon:'sparkle',color:'teal',text:'Código procesado',done:'Listo'}
+    ];
+  } else if (currentModel === 'qwen' || currentModel === 'deepseek') {
+    steps = [
+      {icon:'brain',color:'violet',text:'Razonando',done:'Razonado'},
+      {icon:'cpu',color:'blue',text:'Analizando lógica',done:'Analizado'},
+      {icon:'layers',color:'teal',text:'Formulando respuesta',done:'Formulado'},
+      {icon:'sparkle',color:'green',text:'Respuesta lista',done:'Completado'}
+    ];
+  } else if (currentModel === 'gemini') {
+    steps = [
+      {icon:'sparkle',color:'blue',text:'Consultando Gemini',done:'Consultado'},
+      {icon:'cpu',color:'violet',text:'Procesando tokens',done:'Procesado'},
+      {icon:'pen',color:'teal',text:'Generando respuesta',done:'Generado'},
+      {icon:'check',color:'green',text:'Respuesta lista',done:'Listo'}
+    ];
+  } else if (currentModel === 'duck' || currentModel === 'buscador') {
+    steps = [
+      {icon:'globe',color:'blue',text:'Buscando en internet',done:'Buscado'},
+      {icon:'search',color:'violet',text:'Rastreando resultados',done:'Rastreado'},
+      {icon:'layers',color:'teal',text:'Organizando información',done:'Organizado'},
+      {icon:'sparkle',color:'green',text:'Resultados listos',done:'Listo'}
+    ];
+  } else if (msg.includes('imagen') || msg.includes('dibuja') || msg.includes('foto')) {
+    steps = [
+      {icon:'brain',color:'violet',text:'Interpretando prompt',done:'Interpretado'},
+      {icon:'sparkle',color:'rose',text:'Definiendo estilo visual',done:'Definido'},
+      {icon:'image',color:'orange',text:'Generando imagen',done:'Generada'},
+      {icon:'check',color:'green',text:'Imagen lista',done:'Completado'}
+    ];
+  } else if (msg.includes('codigo') || msg.includes('html') || msg.includes('calculadora') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera') || msg.includes('programa')) {
+    steps = [
+      {icon:'book',color:'blue',text:'Analizando requisitos',done:'Analizado'},
+      {icon:'layers',color:'violet',text:'Diseñando estructura',done:'Diseñado'},
+      {icon:'code',color:'orange',text:'Escribiendo funciones',done:'Escrito'},
+      {icon:'pen',color:'teal',text:'Aplicando estilos',done:'Aplicado'},
+      {icon:'shield',color:'amber',text:'Verificando lógica',done:'Verificado'},
+      {icon:'sparkle',color:'green',text:'Código completado',done:'Listo'}
+    ];
+  } else if (msg.includes('archivo') || msg.includes('descargar')) {
+    steps = [
+      {icon:'layers',color:'blue',text:'Creando estructura',done:'Creada'},
+      {icon:'pen',color:'violet',text:'Escribiendo contenido',done:'Escrito'},
+      {icon:'shield',color:'teal',text:'Verificando formato',done:'Verificado'},
+      {icon:'download',color:'orange',text:'Preparando descarga',done:'Preparado'},
+      {icon:'sparkle',color:'green',text:'Archivo listo',done:'Completado'}
+    ];
+  } else {
+    steps = [
+      {icon:'book',color:'blue',text:'Leyendo tu mensaje',done:'Leído'},
+      {icon:'brain',color:'violet',text:'Interpretando contexto',done:'Interpretado'},
+      {icon:'cpu',color:'teal',text:'Analizando intención',done:'Analizado'},
+      {icon:'pen',color:'orange',text:'Redactando respuesta',done:'Redactado'},
+      {icon:'sparkle',color:'green',text:'Respuesta lista',done:'Completado'}
+    ];
+  }
+
+  var overlay = document.createElement('div');
+  overlay.className = 'think-overlay';
+  overlay.id = 'thinkOverlay';
+  overlay.onclick = closeThinkPanel;
+  document.body.appendChild(overlay);
+
+  var panel = document.createElement('div');
+  panel.className = 'think-panel';
+  panel.id = 'thinkPanel';
+
+  var total = steps.length;
+  var modelLabel = currentModelName || 'Eva';
+
+  var html = '<div class="think-handle"></div>';
+  html += '<div class="think-panel-header">';
+  html += '<div class="think-title-row">';
+  html += '<div class="think-title-icon">' + THINK_ICONS.cpu + '</div>';
+  html += '<div class="think-title-info"><span class="think-title-label">Procesando</span><span class="think-title-sub">' + modelLabel + ' · ' + total + ' pasos</span></div>';
+  html += '</div>';
+  html += '<button class="think-panel-close" onclick="closeThinkPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  html += '</div>';
+  html += '<div class="think-steps">';
+
+  steps.forEach(function(s, i) {
+    html += '<div class="think-step" id="ts' + i + '" style="animation-delay:' + (i * 0.06) + 's">';
+    html += '<div class="think-step-icon ' + s.color + '">' + (THINK_ICONS[s.icon] || THINK_ICONS.sparkle) + '</div>';
+    html += '<div class="think-step-right">';
+    html += '<div class="think-step-text">' + s.text + '</div>';
+    html += '<span class="think-step-badge" id="badge' + i + '">En proceso</span>';
+    html += '</div>';
+    html += '<div class="think-check" id="chk' + i + '">' + THINK_ICONS.spin + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  html += '<div class="think-progress-wrap">';
+  html += '<div class="think-progress-meta"><span id="thinkProgressLabel">Iniciando...</span><span id="thinkProgressPct">0%</span></div>';
+  html += '<div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div>';
+  html += '</div>';
+  html += '<div class="think-panel-footer"><button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button></div>';
+
+  panel.innerHTML = html;
+  document.body.appendChild(panel);
+
+  var current = 0;
+  thinkInterval = setInterval(function() {
+    if (current > 0) {
+      var prev = document.getElementById('ts' + (current - 1));
+      var prevChk = document.getElementById('chk' + (current - 1));
+      var prevBadge = document.getElementById('badge' + (current - 1));
+      if (prev) {
+        prev.classList.remove('current');
+        prev.classList.add('done');
+      }
+      if (prevChk) {
+        prevChk.classList.remove('pending');
+        var doneIcon = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+        prevChk.innerHTML = doneIcon;
+        prevChk.classList.add('done');
+      }
+      if (prevBadge) prevBadge.textContent = steps[current - 1].done || 'Listo';
     }
-    
-    var panel = document.createElement('div');
-    panel.className = 'think-panel';
-    panel.id = 'thinkPanel';
-    
-    var html = '<div class="think-panel-header">';
-    html += '<div class="think-panel-title"><span class="think-panel-title-dot"></span>Procesando</div>';
-    html += '<button class="think-panel-close" onclick="closeThinkPanel()">x</button>';
-    html += '</div><div class="think-steps">';
-    
-    steps.forEach(function(s, i) {
-        html += '<div class="think-step" id="ts' + i + '">';
-        html += '<div class="think-step-icon"></div>';
-        html += '<span class="think-step-text">' + s + '</span>';
-        html += '<span class="think-step-check">Listo</span>';
-        html += '</div>';
-    });
-    
-    html += '</div><div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div>';
-    html += '<button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button>';
-    panel.innerHTML = html;
-    document.body.appendChild(panel);
-    
-    var total = steps.length;
-    var current = 0;
-    
-    thinkInterval = setInterval(function() {
-        if (current > 0) {
-            var prev = document.getElementById('ts' + (current-1));
-            if (prev) { prev.classList.add('done'); }
-        }
-        if (current < total) {
-            var curr = document.getElementById('ts' + current);
-            if (curr) { curr.classList.add('current'); }
-            var bar = document.getElementById('thinkBarFill');
-            if (bar) bar.style.width = Math.round((current/total)*100) + '%';
-            current++;
-        } else {
-            clearInterval(thinkInterval);
-            var bar = document.getElementById('thinkBarFill');
-            if (bar) bar.style.width = '100%';
-            var last = document.getElementById('ts' + (total-1));
-            if (last) { last.classList.add('done'); }
-        }
-    }, 800);
+    if (current < total) {
+      var curr = document.getElementById('ts' + current);
+      var currChk = document.getElementById('chk' + current);
+      var currBadge = document.getElementById('badge' + current);
+      if (curr) curr.classList.add('current');
+      if (currChk) currChk.classList.add('pending');
+      if (currBadge) currBadge.textContent = 'En proceso';
+      var pct = Math.round(((current + 1) / total) * 100);
+      var bar = document.getElementById('thinkBarFill');
+      var lbl = document.getElementById('thinkProgressLabel');
+      var pctEl = document.getElementById('thinkProgressPct');
+      if (bar) bar.style.width = pct + '%';
+      if (lbl) lbl.textContent = steps[current].text + '...';
+      if (pctEl) pctEl.textContent = pct + '%';
+      current++;
+    } else {
+      clearInterval(thinkInterval);
+      var bar = document.getElementById('thinkBarFill');
+      var lbl = document.getElementById('thinkProgressLabel');
+      var pctEl = document.getElementById('thinkProgressPct');
+      if (bar) bar.style.width = '100%';
+      if (lbl) lbl.textContent = '¡Completado!';
+      if (pctEl) pctEl.textContent = '100%';
+    }
+  }, 850);
 }
+
 
 
 </script>

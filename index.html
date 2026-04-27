@@ -2898,6 +2898,7 @@ function quickSend(text) {
 }
 
 
+// ============ REEMPLAZAR sendMessage() ============
 async function sendMessage() {
     if (isProcessing) return;
     
@@ -3047,8 +3048,9 @@ if (voiceEnabled) speakText(contextualResponse);
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();
                 isProcessing = false;
-    }, delay);
+        }, delay);
 }
+
 
 
 

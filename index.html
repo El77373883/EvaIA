@@ -212,19 +212,20 @@
 .think-footer-btn:active{background:#F2F2F7}
 
 
-/* ===== MODELO 3D (esfera flotante) ===== */
+/* ===== MODELO 3D (esfera flotante naranja - estilo Eva) ===== */
 .eva-thinking { width: 40px; height: 40px; position: relative; flex-shrink: 0; }
-.eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #7C3AED, #2563EB); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(37,99,235,0.4), 0 0 0 4px rgba(37,99,235,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
+.eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c, #D48A72); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(212,138,114,0.4), 0 0 0 4px rgba(212,138,114,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
 .eva-thinking .sphere::after { content: ''; position: absolute; top: 8px; left: 10px; width: 8px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 12px 4px 0 -2px rgba(255,255,255,0.6); }
 .eva-thinking .sphere::before { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; animation: mouthTalk 0.6s ease-in-out infinite; }
 @keyframes float3D { 0%,100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); } 25% { transform: translateY(-6px) rotateY(10deg) rotateX(5deg); } 50% { transform: translateY(-3px) rotateY(-5deg) rotateX(-3deg); } 75% { transform: translateY(-8px) rotateY(-10deg) rotateX(5deg); } }
 @keyframes mouthTalk { 0%,100% { transform: translateX(-50%) scaleX(1); } 50% { transform: translateX(-50%) scaleX(0.4); } }
 .eva-particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
-.eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #2563EB; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
+.eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #D48A72; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
 .particle:nth-child(1) { left: -8px; top: 50%; animation-delay: 0s; }
 .particle:nth-child(2) { right: -6px; top: 30%; animation-delay: 0.4s; }
 .particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
 @keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
+
 
     </style>
 </head>

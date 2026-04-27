@@ -1903,16 +1903,6 @@ containerDiv.style.cssText = 'background:#ffffff;border-radius:16px;margin:10px 
         }
     });
 
-    var li = 0;
-    function addLine() {
-        if (li < allLines.length) {
-            allLines[li].container.appendChild(allLines[li].el);
-            chatArea.scrollTop = chatArea.scrollHeight;
-            li++;
-            setTimeout(addLine, 40);
-        }
-    }
-    addLine();
 
     var copyBtn = document.createElement('div');
     copyBtn.className = 'copy-btn';
@@ -2416,13 +2406,6 @@ function addThinkingIndicator() {
 
 
 
-function closeThinkPanel() {
-    if (thinkInterval) clearInterval(thinkInterval);
-    var panel = document.getElementById('thinkPanel');
-    if (panel) panel.remove();
-    var overlay = document.getElementById('thinkOverlay');
-    if (overlay) overlay.remove();
-}
 
 
 

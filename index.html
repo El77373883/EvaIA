@@ -2409,121 +2409,72 @@ function addThinkingIndicator() {
     container.id = id;
     container.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:12px;animation:fadeIn 0.3s ease;';
     
-    // ===== MODELO 3D (se mantiene igual) =====
+    // ===== MODELO 3D (esfera naranja) =====
     var sphere = document.createElement('div');
     sphere.className = 'eva-thinking';
     sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
     
-    // ===== BURBUJA PROFESIONAL (sin emojis, con iconos SVG) =====
+    // ===== BURBUJA PROFESIONAL (estilo Claude) =====
     var bubble = document.createElement('div');
-bubble.onclick = function() {
-    var existing = document.querySelector('.think-panel');
-    if (existing) { existing.remove(); return; }
-    openThinkPanel();
-};
-bubble.style.cssText = 'background:#fff;border-radius:24px;padding:10px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #eef2f6;cursor:pointer;transition:all 0.15s;';
-bubble.onmouseenter = function(){ this.style.borderColor = '#e0e4e9'; };
-bubble.onmouseleave = function(){ this.style.borderColor = '#eef2f6'; };
-
-// Icono SVG lupa profesional
-var iconSpan = document.createElement('span');
-iconSpan.style.cssText = 'display:flex;align-items:center;';
-iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
-
-// Texto
-var textSpan = document.createElement('span');
-textSpan.id = 'thinkingText';
-textSpan.style.cssText = 'font-size:13px;font-weight:450;color:#6B7280;letter-spacing:-0.2px;';
-textSpan.textContent = 'Analizando mensaje';
-
-// Puntos animados
-var dotsSpan = document.createElement('span');
-dotsSpan.style.cssText = 'display:inline-flex;gap:3px;margin-left:3px;';
-for(var i=0;i<3;i++){
-    var dot = document.createElement('span');
-    dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#9CA3AF;animation:dotClaude 1.2s ease-in-out infinite;';
-    dot.style.animationDelay = (i*0.15)+'s';
-    dotsSpan.appendChild(dot);
-}
-
-textSpan.appendChild(dotsSpan);
-bubble.appendChild(iconSpan);
-bubble.appendChild(textSpan);
-
-// En lugar de container.innerHTML = '', conservas la esfera
-container.innerHTML = '';
-var sphere = document.createElement('div');
-sphere.className = 'eva-thinking';
-sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
-container.appendChild(sphere);
-container.appendChild(bubble);
+    bubble.style.cssText = 'background:#fff;border-radius:24px;padding:10px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #eef2f6;cursor:pointer;transition:all 0.15s;';
+    bubble.onmouseenter = function(){ this.style.borderColor = '#e0e4e9'; };
+    bubble.onmouseleave = function(){ this.style.borderColor = '#eef2f6'; };
+    bubble.onclick = function() {
+        var existing = document.querySelector('.think-panel');
+        if (existing) { existing.remove(); return; }
+        openThinkPanel();
     };
     
-    // Contenedor de icono SVG profesional
-    var iconContainer = document.createElement('div');
-    iconContainer.style.cssText = 'width:28px;height:28px;display:flex;align-items:center;justify-content:center;';
+    // Icono SVG lupa
+    var iconSpan = document.createElement('span');
+    iconSpan.style.cssText = 'display:flex;align-items:center;';
+    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
     
-    // Icono inicial (lupa)
-    iconContainer.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
-    
-    // Texto profesional
+    // Texto
     var textSpan = document.createElement('span');
-    textSpan.style.cssText = 'font-size:13px;font-weight:500;color:#6B7280;letter-spacing:-0.2px;';
+    textSpan.id = 'thinkingText';
+    textSpan.style.cssText = 'font-size:13px;font-weight:450;color:#6B7280;letter-spacing:-0.2px;';
     textSpan.textContent = 'Analizando mensaje';
     
     // Puntos animados
-    var dotsContainer = document.createElement('div');
-    dotsContainer.style.cssText = 'display:flex;gap:3px;margin-left:4px;';
+    var dotsSpan = document.createElement('span');
+    dotsSpan.style.cssText = 'display:inline-flex;gap:3px;margin-left:3px;';
     for(var i=0;i<3;i++){
-        var dot = document.createElement('div');
-        dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#9CA3AF;animation:dotPulsePro 1.2s ease-in-out infinite;';
+        var dot = document.createElement('span');
+        dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#9CA3AF;animation:dotClaude 1.2s ease-in-out infinite;';
         dot.style.animationDelay = (i*0.15)+'s';
-        dotsContainer.appendChild(dot);
+        dotsSpan.appendChild(dot);
     }
+    textSpan.appendChild(dotsSpan);
     
-    var textWrapper = document.createElement('div');
-    textWrapper.style.cssText = 'display:flex;align-items:center;';
-    textWrapper.appendChild(textSpan);
-    textWrapper.appendChild(dotsContainer);
-    
-    bubble.appendChild(iconContainer);
-    bubble.appendChild(textWrapper);
+    bubble.appendChild(iconSpan);
+    bubble.appendChild(textSpan);
     
     container.appendChild(sphere);
     container.appendChild(bubble);
     
-    // ===== SECUENCIA DE PASOS PROFESIONALES =====
-    var steps = [
-        { icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>', text: 'Analizando mensaje' },
-        { icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>', text: 'Procesando contexto' },
-        { icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>', text: 'Ajustando respuesta' },
-        { icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>', text: 'Listo' }
-    ];
-    
-    var stepIndex = 0;
-    var stepInterval = setInterval(function() {
-        stepIndex = (stepIndex + 1) % steps.length;
-        if(iconContainer) iconContainer.innerHTML = steps[stepIndex].icon;
+    // Cambiar texto periódicamente
+    var phrases = ['Analizando mensaje', 'Interpretando contexto', 'Procesando información', 'Generando respuesta'];
+    var idx = 0;
+    var textInterval = setInterval(function() {
+        idx = (idx + 1) % phrases.length;
         if(textSpan){
             textSpan.style.opacity = '0';
             setTimeout(function(){
                 if(textSpan){
-                    textSpan.textContent = steps[stepIndex].text;
+                    textSpan.innerHTML = phrases[idx];
+                    textSpan.appendChild(dotsSpan);
                     textSpan.style.opacity = '1';
                 }
             }, 150);
         }
-        // Icono final se vuelve verde
-        if(stepIndex === steps.length-1){
-            iconContainer.innerHTML = steps[stepIndex].icon;
-        }
-    }, 1800);
-    
-    container._stepInterval = stepInterval;
+    }, 2000);
+    container._textInterval = textInterval;
     
     chatArea.appendChild(container);
     chatArea.scrollTop = chatArea.scrollHeight;
     return id;
+}
 }
 
 
@@ -2540,7 +2491,7 @@ function closeThinkPanel() {
 function removeThinkingIndicator(id) {
     var el = document.getElementById(id);
     if (el) {
-        if (el._stepInterval) clearInterval(el._stepInterval);
+        if (el._textInterval) clearInterval(el._textInterval);
         el.remove();
     }
     try { if (navigator.vibrate) navigator.vibrate([40, 20, 40]); } catch(e) {}

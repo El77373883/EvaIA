@@ -2395,40 +2395,91 @@ function removeThinkingIndicator(id) {
 }
 
 
-function openThinkPanel(){
-if(document.querySelector('.think-panel')){closeThinkPanel();return}
-var o=document.createElement('div');o.className='think-overlay';o.id='thinkOverlay';o.onclick=closeThinkPanel;document.body.appendChild(o)
-var m=(document.getElementById('chatInput')?.value||'').toLowerCase()
-var s=[]
-// Detectar si es calculadora para pasos más profesionales
-var esCalculadora = m.includes('calculadora') || m.includes('hazme') || m.includes('crea') || m.includes('genera')
-if(m.includes('código')||m.includes('codigo')||m.includes('html')||m.includes('programa')||m.includes('calculadora')||m.includes('crea')||m.includes('hazme')||m.includes('genera')||m.includes('archivo')){
-s=[{icon:'🔍',text:'Analizando requisitos'},{icon:'📐',text:'Diseñando estructura'},{icon:'⚡',text:'Escribiendo funciones'},{icon:'🎨',text:'Aplicando estilos'},{icon:'🧪',text:'Verificando lógica'},{icon:'✅',text:'Código completado'}]
-}else if(m.includes('imagen')||m.includes('dibuja')){
-s=[{icon:'🔮',text:'Interpretando prompt'},{icon:'🎭',text:'Definiendo estilo'},{icon:'🎨',text:'Generando imagen'},{icon:'✅',text:'Imagen lista'}]
-}else{
-s=[{icon:'👁️',text:'Leyendo tu mensaje'},{icon:'🧠',text:'Interpretando contexto'},{icon:'💭',text:'Analizando intención'},{icon:'✍️',text:'Redactando respuesta'},{icon:'✨',text:'¡Listo!'}]
-}
-var p=document.createElement('div');p.className='think-panel';p.id='thinkPanel'
-var h='<div class="think-panel-header"><div class="think-panel-title" style="display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563EB;box-shadow:0 0 8px #2563EB;animation:pulseGlow 1s infinite;"></span>🧠 Eva procesando</div>
-s.forEach(function(s,i){h+='<div class="think-step" id="ts'+i+'"><span class="think-step-icon">'+s.icon+'</span><span class="think-step-text">'+s.text+'</span><span class="think-step-check">⏳</span></div>'})
-h+='</div><div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div><button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button>'
-p.innerHTML=h;document.body.appendChild(p)
-var t=s.length,c=0
-thinkInterval=setInterval(function(){
-if(c>0){var pr=document.getElementById('ts'+(c-1));if(pr){pr.classList.add('done');pr.querySelector('.think-step-check').textContent='✅'}}
-if(c<t){var cr=document.getElementById('ts'+c);if(cr){cr.classList.add('current')}var b=document.getElementById('thinkBarFill');if(b)b.style.width=Math.round((c/t)*100)+'%';c++}
-// Efecto GLOW en el texto del paso actual
-var stepText = cr.querySelector('.think-step-text');
-if(stepText) stepText.style.textShadow = '0 0 6px #2563EB';
-else{clearInterval(thinkInterval);var b=document.getElementById('thinkBarFill');if(b)b.style.width='100%';var ls=document.getElementById('ts'+(t-1));if(ls){
-    ls.classList.add('done');
-    ls.querySelector('.think-step-check').textContent='✅';
-    if(navigator.vibrate)navigator.vibrate([50,30,50]);
-    // Cambiar título a "Completado" con glow verde
+// Función para animar el título con GLOW
+function animateTitleGlow(){
     var title = document.querySelector('.think-panel-title');
-    if(title) title.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981;animation:none;margin-right:8px;"></span>✅ Completado';
+    if(title){
+        var dot = title.querySelector('.glow-dot');
+        if(!dot){
+            title.innerHTML = '<span class="glow-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563EB;box-shadow:0 0 12px #2563EB;animation:pulseGlow 1s infinite;margin-right:8px;"></span>🧠 Eva procesando';
+        } else {
+            // Si ya tiene el dot, solo aseguramos que tenga la clase
+            dot.style.animation = 'pulseGlow 1s infinite';
+        }
+    }
 }
+
+// Cierre del panel
+function closeThinkPanel(){
+    if(thinkInterval) clearInterval(thinkInterval);
+    var p = document.getElementById('thinkPanel');
+    if(p) p.remove();
+    var o = document.getElementById('thinkOverlay');
+    if(o) o.remove();
+}
+
+function openThinkPanel(){
+    if(document.querySelector('.think-panel')){closeThinkPanel();return}
+    var o=document.createElement('div');o.className='think-overlay';o.id='thinkOverlay';o.onclick=closeThinkPanel;document.body.appendChild(o)
+    var m=(document.getElementById('chatInput')?.value||'').toLowerCase()
+    var s=[]
+    // Detectar si es calculadora para pasos más profesionales
+    var esCalculadora = m.includes('calculadora') || m.includes('hazme') || m.includes('crea') || m.includes('genera')
+    if(m.includes('código')||m.includes('codigo')||m.includes('html')||m.includes('programa')||m.includes('calculadora')||m.includes('crea')||m.includes('hazme')||m.includes('genera')||m.includes('archivo')){
+        if(esCalculadora){
+            s=[{icon:'🔢',text:'Configurando calculadora...'},{icon:'📐',text:'Diseñando interfaz...'},{icon:'⚡',text:'Escribiendo funciones matemáticas...'},{icon:'🎨',text:'Aplicando estilo profesional...'},{icon:'✅',text:'¡Calculadora lista!'}]
+        }else{
+            s=[{icon:'🔍',text:'Analizando requisitos...'},{icon:'📐',text:'Diseñando estructura...'},{icon:'⚡',text:'Escribiendo funciones...'},{icon:'🎨',text:'Aplicando estilos...'},{icon:'🧪',text:'Verificando lógica...'},{icon:'✅',text:'¡Código completado!'}]
+        }
+    }else if(m.includes('imagen')||m.includes('dibuja')){
+        s=[{icon:'🔮',text:'Interpretando prompt...'},{icon:'🎭',text:'Definiendo estilo...'},{icon:'🎨',text:'Generando imagen...'},{icon:'✅',text:'¡Imagen lista!'}]
+    }else{
+        s=[{icon:'👁️',text:'Leyendo tu mensaje...'},{icon:'🧠',text:'Interpretando contexto...'},{icon:'💭',text:'Analizando intención...'},{icon:'✍️',text:'Redactando respuesta...'},{icon:'✨',text:'¡Listo!'}]
+    }
+    var p=document.createElement('div');p.className='think-panel';p.id='thinkPanel'
+    var h='<div class="think-panel-header"><div class="think-panel-title" style="display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563EB;box-shadow:0 0 8px #2563EB;animation:pulseGlow 1s infinite;"></span>🧠 Eva procesando</div><button class="think-panel-close" onclick="closeThinkPanel()">✕</button></div><div class="think-steps">'
+    s.forEach(function(step,i){
+        h+='<div class="think-step" id="ts'+i+'"><span class="think-step-icon">'+step.icon+'</span><span class="think-step-text">'+step.text+'</span><span class="think-step-check">⏳</span></div>'
+    })
+    h+='</div><div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div><button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button>'
+    p.innerHTML=h;document.body.appendChild(p)
+    
+    var t=s.length,c=0
+    thinkInterval=setInterval(function(){
+        if(c>0){
+            var pr=document.getElementById('ts'+(c-1));
+            if(pr){
+                pr.classList.add('done');
+                pr.querySelector('.think-step-check').textContent='✅';
+                if(navigator.vibrate) navigator.vibrate(20);
+            }
+        }
+        if(c<t){
+            var cr=document.getElementById('ts'+c);
+            if(cr){
+                cr.classList.add('current');
+                // Efecto GLOW en el texto del paso actual
+                var stepText = cr.querySelector('.think-step-text');
+                if(stepText) stepText.style.textShadow = '0 0 6px #2563EB';
+            }
+            var b=document.getElementById('thinkBarFill');
+            if(b) b.style.width=Math.round(((c+1)/t)*100)+'%';
+            c++;
+        }else{
+            clearInterval(thinkInterval);
+            var b=document.getElementById('thinkBarFill');
+            if(b) b.style.width='100%';
+            var ls=document.getElementById('ts'+(t-1));
+            if(ls){
+                ls.classList.add('done');
+                ls.querySelector('.think-step-check').textContent='✅';
+                if(navigator.vibrate) navigator.vibrate([50,30,50]);
+                // Cambiar título a "Completado" con glow verde
+                var title = document.querySelector('.think-panel-title');
+                if(title) title.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981;animation:none;margin-right:8px;"></span>✅ Completado';
+            }
+        }
+    },600);
 }
 
 
@@ -3332,7 +3383,9 @@ function generatePageCode(data) {
     footer span { color: ${color}; }
     
 
-    /* ===== EFECTOS GLOW PROFESIONALES ===== */
+
+
+/* ===== EFECTOS GLOW PROFESIONALES ===== */
 @keyframes pulseGlow {
     0%, 100% { opacity: 0.4; box-shadow: 0 0 0px #2563EB; transform: scale(1); }
     50% { opacity: 1; box-shadow: 0 0 16px #2563EB; transform: scale(1.2); }
@@ -3377,6 +3430,7 @@ function generatePageCode(data) {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
     
   </style>
 </head>

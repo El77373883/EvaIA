@@ -54,7 +54,29 @@
         .particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
         @keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
         .thinking-text { font-size: 12px; color: #999; font-style: italic; }
-.thinking-bubble { background: #F0F0F0; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.thinking-bubble { background: #F0F0F0; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; position: relative; }
+.thinking-bubble:active { transform: scale(0.97); }
+.thinking-bubble::after { content: '👆 Ver proceso'; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #999; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
+.thinking-bubble:hover::after { opacity: 1; }
+
+/* Ventana de pensamientos */
+.think-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a2e; color: #e0e0e0; border-radius: 20px 20px 0 0; padding: 20px; z-index: 60; box-shadow: 0 -8px 40px rgba(0,0,0,0.3); animation: slideUp 0.3s cubic-bezier(.32,1,.23,1); max-height: 50vh; overflow-y: auto; font-family: 'SF Mono','Fira Code',monospace; font-size: 13px; }
+.think-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #333; }
+.think-panel-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #fff; }
+.think-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; color: #888; transition: all 0.3s; }
+.think-step.done { color: #4ade80; }
+.think-step.current { color: #fff; font-weight: 600; }
+.think-step-icon { width: 24px; text-align: center; font-size: 14px; }
+.think-step-text { flex: 1; }
+.think-step-status { font-size: 11px; font-weight: 600; }
+.think-progress { height: 3px; background: #333; border-radius: 2px; margin-top: 12px; overflow: hidden; }
+.think-progress-bar { height: 100%; background: linear-gradient(90deg,#6C5CE7,#A78BFA); border-radius: 2px; transition: width 0.5s ease; }
+.think-panel-actions { display: flex; gap: 8px; margin-top: 14px; }
+.think-panel-btn { padding: 8px 16px; border-radius: 10px; border: 1px solid #444; background: transparent; color: #aaa; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.think-panel-btn:hover { border-color: #6C5CE7; color: #fff; }
+.think-panel-btn.primary { background: #6C5CE7; border-color: #6C5CE7; color: #fff; }
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .thinking-bubble:active { transform: scale(0.97); }
         .thinking-dot { width: 6px; height: 6px; background: #999; border-radius: 50%; animation: dotPulse 1.4s infinite; }
         .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -2286,35 +2308,43 @@ function addThinkingIndicator() {
     var container = document.createElement('div');
     container.id = id;
     container.className = 'typing-indicator';
+    
     var thinkingSteps = [
-    '🔍 Buscando en mi base de conocimiento...',
-    '💭 Analizando tu pregunta...',
-    '⚡ Preparando respuesta...',
-    '🧠 Procesando contexto...',
-    '✍️ Redactando respuesta...'
-];
-var stepIdx = 0;
-var bubble = document.createElement('div');
-bubble.className = 'thinking-bubble';
-bubble.style.cssText = 'cursor:pointer;flex-direction:column;align-items:flex-start;gap:4px;min-width:200px;';
-bubble.innerHTML = '<span class="thinking-text" id="thinkingText">' + thinkingSteps[0] + '</span>'
-    + '<div style="display:flex;gap:4px;margin-top:4px;">'
-    + '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>'
-    + '</div>';
-container.innerHTML = '';
-var sphere = document.createElement('div');
-sphere.className = 'eva-thinking';
-sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
-container.appendChild(sphere);
-container.appendChild(bubble);
-
-var stepInterval = setInterval(function() {
-    stepIdx = (stepIdx + 1) % thinkingSteps.length;
-    var el = document.getElementById('thinkingText');
-    if (el) el.textContent = thinkingSteps[stepIdx];
-    else clearInterval(stepInterval);
-}, 800);
-container._stepInterval = stepInterval;
+        '🔍 Analizando tu mensaje...',
+        '🧠 Interpretando contexto...',
+        '✍️ Preparando respuesta...'
+    ];
+    var stepIdx = 0;
+    
+    var bubble = document.createElement('div');
+    bubble.className = 'thinking-bubble';
+    bubble.style.cssText = 'cursor:pointer;flex-direction:column;align-items:flex-start;gap:4px;min-width:200px;';
+    bubble.innerHTML = '<span class="thinking-text" id="thinkingText">' + thinkingSteps[0] + '</span>'
+        + '<div style="display:flex;gap:4px;margin-top:4px;">'
+        + '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>'
+        + '</div>';
+    
+    bubble.onclick = function() {
+        var existing = document.querySelector('.think-panel');
+        if (existing) { existing.remove(); return; }
+        openThinkPanel(id);
+    };
+    
+    container.innerHTML = '';
+    var sphere = document.createElement('div');
+    sphere.className = 'eva-thinking';
+    sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
+    container.appendChild(sphere);
+    container.appendChild(bubble);
+    
+    var stepInterval = setInterval(function() {
+        stepIdx = (stepIdx + 1) % thinkingSteps.length;
+        var el = document.getElementById('thinkingText');
+        if (el) el.textContent = thinkingSteps[stepIdx];
+        else clearInterval(stepInterval);
+    }, 800);
+    container._stepInterval = stepInterval;
+    
     chatArea.appendChild(container);
     chatArea.scrollTop = chatArea.scrollHeight;
     return id;
@@ -3921,6 +3951,95 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+
+var thinkSteps = [];
+var thinkInterval = null;
+
+function openThinkPanel(thinkingId) {
+    var existing = document.querySelector('.think-panel');
+    if (existing) existing.remove();
+    
+    if (thinkInterval) clearInterval(thinkInterval);
+    thinkSteps = [];
+    
+    var panel = document.createElement('div');
+    panel.className = 'think-panel';
+    panel.id = 'thinkPanel';
+    
+    panel.innerHTML = '<div class="think-panel-header">'
+        + '<div class="think-panel-title">🧠 Eva está trabajando</div>'
+        + '<button class="think-panel-btn" onclick="closeThinkPanel()">✕</button>'
+        + '</div>'
+        + '<div id="thinkStepsContainer"></div>'
+        + '<div class="think-progress"><div class="think-progress-bar" id="thinkProgressBar" style="width:0%"></div></div>'
+        + '<div class="think-panel-actions">'
+        + '<button class="think-panel-btn primary" onclick="closeThinkPanel()">Ocultar</button>'
+        + '</div>';
+    
+    document.body.appendChild(panel);
+    
+    var steps = [
+        { icon: '🔍', text: 'Analizando solicitud' },
+        { icon: '📋', text: 'Identificando tipo de tarea' },
+        { icon: '🧠', text: 'Procesando información' },
+        { icon: '⚡', text: 'Ejecutando proceso' },
+        { icon: '📝', text: 'Generando resultado' },
+        { icon: '✨', text: 'Puliendo detalles' },
+        { icon: '✅', text: '¡Listo!' }
+    ];
+    
+    var container = document.getElementById('thinkStepsContainer');
+    steps.forEach(function(step, i) {
+        var div = document.createElement('div');
+        div.className = 'think-step';
+        div.id = 'thinkStep' + i;
+        div.innerHTML = '<span class="think-step-icon">' + step.icon + '</span>'
+            + '<span class="think-step-text">' + step.text + '</span>'
+            + '<span class="think-step-status">⏳</span>';
+        container.appendChild(div);
+        thinkSteps.push(div);
+    });
+    
+    var currentStep = 0;
+    var totalSteps = steps.length;
+    
+    thinkInterval = setInterval(function() {
+        if (currentStep > 0) {
+            var prev = document.getElementById('thinkStep' + (currentStep - 1));
+            if (prev) { prev.className = 'think-step done'; prev.querySelector('.think-step-status').textContent = '✅'; }
+        }
+        
+        if (currentStep < totalSteps) {
+            var curr = document.getElementById('thinkStep' + currentStep);
+            if (curr) { curr.className = 'think-step current'; curr.querySelector('.think-step-status').textContent = '⏳'; }
+            var pct = Math.round((currentStep / totalSteps) * 100);
+            var bar = document.getElementById('thinkProgressBar');
+            if (bar) bar.style.width = pct + '%';
+            currentStep++;
+        } else {
+            clearInterval(thinkInterval);
+            var bar = document.getElementById('thinkProgressBar');
+            if (bar) bar.style.width = '100%';
+            setTimeout(function() { closeThinkPanel(); }, 1000);
+        }
+    }, 600);
+}
+
+function closeThinkPanel() {
+    if (thinkInterval) clearInterval(thinkInterval);
+    var panel = document.getElementById('thinkPanel');
+    if (panel) panel.remove();
+}
+
+function removeThinkingIndicator(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        if (el._stepInterval) clearInterval(el._stepInterval);
+        el.remove();
+    }
+    closeThinkPanel();
+}
 
 
 </script>

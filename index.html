@@ -3271,30 +3271,48 @@ function generatePageCode(data) {
     
     
     /* Panel de proceso profesional */
-.think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:998;animation:fadeIn 0.2s ease}
-.think-panel{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:400px;background:#fff;border-radius:16px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.12);animation:thinkIn 0.35s ease;overflow:hidden}
-@keyframes thinkIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.think-panel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
-.think-panel-title{font-weight:600;font-size:14px;color:#111;display:flex;align-items:center;gap:8px}
-.think-panel-title-dot{width:8px;height:8px;border-radius:50%;background:#2563EB;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.think-panel-close{width:28px;height:28px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#999;font-size:16px;transition:all 0.2s}
-.think-panel-close:hover{background:#f5f5f5;color:#333}
-.think-steps{padding:8px 20px 16px}
-.think-step{display:flex;align-items:center;gap:12px;padding:8px 0}
-.think-step-icon{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#e5e5e5;transition:all 0.3s}
-.think-step.done .think-step-icon{background:#2563EB}
-.think-step.current .think-step-icon{background:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,0.15)}
-.think-step-text{flex:1;font-size:13px;color:#999;font-weight:400}
-.think-step.done .think-step-text{color:#2563EB}
-.think-step.current .think-step-text{color:#111;font-weight:500}
-.think-step-check{font-size:12px;color:#2563EB;opacity:0;font-weight:500}
-.think-step.done .think-step-check{opacity:1}
-.think-bar{height:2px;background:#f0f0f0;margin:0 20px 12px;border-radius:1px;overflow:hidden}
-.think-bar-fill{height:100%;background:#2563EB;border-radius:1px;transition:width 0.4s ease}
-.think-panel-btn{display:block;width:calc(100% - 40px);margin:0 20px 16px;padding:10px;border-radius:10px;border:none;background:#f8f8f8;color:#666;font-weight:500;cursor:pointer;font-size:12px;text-align:center;transition:all 0.2s}
-.think-panel-btn:hover{background:#eee;color:#333}
-    
+.think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:998;animation:fadeIn 0.2s ease;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.think-panel{position:fixed;bottom:0;left:0;right:0;background:#F2F2F7;border-radius:22px 22px 0 0;z-index:999;box-shadow:0 -4px 30px rgba(0,0,0,0.12);animation:thinkSlideUp 0.38s cubic-bezier(0.32,0.72,0,1);overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+@keyframes thinkSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.think-handle{width:36px;height:5px;background:rgba(60,60,67,0.3);border-radius:3px;margin:10px auto 6px;flex-shrink:0}
+.think-panel-header{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 12px;flex-shrink:0}
+.think-close-btn{width:30px;height:30px;border-radius:50%;border:none;background:rgba(60,60,67,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.think-close-btn svg{width:14px;height:14px;stroke:#3C3C43;fill:none;stroke-width:2.5;stroke-linecap:round}
+.think-panel-title{font-size:17px;font-weight:600;color:#000;text-align:center;flex:1}
+.think-panel-spacer{width:30px}
+.think-scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding:0 16px 32px}
+.think-list{background:#fff;border-radius:14px;overflow:hidden}
+.think-item{display:flex;align-items:stretch;min-height:52px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.15s;position:relative}
+.think-item:not(:last-child){border-bottom:1px solid rgba(60,60,67,0.1)}
+.think-item:active{background:#F2F2F7}
+.think-item-left{display:flex;flex-direction:column;align-items:center;padding:0 14px;width:44px;flex-shrink:0}
+.think-item-line-top{width:1.5px;flex:1;min-height:10px;background:rgba(60,60,67,0.15)}
+.think-item-line-bot{width:1.5px;flex:1;min-height:10px;background:rgba(60,60,67,0.15)}
+.think-item:first-child .think-item-line-top{background:transparent}
+.think-item:last-child .think-item-line-bot{background:transparent}
+.think-item-dot{width:8px;height:8px;border-radius:50%;background:#C7C7CC;flex-shrink:0;transition:all 0.3s}
+.think-item-icon{width:28px;height:28px;border-radius:7px;background:#F2F2F7;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.think-item-icon svg{width:15px;height:15px;stroke:#6B7280;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.think-item-body{flex:1;display:flex;align-items:center;padding:14px 0 14px 0}
+.think-item-text{font-size:15px;color:#000;line-height:1.3;font-weight:400;flex:1}
+.think-item-chevron{display:flex;align-items:center;padding-right:16px;flex-shrink:0}
+.think-item-chevron svg{width:9px;height:14px;stroke:#C7C7CC;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.think-item.step-current .think-item-dot{background:#007AFF;box-shadow:0 0 0 4px rgba(0,122,255,0.15)}
+.think-item.step-current .think-item-text{color:#007AFF;font-weight:500}
+.think-item.step-current .think-item-icon{background:#EBF4FF}
+.think-item.step-current .think-item-icon svg{stroke:#007AFF}
+.think-item.step-done .think-item-dot{background:#34C759}
+.think-item.step-done .think-item-text{color:#8E8E93}
+.think-item.step-done .think-item-icon{background:#F0FDF4}
+.think-item.step-done .think-item-icon svg{stroke:#34C759}
+.think-progress-section{padding:12px 0 4px}
+.think-progress-bar{height:3px;background:rgba(60,60,67,0.1);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.think-progress-fill{height:100%;background:#007AFF;border-radius:2px;transition:width 0.5s ease}
+.think-progress-label{font-size:12px;color:#8E8E93;text-align:center}
+.think-footer-btn{margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}
+.think-footer-btn button{display:block;width:100%;padding:14px;border:none;background:transparent;color:#007AFF;font-size:17px;font-weight:400;cursor:pointer;font-family:inherit}
+.think-footer-btn button:active{background:#F2F2F7}
+
     
     
   </style>
@@ -4101,28 +4119,30 @@ document.addEventListener('DOMContentLoaded', function() {
 var thinkSteps = [];
 var thinkInterval = null;
 
-var THINK_ICONS = {
-  book: '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-  cpu: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
-  search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
-  code: '<svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-  pen: '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
-  zap: '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-  shield: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
-  check: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
-  globe: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-  download: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-  layers: '<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
-  brain: '<svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.44-4.14z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.44-4.14z"/></svg>',
-  image: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
-  sparkle: '<svg viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
-  spin: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>'
-};
+var SVG_DOC = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+var SVG_WRENCH = '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>';
+var SVG_SEARCH = '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+var SVG_CODE = '<svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
+var SVG_GLOBE = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+var SVG_ZAP = '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+var SVG_CHECK = '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+var SVG_PEN = '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+var SVG_LAYERS = '<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
+
+function getStepIcon(type) {
+  if (type === 'tool') return SVG_WRENCH;
+  if (type === 'search') return SVG_SEARCH;
+  if (type === 'code') return SVG_CODE;
+  if (type === 'globe') return SVG_GLOBE;
+  if (type === 'zap') return SVG_ZAP;
+  if (type === 'check') return SVG_CHECK;
+  if (type === 'pen') return SVG_PEN;
+  if (type === 'layers') return SVG_LAYERS;
+  return SVG_DOC;
+}
 
 function openThinkPanel(thinkingId) {
-  var existing = document.querySelector('.think-panel');
-  if (existing) { closeThinkPanel(); return; }
-  if (document.querySelector('.think-overlay')) { closeThinkPanel(); return; }
+  if (document.querySelector('.think-panel')) { closeThinkPanel(); return; }
   if (thinkInterval) clearInterval(thinkInterval);
 
   var msg = (document.getElementById('chatInput')?.value || '').toLowerCase();
@@ -4130,71 +4150,71 @@ function openThinkPanel(thinkingId) {
 
   if (currentModel === 'wiki') {
     steps = [
-      {icon:'globe',color:'blue',text:'Buscando en Wikipedia',done:'Artículo encontrado'},
-      {icon:'download',color:'violet',text:'Extrayendo artículo',done:'Extraído'},
-      {icon:'layers',color:'teal',text:'Resumiendo información',done:'Resumido'},
-      {icon:'sparkle',color:'green',text:'Resultado listo',done:'Completado'}
+      {type:'globe', text:'Buscando en Wikipedia'},
+      {type:'tool', text:'Extrayendo artículo'},
+      {type:'doc',  text:'Resumiendo información'},
+      {type:'check',text:'Resultado listo'}
     ];
   } else if (currentModel === 'code') {
     steps = [
-      {icon:'book',color:'blue',text:'Analizando código',done:'Analizado'},
-      {icon:'search',color:'violet',text:'Buscando errores',done:'Sin errores'},
-      {icon:'zap',color:'orange',text:'Optimizando lógica',done:'Optimizado'},
-      {icon:'shield',color:'green',text:'Verificando seguridad',done:'Verificado'},
-      {icon:'sparkle',color:'teal',text:'Código procesado',done:'Listo'}
+      {type:'doc',  text:'Analizando código'},
+      {type:'search',text:'Buscando errores'},
+      {type:'zap',  text:'Optimizando lógica'},
+      {type:'tool', text:'Verificando seguridad'},
+      {type:'check',text:'Código procesado'}
     ];
   } else if (currentModel === 'qwen' || currentModel === 'deepseek') {
     steps = [
-      {icon:'brain',color:'violet',text:'Razonando',done:'Razonado'},
-      {icon:'cpu',color:'blue',text:'Analizando lógica',done:'Analizado'},
-      {icon:'layers',color:'teal',text:'Formulando respuesta',done:'Formulado'},
-      {icon:'sparkle',color:'green',text:'Respuesta lista',done:'Completado'}
+      {type:'layers',text:'Razonando'},
+      {type:'tool', text:'Analizando lógica'},
+      {type:'pen',  text:'Formulando respuesta'},
+      {type:'check',text:'Respuesta lista'}
     ];
   } else if (currentModel === 'gemini') {
     steps = [
-      {icon:'sparkle',color:'blue',text:'Consultando Gemini',done:'Consultado'},
-      {icon:'cpu',color:'violet',text:'Procesando tokens',done:'Procesado'},
-      {icon:'pen',color:'teal',text:'Generando respuesta',done:'Generado'},
-      {icon:'check',color:'green',text:'Respuesta lista',done:'Listo'}
+      {type:'zap',  text:'Consultando Gemini'},
+      {type:'tool', text:'Procesando tokens'},
+      {type:'pen',  text:'Generando respuesta'},
+      {type:'check',text:'Respuesta lista'}
     ];
   } else if (currentModel === 'duck' || currentModel === 'buscador') {
     steps = [
-      {icon:'globe',color:'blue',text:'Buscando en internet',done:'Buscado'},
-      {icon:'search',color:'violet',text:'Rastreando resultados',done:'Rastreado'},
-      {icon:'layers',color:'teal',text:'Organizando información',done:'Organizado'},
-      {icon:'sparkle',color:'green',text:'Resultados listos',done:'Listo'}
+      {type:'globe', text:'Buscando en internet'},
+      {type:'search',text:'Rastreando resultados'},
+      {type:'layers',text:'Organizando información'},
+      {type:'check', text:'Resultados listos'}
     ];
-  } else if (msg.includes('imagen') || msg.includes('dibuja') || msg.includes('foto')) {
+  } else if (msg.includes('imagen') || msg.includes('dibuja')) {
     steps = [
-      {icon:'brain',color:'violet',text:'Interpretando prompt',done:'Interpretado'},
-      {icon:'sparkle',color:'rose',text:'Definiendo estilo visual',done:'Definido'},
-      {icon:'image',color:'orange',text:'Generando imagen',done:'Generada'},
-      {icon:'check',color:'green',text:'Imagen lista',done:'Completado'}
+      {type:'doc',  text:'Interpretando prompt'},
+      {type:'tool', text:'Definiendo estilo visual'},
+      {type:'zap',  text:'Generando imagen'},
+      {type:'check',text:'Imagen lista'}
     ];
   } else if (msg.includes('codigo') || msg.includes('html') || msg.includes('calculadora') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera') || msg.includes('programa')) {
     steps = [
-      {icon:'book',color:'blue',text:'Analizando requisitos',done:'Analizado'},
-      {icon:'layers',color:'violet',text:'Diseñando estructura',done:'Diseñado'},
-      {icon:'code',color:'orange',text:'Escribiendo funciones',done:'Escrito'},
-      {icon:'pen',color:'teal',text:'Aplicando estilos',done:'Aplicado'},
-      {icon:'shield',color:'amber',text:'Verificando lógica',done:'Verificado'},
-      {icon:'sparkle',color:'green',text:'Código completado',done:'Listo'}
+      {type:'doc',   text:'Analizando requisitos'},
+      {type:'layers',text:'Diseñando estructura'},
+      {type:'code',  text:'Escribiendo funciones'},
+      {type:'pen',   text:'Aplicando estilos'},
+      {type:'tool',  text:'Verificando lógica'},
+      {type:'check', text:'Código completado'}
     ];
   } else if (msg.includes('archivo') || msg.includes('descargar')) {
     steps = [
-      {icon:'layers',color:'blue',text:'Creando estructura',done:'Creada'},
-      {icon:'pen',color:'violet',text:'Escribiendo contenido',done:'Escrito'},
-      {icon:'shield',color:'teal',text:'Verificando formato',done:'Verificado'},
-      {icon:'download',color:'orange',text:'Preparando descarga',done:'Preparado'},
-      {icon:'sparkle',color:'green',text:'Archivo listo',done:'Completado'}
+      {type:'layers',text:'Creando estructura'},
+      {type:'pen',   text:'Escribiendo contenido'},
+      {type:'tool',  text:'Verificando formato'},
+      {type:'doc',   text:'Preparando descarga'},
+      {type:'check', text:'Archivo listo'}
     ];
   } else {
     steps = [
-      {icon:'book',color:'blue',text:'Leyendo tu mensaje',done:'Leído'},
-      {icon:'brain',color:'violet',text:'Interpretando contexto',done:'Interpretado'},
-      {icon:'cpu',color:'teal',text:'Analizando intención',done:'Analizado'},
-      {icon:'pen',color:'orange',text:'Redactando respuesta',done:'Redactado'},
-      {icon:'sparkle',color:'green',text:'Respuesta lista',done:'Completado'}
+      {type:'doc',   text:'Leyendo tu mensaje'},
+      {type:'search',text:'Interpretando contexto'},
+      {type:'tool',  text:'Analizando intención'},
+      {type:'pen',   text:'Redactando respuesta'},
+      {type:'check', text:'Respuesta lista'}
     ];
   }
 
@@ -4209,35 +4229,41 @@ function openThinkPanel(thinkingId) {
   panel.id = 'thinkPanel';
 
   var total = steps.length;
-  var modelLabel = currentModelName || 'Eva';
+  var chevronSVG = '<svg viewBox="0 0 10 16"><polyline points="2 2 8 8 2 14"/></svg>';
 
   var html = '<div class="think-handle"></div>';
   html += '<div class="think-panel-header">';
-  html += '<div class="think-title-row">';
-  html += '<div class="think-title-icon">' + THINK_ICONS.cpu + '</div>';
-  html += '<div class="think-title-info"><span class="think-title-label">Procesando</span><span class="think-title-sub">' + modelLabel + ' · ' + total + ' pasos</span></div>';
+  html += '<button class="think-close-btn" onclick="closeThinkPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  html += '<span class="think-panel-title">Procesando</span>';
+  html += '<div class="think-panel-spacer"></div>';
   html += '</div>';
-  html += '<button class="think-panel-close" onclick="closeThinkPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-  html += '</div>';
-  html += '<div class="think-steps">';
+  html += '<div class="think-scroll">';
+  html += '<div class="think-list">';
 
   steps.forEach(function(s, i) {
-    html += '<div class="think-step" id="ts' + i + '" style="animation-delay:' + (i * 0.06) + 's">';
-    html += '<div class="think-step-icon ' + s.color + '">' + (THINK_ICONS[s.icon] || THINK_ICONS.sparkle) + '</div>';
-    html += '<div class="think-step-right">';
-    html += '<div class="think-step-text">' + s.text + '</div>';
-    html += '<span class="think-step-badge" id="badge' + i + '">En proceso</span>';
+    var isFirst = i === 0, isLast = i === total - 1;
+    html += '<div class="think-item" id="ts' + i + '">';
+    html += '<div class="think-item-left">';
+    html += '<div class="think-item-line-top"></div>';
+    if (s.type === 'doc' || s.type === 'tool' || s.type === 'search' || s.type === 'code' || s.type === 'globe' || s.type === 'zap' || s.type === 'check' || s.type === 'pen' || s.type === 'layers') {
+      html += '<div class="think-item-icon">' + getStepIcon(s.type) + '</div>';
+    } else {
+      html += '<div class="think-item-dot"></div>';
+    }
+    html += '<div class="think-item-line-bot"></div>';
     html += '</div>';
-    html += '<div class="think-check" id="chk' + i + '">' + THINK_ICONS.spin + '</div>';
+    html += '<div class="think-item-body"><span class="think-item-text">' + s.text + '</span></div>';
+    html += '<div class="think-item-chevron">' + chevronSVG + '</div>';
     html += '</div>';
   });
 
   html += '</div>';
-  html += '<div class="think-progress-wrap">';
-  html += '<div class="think-progress-meta"><span id="thinkProgressLabel">Iniciando...</span><span id="thinkProgressPct">0%</span></div>';
-  html += '<div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div>';
+  html += '<div class="think-progress-section">';
+  html += '<div class="think-progress-bar"><div class="think-progress-fill" id="thinkBarFill" style="width:0%"></div></div>';
+  html += '<div class="think-progress-label" id="thinkProgressLabel">Iniciando...</div>';
   html += '</div>';
-  html += '<div class="think-panel-footer"><button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button></div>';
+  html += '<div class="think-footer-btn"><button onclick="closeThinkPanel()">Ocultar</button></div>';
+  html += '</div>';
 
   panel.innerHTML = html;
   document.body.appendChild(panel);
@@ -4246,46 +4272,27 @@ function openThinkPanel(thinkingId) {
   thinkInterval = setInterval(function() {
     if (current > 0) {
       var prev = document.getElementById('ts' + (current - 1));
-      var prevChk = document.getElementById('chk' + (current - 1));
-      var prevBadge = document.getElementById('badge' + (current - 1));
-      if (prev) {
-        prev.classList.remove('current');
-        prev.classList.add('done');
-      }
-      if (prevChk) {
-        prevChk.classList.remove('pending');
-        var doneIcon = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
-        prevChk.innerHTML = doneIcon;
-        prevChk.classList.add('done');
-      }
-      if (prevBadge) prevBadge.textContent = steps[current - 1].done || 'Listo';
+      if (prev) { prev.classList.remove('step-current'); prev.classList.add('step-done'); }
     }
     if (current < total) {
       var curr = document.getElementById('ts' + current);
-      var currChk = document.getElementById('chk' + current);
-      var currBadge = document.getElementById('badge' + current);
-      if (curr) curr.classList.add('current');
-      if (currChk) currChk.classList.add('pending');
-      if (currBadge) currBadge.textContent = 'En proceso';
+      if (curr) curr.classList.add('step-current');
       var pct = Math.round(((current + 1) / total) * 100);
       var bar = document.getElementById('thinkBarFill');
       var lbl = document.getElementById('thinkProgressLabel');
-      var pctEl = document.getElementById('thinkProgressPct');
       if (bar) bar.style.width = pct + '%';
       if (lbl) lbl.textContent = steps[current].text + '...';
-      if (pctEl) pctEl.textContent = pct + '%';
       current++;
     } else {
       clearInterval(thinkInterval);
       var bar = document.getElementById('thinkBarFill');
       var lbl = document.getElementById('thinkProgressLabel');
-      var pctEl = document.getElementById('thinkProgressPct');
       if (bar) bar.style.width = '100%';
-      if (lbl) lbl.textContent = '¡Completado!';
-      if (pctEl) pctEl.textContent = '100%';
+      if (lbl) lbl.textContent = 'Completado';
     }
   }, 850);
 }
+
 
 
 

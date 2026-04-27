@@ -2899,7 +2899,7 @@ function quickSend(text) {
 
 
 // ============ REEMPLAZAR sendMessage() ============
-    async function sendMessage() {
+async function sendMessage() {
     if (isProcessing) return;
     
     // ===== LÍMITE DE 5 HORAS =====
@@ -3047,9 +3047,10 @@ if (voiceEnabled) speakText(contextualResponse);
         
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();
-        isProcessing = false;
+                isProcessing = false;
     }, delay);
-};
+}
+
 
 
 // ============ GUARDAR HISTORIAL DEL CHAT ============

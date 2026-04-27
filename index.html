@@ -4057,7 +4057,42 @@ function openThinkPanel(thinkingId) {
     var msg = (document.getElementById('chatInput')?.value || '').toLowerCase();
     var steps = [];
     
-    if (msg.includes('archivo') || msg.includes('descargar')) {
+    if (currentModel === 'wiki') {
+        steps = [
+            { icon: '🔍', cls: 'blue', text: 'Buscando en Wikipedia...' },
+            { icon: '📚', cls: 'purple', text: 'Extrayendo artículo...' },
+            { icon: '📝', cls: 'orange', text: 'Resumiendo información...' },
+            { icon: '✅', cls: 'green', text: 'Resultado listo' }
+        ];
+    } else if (currentModel === 'code') {
+        steps = [
+            { icon: '💻', cls: 'blue', text: 'Analizando código...' },
+            { icon: '🔍', cls: 'purple', text: 'Buscando errores...' },
+            { icon: '⚡', cls: 'orange', text: 'Optimizando...' },
+            { icon: '✅', cls: 'green', text: 'Código procesado' }
+        ];
+    } else if (currentModel === 'qwen' || currentModel === 'deepseek') {
+        steps = [
+            { icon: '🧠', cls: 'purple', text: 'Razonando...' },
+            { icon: '💭', cls: 'blue', text: 'Analizando lógica...' },
+            { icon: '✨', cls: 'orange', text: 'Formulando respuesta...' },
+            { icon: '✅', cls: 'green', text: 'Respuesta lista' }
+        ];
+    } else if (currentModel === 'gemini') {
+        steps = [
+            { icon: '🌟', cls: 'blue', text: 'Consultando Gemini...' },
+            { icon: '🧠', cls: 'purple', text: 'Procesando con Google AI...' },
+            { icon: '✨', cls: 'orange', text: 'Generando respuesta...' },
+            { icon: '✅', cls: 'green', text: '¡Listo!' }
+        ];
+    } else if (currentModel === 'duck' || currentModel === 'buscador') {
+        steps = [
+            { icon: '🔍', cls: 'blue', text: 'Buscando en internet...' },
+            { icon: '🌐', cls: 'purple', text: 'Rastreando resultados...' },
+            { icon: '📋', cls: 'orange', text: 'Organizando información...' },
+            { icon: '✅', cls: 'green', text: 'Resultados listos' }
+        ];
+    } else if (msg.includes('archivo') || msg.includes('descargar')) {
         steps = [
             { icon: '📄', cls: 'blue', text: 'Creando estructura del archivo' },
             { icon: '📝', cls: 'purple', text: 'Escribiendo contenido' },

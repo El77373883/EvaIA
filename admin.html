@@ -1539,12 +1539,29 @@ document.addEventListener('keydown', function(e) {
 var editingFlowIndex = -1;
 var flowStepCount = 0;
 
-function getFlows() { return JSON.parse(localStorage.getItem('eva_flows') || '[]'); }
-function saveFlows(data) {
-    localStorage.setItem('eva_flows', JSON.stringify(data));
-    renderFlowsList();
-    showToast('✅ Flujos guardados', 'success');
+function getFlows() { 
+    try {
+        return JSON.parse(localStorage.getItem('eva_flows') || '[]');
+    } catch(e) {
+        showToast('⚠️ Error en flujos, recuperando...', 'error');
+        return [];
+    }
 }
+
+function saveFlows(data) {
+    try {
+        var backup = localStorage.getItem('eva_flows');
+        localStorage.setItem('eva_flows_backup', backup);
+        localStorage.setItem('eva_flows', JSON.stringify(data));
+        renderFlowsList();
+        showToast('✅ Flujos guardados', 'success');
+    } catch(e) {
+        showToast('❌ Error al guardar, restaurando backup...', 'error');
+        var bk = localStorage.getItem('eva_flows_backup');
+        if (bk) localStorage.setItem('eva_flows', bk);
+    }
+}
+
 
 function showNewFlowForm() {
     editingFlowIndex = -1;

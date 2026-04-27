@@ -62,7 +62,6 @@
 .thinking-bubble:hover::after { opacity: 1; }
 
 /* Ventana de pensamientos */
-.think-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a2e; color: #e0e0e0; border-radius: 20px 20px 0 0; padding: 20px; z-index: 60; box-shadow: 0 -8px 40px rgba(0,0,0,0.3); animation: slideUp 0.3s cubic-bezier(.32,1,.23,1); max-height: 50vh; overflow-y: auto; font-family: 'SF Mono','Fira Code',monospace; font-size: 13px; }
 .think-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #333; }
 .think-panel-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #fff; }
 .think-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; color: #888; transition: all 0.3s; }
@@ -2833,13 +2832,12 @@ function quickSend(text) {
 
     var delay = 1500 + Math.random() * 2000;
     
-    // Abrir panel de pensamiento automático apenas empieza
-setTimeout(function() {
-    if (document.getElementById(typingId)) {
-        openThinkPanel(typingId);
-    }
-}, 300);
-
+    // BORRAR ESTAS 5 LÍNEAS
+// setTimeout(function() {
+//     if (document.getElementById(typingId)) {
+//         openThinkPanel(typingId);
+//     }
+// }, 300);
 setTimeout(async function() {
     removeThinkingIndicator(typingId);
         

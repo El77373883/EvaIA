@@ -232,6 +232,14 @@
     30% { opacity: 1; transform: scale(1.2); }
 }
 
+
+@keyframes dotClaude {
+    0%, 60%, 100% { opacity: 0.2; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1.2); }
+}
+
+
+
     </style>
 </head>
 <body>
@@ -2408,11 +2416,47 @@ function addThinkingIndicator() {
     
     // ===== BURBUJA PROFESIONAL (sin emojis, con iconos SVG) =====
     var bubble = document.createElement('div');
-    bubble.style.cssText = 'background:#fff;border-radius:20px;padding:12px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #f0f0f0;cursor:pointer;transition:all 0.2s;';
-    bubble.onclick = function() {
-        var existing = document.querySelector('.think-panel');
-        if (existing) { existing.remove(); return; }
-        openThinkPanel(id);
+bubble.onclick = function() {
+    var existing = document.querySelector('.think-panel');
+    if (existing) { existing.remove(); return; }
+    openThinkPanel();
+};
+bubble.style.cssText = 'background:#fff;border-radius:24px;padding:10px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #eef2f6;cursor:pointer;transition:all 0.15s;';
+bubble.onmouseenter = function(){ this.style.borderColor = '#e0e4e9'; };
+bubble.onmouseleave = function(){ this.style.borderColor = '#eef2f6'; };
+
+// Icono SVG lupa profesional
+var iconSpan = document.createElement('span');
+iconSpan.style.cssText = 'display:flex;align-items:center;';
+iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+
+// Texto
+var textSpan = document.createElement('span');
+textSpan.id = 'thinkingText';
+textSpan.style.cssText = 'font-size:13px;font-weight:450;color:#6B7280;letter-spacing:-0.2px;';
+textSpan.textContent = 'Analizando mensaje';
+
+// Puntos animados
+var dotsSpan = document.createElement('span');
+dotsSpan.style.cssText = 'display:inline-flex;gap:3px;margin-left:3px;';
+for(var i=0;i<3;i++){
+    var dot = document.createElement('span');
+    dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#9CA3AF;animation:dotClaude 1.2s ease-in-out infinite;';
+    dot.style.animationDelay = (i*0.15)+'s';
+    dotsSpan.appendChild(dot);
+}
+
+textSpan.appendChild(dotsSpan);
+bubble.appendChild(iconSpan);
+bubble.appendChild(textSpan);
+
+// En lugar de container.innerHTML = '', conservas la esfera
+container.innerHTML = '';
+var sphere = document.createElement('div');
+sphere.className = 'eva-thinking';
+sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
+container.appendChild(sphere);
+container.appendChild(bubble);
     };
     
     // Contenedor de icono SVG profesional

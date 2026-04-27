@@ -1893,15 +1893,24 @@ function renderButtons(text, msgDiv) {
     var btnRegex = /\[btn:([^\]]+)\]/g;
     var match;
     var hasButtons = false;
-    var cleanText = text.replace(btnRegex, '').trim();
+    
+    // Limpiar texto visible de los [btn:...]
+    msgDiv.childNodes.forEach(function(node) {
+        if (node.nodeType === 3) {
+            node.textContent = node.textContent.replace(/\[btn:[^\]]+\]/g, '').trim();
+        }
+    });
+    
     var btnDiv = document.createElement('div');
     btnDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
-    while ((match = btnRegex.exec(text)) !== null) {
+    
+    var textCopy = text;
+    while ((match = btnRegex.exec(textCopy)) !== null) {
         hasButtons = true;
         var label = match[1];
         var btn = document.createElement('button');
         btn.textContent = label;
-        btn.style.cssText = 'padding:8px 16px;background:#2563EB;color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;';
+        btn.style.cssText = 'padding:10px 18px;background:#2563EB;color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;';
         btn.onclick = function(l) {
             return function() {
                 document.getElementById('chatInput').value = l;
@@ -1912,6 +1921,7 @@ function renderButtons(text, msgDiv) {
     }
     if (hasButtons) msgDiv.appendChild(btnDiv);
 }
+
 
 
 

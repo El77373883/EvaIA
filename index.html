@@ -2784,7 +2784,7 @@ function quickSend(text) {
     addMessage(message, 'user');
     var typingId = addThinkingIndicator();
 
-    var delay = 800 + Math.random() * 1200;
+    var delay = 1500 + Math.random() * 2000;
     
     setTimeout(async function() {
         removeThinkingIndicator(typingId);

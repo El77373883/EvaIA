@@ -2786,8 +2786,15 @@ function quickSend(text) {
 
     var delay = 1500 + Math.random() * 2000;
     
-    setTimeout(async function() {
-        removeThinkingIndicator(typingId);
+    // Abrir panel de pensamiento automático apenas empieza
+setTimeout(function() {
+    if (document.getElementById(typingId)) {
+        openThinkPanel(typingId);
+    }
+}, 300);
+
+setTimeout(async function() {
+    removeThinkingIndicator(typingId);
         
         var baseResponse = '';
         
@@ -3963,6 +3970,43 @@ function openThinkPanel(thinkingId) {
     if (thinkInterval) clearInterval(thinkInterval);
     thinkSteps = [];
     
+    // Detectar qué tipo de tarea está haciendo
+    var lastMsg = document.getElementById('chatInput').value || '';
+    var msg = lastMsg.toLowerCase();
+    var steps = [];
+    
+    if (msg.includes('archivo') || msg.includes('código') || msg.includes('codigo') || msg.includes('html') || msg.includes('css') || msg.includes('python') || msg.includes('javascript') || msg.includes('programa') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera')) {
+        steps = [
+            { icon: '🔍', text: 'Analizando requisitos del código' },
+            { icon: '📐', text: 'Definiendo estructura y arquitectura' },
+            { icon: '🧩', text: 'Creando componentes y funciones' },
+            { icon: '🎨', text: 'Aplicando estilos y formato' },
+            { icon: '⚡', text: 'Optimizando rendimiento' },
+            { icon: '🧪', text: 'Verificando sintaxis y lógica' },
+            { icon: '📦', text: 'Preparando archivo para descarga' },
+            { icon: '✅', text: '¡Código listo!' }
+        ];
+    } else if (msg.includes('imagen') || msg.includes('dibuja') || msg.includes('foto')) {
+        steps = [
+            { icon: '🔮', text: 'Interpretando prompt creativo' },
+            { icon: '🎭', text: 'Definiendo estilo visual' },
+            { icon: '🎨', text: 'Seleccionando paleta de colores' },
+            { icon: '🖼️', text: 'Componiendo la imagen' },
+            { icon: '✨', text: 'Aplicando detalles finales' },
+            { icon: '✅', text: '¡Imagen generada!' }
+        ];
+    } else {
+        steps = [
+            { icon: '👁️', text: 'Leyendo tu mensaje' },
+            { icon: '🧠', text: 'Interpretando contexto' },
+            { icon: '💭', text: 'Analizando tono e intención' },
+            { icon: '🔍', text: 'Buscando mejor respuesta' },
+            { icon: '✍️', text: 'Redactando respuesta' },
+            { icon: '✨', text: 'Puliendo detalles' },
+            { icon: '✅', text: '¡Listo!' }
+        ];
+    }
+    
     var panel = document.createElement('div');
     panel.className = 'think-panel';
     panel.id = 'thinkPanel';
@@ -3978,16 +4022,6 @@ function openThinkPanel(thinkingId) {
         + '</div>';
     
     document.body.appendChild(panel);
-    
-    var steps = [
-        { icon: '🔍', text: 'Analizando solicitud' },
-        { icon: '📋', text: 'Identificando tipo de tarea' },
-        { icon: '🧠', text: 'Procesando información' },
-        { icon: '⚡', text: 'Ejecutando proceso' },
-        { icon: '📝', text: 'Generando resultado' },
-        { icon: '✨', text: 'Puliendo detalles' },
-        { icon: '✅', text: '¡Listo!' }
-    ];
     
     var container = document.getElementById('thinkStepsContainer');
     steps.forEach(function(step, i) {
@@ -4021,24 +4055,9 @@ function openThinkPanel(thinkingId) {
             clearInterval(thinkInterval);
             var bar = document.getElementById('thinkProgressBar');
             if (bar) bar.style.width = '100%';
-            setTimeout(function() { closeThinkPanel(); }, 1000);
+            setTimeout(function() { closeThinkPanel(); }, 1500);
         }
-    }, 600);
-}
-
-function closeThinkPanel() {
-    if (thinkInterval) clearInterval(thinkInterval);
-    var panel = document.getElementById('thinkPanel');
-    if (panel) panel.remove();
-}
-
-function removeThinkingIndicator(id) {
-    var el = document.getElementById(id);
-    if (el) {
-        if (el._stepInterval) clearInterval(el._stepInterval);
-        el.remove();
-    }
-    closeThinkPanel();
+    }, 500);
 }
 
 

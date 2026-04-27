@@ -2369,10 +2369,9 @@ function addThinkingIndicator() {
     
     // Icono SVG gris (cambia entre lupa, engranaje, check)
     var iconSpan = document.createElement('span');
-    iconSpan.style.color = '#aaa';
-    iconSpan.style.cssText = 'display:flex;align-items:center;';
-    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
-    
+    iconSpan.style.cssText = 'display:flex;align-items:center;color:#aaa;';
+    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+
     // Texto gris
     var textSpan = document.createElement('span');
     textSpan.id = 'thinkingText';

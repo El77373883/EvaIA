@@ -946,53 +946,6 @@ function detectContext(input) {
     return { context: bestContext, score: bestScore };
 }
 
-// Analizar errores en código
-function analyzeCodeIntelligently(code, lang) {
-    var issues = [];
-    var suggestions = [];
-    
-    if (lang === 'html' || code.includes('<html')) {
-        if (!code.includes('<!DOCTYPE html>')) issues.push('❌ Falta DOCTYPE al inicio');
-        if (!code.includes('<meta charset="UTF-8">')) issues.push('⚠️ Falta meta charset UTF-8');
-        if (!code.includes('<meta name="viewport"')) issues.push('⚠️ Falta viewport para móviles');
-        if (!code.includes('</html>')) issues.push('❌ Falta etiqueta de cierre </html>');
-        if (!code.includes('</body>')) issues.push('❌ Falta etiqueta de cierre </body>');
-        if (!code.includes('lang=')) issues.push('⚠️ Falta atributo lang en <html>');
-        
-        if (code.includes('<img') && !code.includes('alt=')) suggestions.push('💡 Agrega atributo alt a las imágenes');
-        if (code.includes('<a ') && !code.includes('href=')) suggestions.push('💡 Los enlaces necesitan href');
-    }
-    
-    if (lang === 'javascript' || code.includes('function')) {
-        var opens = (code.match(/\{/g) || []).length;
-        var closes = (code.match(/\}/g) || []).length;
-        if (opens !== closes) issues.push('❌ Llaves desbalanceadas: ' + opens + ' abiertas vs ' + closes + ' cerradas');
-        
-        var parensOpen = (code.match(/\(/g) || []).length;
-        var parensClose = (code.match(/\)/g) || []).length;
-        if (parensOpen !== parensClose) issues.push('❌ Paréntesis desbalanceados');
-        
-        if (code.includes('==') && !code.includes('===')) suggestions.push('💡 Usa === en vez de == para comparación estricta');
-        if (code.includes('var ')) suggestions.push('💡 Cambia var por let o const');
-        if (code.includes('console.log') && code.includes('//')) suggestions.push('💡 No olvides quitar console.log en producción');
-    }
-    
-    if (lang === 'css' || (code.includes('{') && code.includes(':') && !code.includes('function'))) {
-        var cssOpens = (code.match(/\{/g) || []).length;
-        var cssCloses = (code.match(/\}/g) || []).length;
-        if (cssOpens !== cssCloses) issues.push('❌ Llaves CSS desbalanceadas');
-        if (code.includes('px') && code.includes('px px')) issues.push('⚠️ Valor duplicado en px');
-        if (!code.includes('* {') && !code.includes('box-sizing')) suggestions.push('💡 Agrega box-sizing: border-box al reset');
-    }
-    
-    if (lang === 'python' || code.includes('def ')) {
-        if (code.includes('    ') && code.includes('\t')) issues.push('❌ Mezcla de tabs y espacios');
-        if (code.includes('print ') && !code.includes('(')) issues.push('❌ En Python 3, print necesita paréntesis');
-        if (code.includes('def ') && !code.includes(':')) issues.push('❌ Falta : después de def');
-    }
-    
-    return { issues: issues, suggestions: suggestions };
-}
 
 // Respuesta inteligente según contexto
 function getIntelligentResponse(input, context) {

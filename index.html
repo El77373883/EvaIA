@@ -7,49 +7,6 @@
     <title>Eva - Chat IA</title>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-    
-    /* ===== ICONOS SIN FONDO ===== */
-.think-bub-icon, 
-.eva-thinking .sphere,
-.sd-ico,
-.think-item-icon,
-.think-title-icon {
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-.think-bub-icon svg,
-.sd-ico svg,
-.think-item-icon svg,
-.think-title-icon svg {
-    stroke: #9CA3AF !important;
-    fill: none !important;
-}
-
-/* Para el panel de pensamiento */
-.think-item-icon {
-    background: transparent !important;
-    border: 1px solid #E5E7EB !important;
-}
-
-.think-item.step-current .think-item-icon {
-    background: transparent !important;
-    border-color: #2563EB !important;
-}
-
-.think-item.step-current .think-item-icon svg {
-    stroke: #2563EB !important;
-}
-
-.think-item.step-done .think-item-icon {
-    background: transparent !important;
-    border-color: #34C759 !important;
-}
-
-.think-item.step-done .think-item-icon svg {
-    stroke: #34C759 !important;
-}
-    
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #FCFCFC; color: #333; display: flex; flex-direction: column; height: 100dvh; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: relative; }
@@ -2466,17 +2423,11 @@ function addThinkingIndicator() {
         openThinkPanel();
     };
     
-        // Icono SVG gris transparente estilo Claude
+    // Icono SVG gris (cambia entre lupa, engranaje, check)
     var iconSpan = document.createElement('span');
-    // Usamos propiedades individuales para evitar que se ponga fondo negro
-    iconSpan.style.display = 'flex';
-    iconSpan.style.alignItems = 'center';
-    iconSpan.style.justifyContent = 'center';
-    iconSpan.style.background = 'transparent'; 
+    iconSpan.style.cssText = 'display:flex;align-items:center;';
+    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
     
-    // El SVG con fill="none" para que sea transparente y el gris correcto
-    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="background:transparent;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
-
     // Texto gris
     var textSpan = document.createElement('span');
     textSpan.id = 'thinkingText';
@@ -2501,11 +2452,18 @@ function addThinkingIndicator() {
     container.appendChild(bubble);
     
     // Iconos grises que cambian según el paso
-var icons = [
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>',
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-4-9 4v8l9 4 9-4V8z"/><path d="M3 8l9 4 9-4"/><path d="M12 20v-8"/></svg>',
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    var icons = [
+    // 1. Analizando (Lupa) - Color Gris Cálido Profesional
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B4B4B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    
+    // 2. Buscando (Documento)
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B4B4B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>',
+    
+    // 3. Procesando (Caja)
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B4B4B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-4-9 4v8l9 4 9-4V8z"/><path d="M3 8l9 4 9-4"/><path d="M12 20v-8"/></svg>',
+    
+    // 4. Finalizado (Check)
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B4B4B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
 ];
 
 

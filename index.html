@@ -1892,34 +1892,64 @@ function speakText(text) {
 function renderButtons(text, msgDiv) {
     var btnRegex = /\[btn:([^\]]+)\]/g;
     var match;
-    var hasButtons = false;
+    var buttons = [];
+    var textCopy = text;
     
-    // Limpiar texto visible de los [btn:...]
     msgDiv.childNodes.forEach(function(node) {
         if (node.nodeType === 3) {
             node.textContent = node.textContent.replace(/\[btn:[^\]]+\]/g, '').trim();
         }
     });
     
-    var btnDiv = document.createElement('div');
-    btnDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
-    
-    var textCopy = text;
     while ((match = btnRegex.exec(textCopy)) !== null) {
-        hasButtons = true;
-        var label = match[1];
-        var btn = document.createElement('button');
-        btn.textContent = label;
-        btn.style.cssText = 'padding:10px 18px;background:#2563EB;color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;';
-        btn.onclick = function(l) {
-            return function() {
-                document.getElementById('chatInput').value = l;
-                sendMessage();
-            };
-        }(label);
-        btnDiv.appendChild(btn);
+        buttons.push(match[1]);
     }
-    if (hasButtons) msgDiv.appendChild(btnDiv);
+    
+    if (buttons.length === 0) return;
+    
+    // Quitar panel anterior si existe
+    var oldPanel = document.getElementById('quickPanel');
+    if (oldPanel) oldPanel.remove();
+    
+    var panel = document.createElement('div');
+    panel.id = 'quickPanel';
+    panel.style.cssText = 'position:fixed;bottom:90px;left:0;right:0;background:#fff;border-top:1px solid #eaeaea;border-radius:24px 24px 0 0;padding:16px;z-index:50;box-shadow:0 -4px 24px rgba(0,0,0,0.1);animation:slideUp 0.3s ease;';
+    
+    var style = document.createElement('style');
+    style.textContent = '@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }';
+    document.head.appendChild(style);
+    
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:12px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;text-align:center;';
+    title.textContent = 'Elige una opción';
+    panel.appendChild(title);
+    
+    var btnContainer = document.createElement('div');
+    btnContainer.style.cssText = 'display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;';
+    
+    buttons.forEach(function(label) {
+        var btn = document.createElement('button');
+        btn.style.cssText = 'width:100%;padding:14px 20px;background:#f5f5f5;color:#333;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.2s;display:flex;align-items:center;justify-content:space-between;';
+        btn.innerHTML = '<span>' + label + '</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        btn.onclick = function() {
+            panel.remove();
+            document.getElementById('chatInput').value = label;
+            sendMessage();
+        };
+        btn.addEventListener('touchstart', function() { this.style.background = '#ebebeb'; });
+        btn.addEventListener('touchend', function() { this.style.background = '#f5f5f5'; });
+        btnContainer.appendChild(btn);
+    });
+    
+    panel.appendChild(btnContainer);
+    
+    var closeBtn = document.createElement('button');
+    closeBtn.style.cssText = 'width:100%;padding:12px;background:transparent;color:#999;border:none;font-size:14px;cursor:pointer;margin-top:8px;';
+    closeBtn.textContent = 'Cancelar';
+    closeBtn.onclick = function() { panel.remove(); };
+    panel.appendChild(closeBtn);
+    
+    document.body.appendChild(panel);
 }
 
 

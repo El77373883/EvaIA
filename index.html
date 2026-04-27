@@ -2419,30 +2419,7 @@ function removeThinkingIndicator(id) {
 }
 
 
-function openThinkPanel(){
-if(document.querySelector('.think-panel')){closeThinkPanel();return}
-var o=document.createElement('div');o.className='think-overlay';o.id='thinkOverlay';o.onclick=closeThinkPanel;document.body.appendChild(o)
-var m=(document.getElementById('chatInput')?.value||'').toLowerCase()
-var s=[]
-if(m.includes('código')||m.includes('codigo')||m.includes('html')||m.includes('programa')||m.includes('calculadora')||m.includes('crea')||m.includes('hazme')||m.includes('genera')||m.includes('archivo')){
-s=[{icon:'🔍',text:'Analizando requisitos'},{icon:'📐',text:'Diseñando estructura'},{icon:'⚡',text:'Escribiendo funciones'},{icon:'🎨',text:'Aplicando estilos'},{icon:'🧪',text:'Verificando lógica'},{icon:'✅',text:'Código completado'}]
-}else if(m.includes('imagen')||m.includes('dibuja')){
-s=[{icon:'🔮',text:'Interpretando prompt'},{icon:'🎭',text:'Definiendo estilo'},{icon:'🎨',text:'Generando imagen'},{icon:'✅',text:'Imagen lista'}]
-}else{
-s=[{icon:'👁️',text:'Leyendo tu mensaje'},{icon:'🧠',text:'Interpretando contexto'},{icon:'💭',text:'Analizando intención'},{icon:'✍️',text:'Redactando respuesta'},{icon:'✨',text:'¡Listo!'}]
-}
-var p=document.createElement('div');p.className='think-panel';p.id='thinkPanel'
-var h='<div class="think-panel-header"><div class="think-panel-title">🧠 Eva pensando...</div><button class="think-panel-close" onclick="closeThinkPanel()">✕</button></div><div class="think-steps">'
-s.forEach(function(s,i){h+='<div class="think-step" id="ts'+i+'"><span class="think-step-icon">'+s.icon+'</span><span class="think-step-text">'+s.text+'</span><span class="think-step-check">⏳</span></div>'})
-h+='</div><div class="think-bar"><div class="think-bar-fill" id="thinkBarFill" style="width:0%"></div></div><button class="think-panel-btn" onclick="closeThinkPanel()">Ocultar</button>'
-p.innerHTML=h;document.body.appendChild(p)
-var t=s.length,c=0
-thinkInterval=setInterval(function(){
-if(c>0){var pr=document.getElementById('ts'+(c-1));if(pr){pr.classList.add('done');pr.querySelector('.think-step-check').textContent='✅'}}
-if(c<t){var cr=document.getElementById('ts'+c);if(cr){cr.classList.add('current')}var b=document.getElementById('thinkBarFill');if(b)b.style.width=Math.round((c/t)*100)+'%';c++}
-else{clearInterval(thinkInterval);var b=document.getElementById('thinkBarFill');if(b)b.style.width='100%';var ls=document.getElementById('ts'+(t-1));if(ls){ls.classList.add('done');ls.querySelector('.think-step-check').textContent='✅'}}
-},500)
-}
+
 
 function closeThinkPanel(){
 if(thinkInterval)clearInterval(thinkInterval)

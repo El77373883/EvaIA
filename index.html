@@ -172,6 +172,32 @@
 .sd-status{display:flex;align-items:center;gap:8px;margin-top:14px;padding:10px 14px;background:rgba(255,255,255,0.05);border-radius:10px}
 .sd-status-dot{width:7px;height:7px;border-radius:50%;background:#34C759;flex-shrink:0;animation:iconPulse 1.5s ease-in-out infinite}
 .sd-status-txt{font-size:12px;color:rgba(255,255,255,0.5)}
+
+
+
+/* ===== THINKING BUBBLE PRO ===== */
+.think-bub{background:#F0F0F0;border-radius:18px;border-bottom-left-radius:4px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;min-width:210px;position:relative;overflow:hidden;animation:fadeIn 0.3s ease}
+.think-bub::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transform:translateX(-100%);animation:bubShimmer 2.2s ease-in-out infinite}
+@keyframes bubShimmer{0%{transform:translateX(-100%)}60%,100%{transform:translateX(200%)}}
+.think-bub-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 0 rgba(99,102,241,0.4);animation:iconPulse 2s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4)}50%{box-shadow:0 0 0 6px rgba(99,102,241,0)}}
+.think-bub-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.think-bub-icon.spin svg{animation:iconSpin 2s linear infinite}
+@keyframes iconSpin{to{transform:rotate(360deg)}}
+.think-bub-content{flex:1;min-width:0}
+.think-bub-text{font-size:13px;color:#888;font-weight:500;transition:opacity 0.25s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 8px rgba(37,99,235,0.25)}
+.think-bub-text.fade{opacity:0}
+.think-bub-dots{display:flex;gap:4px;margin-top:5px}
+.think-bub-dot{width:5px;height:5px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);animation:bubDot 1.4s ease-in-out infinite}
+.think-bub-dot:nth-child(2){animation-delay:0.2s}
+.think-bub-dot:nth-child(3){animation-delay:0.4s}
+@keyframes bubDot{0%,60%,100%{opacity:0.3;transform:scale(0.7)}30%{opacity:1;transform:scale(1.2)}}
+/* ===== CURSOR GLOW ===== */
+.tw-cursor{display:inline-block;width:2px;height:1em;background:#2563EB;margin-left:1px;vertical-align:text-bottom;border-radius:1px;animation:cursorBlink 0.75s ease-in-out infinite;box-shadow:0 0 6px rgba(37,99,235,0.7),0 0 14px rgba(37,99,235,0.3)}
+@keyframes cursorBlink{0%,45%{opacity:1}50%,100%{opacity:0}}
+
+
+
 /* ===== THINK PANEL ===== */
 .think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9998;animation:fadeIn 0.2s ease;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .think-panel{position:fixed;bottom:0;left:0;right:0;background:#F2F2F7;border-radius:22px 22px 0 0;z-index:9999;box-shadow:0 -4px 30px rgba(0,0,0,0.14);animation:thinkSlideUp 0.38s cubic-bezier(0.32,0.72,0,1);overflow:hidden;max-height:88vh;display:flex;flex-direction:column}
@@ -2421,6 +2447,7 @@ function addThinkingIndicator() {
     chatArea.scrollTop = chatArea.scrollHeight;
     return id;
 }
+
 
 
 function closeThinkPanel() {

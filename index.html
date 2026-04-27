@@ -2843,7 +2843,7 @@ function shouldUseSearch(message) {
 }
 
 // ============ REEMPLAZAR sendMessage() ============
-    async function sendMessage() {
+async function sendMessage() {  // ✅ global
     if (isProcessing) return;
     
     // ===== LÍMITE DE 5 HORAS =====

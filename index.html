@@ -1514,7 +1514,7 @@ for (var i = 0; i < knowledge.length; i++) {
         if (searchText.includes(kw)) {
             score += kwLen * 10;
 // Penalizar keywords genéricas de 1 palabra si el mensaje es largo
-if (kwLen === 1 && msg.trim().split(' ').length > 3) score -= 15;
+if (kwLen === 1 && msg.trim().split(' ').length > 3) score -= 50;
             if (kwLen > bestKwLen) bestKwLen = kwLen;
         }
         

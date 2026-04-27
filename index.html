@@ -649,7 +649,48 @@ for (var i = 0; i < flows.length; i++) {
 return null;
 }
 
-
+function semanticScore(message, keyword) {
+    var msg = message.toLowerCase();
+    var kw = keyword.toLowerCase();
+    var score = 0;
+    
+    // Coincidencia exacta
+    if (msg === kw) score += 100;
+    
+    // Contiene la keyword
+    if (msg.includes(kw)) score += 50;
+    
+    // Palabras relacionadas (sinónimos básicos)
+    var synonyms = {
+        'hola': ['hey', 'buenas', 'saludos'],
+        'ayuda': ['socorro', 'help', 'auxilio'],
+        'precio': ['costo', 'valor', 'cuanto'],
+        'contacto': ['email', 'telefono', 'whatsapp'],
+        'codigo': ['programar', 'desarrollar', 'html', 'css'],
+        'triste': ['deprimido', 'mal', 'ansioso'],
+        'feliz': ['contento', 'bien', 'genial']
+    };
+    
+    for (var base in synonyms) {
+        if (kw.includes(base) || base.includes(kw)) {
+            synonyms[base].forEach(function(syn) {
+                if (msg.includes(syn)) score += 30;
+            });
+        }
+    }
+    
+    // Distancia de Levenshtein simple (para typos)
+    if (msg.length > 3 && kw.length > 3) {
+        var distance = 0;
+        var maxLen = Math.max(msg.length, kw.length);
+        for (var i = 0; i < Math.min(msg.length, kw.length); i++) {
+            if (msg[i] !== kw[i]) distance++;
+        }
+        if (distance / maxLen < 0.3) score += 20;
+    }
+    
+    return score;
+}
 
 // ============ CARGAR DEL ADMIN (localStorage) ============
 function loadFromAdmin() {
@@ -1502,6 +1543,20 @@ var searchTextOriginal = input.toLowerCase().trim(); // texto original sin corre
 
 var scoredFirst = [];
 for (var i = 0; i < knowledge.length; i++) {
+    var k = knowledge[i];
+    var keywords = Array.isArray(k.keywords) ? k.keywords : [];
+    var score = 0;
+    var bestKwLen = 0;
+    for (var j = 0; j < keywords.length; j++) {
+        var kw = keywords[j].toLowerCase().trim();
+        var kwLen = kw.split(' ').length;
+        
+        // Score semántico en vez de solo includes
+        var semScore = semanticScore(searchText, kw);
+        score += semScore;
+        
+        if (semScore > 0 && kwLen > bestKwLen) bestKwLen = kwLen;
+    }
     var k = knowledge[i];
     var keywords = Array.isArray(k.keywords) ? k.keywords : [];
     var score = 0;
@@ -2401,6 +2456,20 @@ var longTermMemory = {
     conversationCount: 0
 };
 
+
+function loadLongTermMemory() {
+    try {
+        var saved = JSON.parse(localStorage.getItem('eva_long_term_memory'));
+        if (saved) {
+            longTermMemory = saved;
+            // Restaurar resumen si existe
+            if (longTermMemory.lastSummary) {
+                console.log('📋 Resumen anterior cargado');
+            }
+        }
+    } catch(e) {}
+}
+
 // Cargar memoria a largo plazo de localStorage
 function loadLongTermMemory() {
     try {
@@ -2430,7 +2499,30 @@ function addToShortTermMemory(userMsg, evaMsg) {
         timestamp: Date.now(),
         sentiment: analyzeSentiment(userMsg)
     });
-    if (shortTermMemory.length > 100000000) shortTermMemory.shift();
+    
+    // Auto-resumen cuando hay más de 50 mensajes
+    if (shortTermMemory.length > 50) {
+        summarizeConversation();
+    }
+    
+    if (shortTermMemory.length > 100) shortTermMemory.shift();
+}
+
+function summarizeConversation() {
+    // Guardar los primeros 25 mensajes como resumen
+    var summary = shortTermMemory.slice(0, 25).map(function(m) {
+        return 'Usuario: ' + m.user + ' | Eva: ' + m.eva;
+    }).join('\n');
+    
+    // Guardar resumen en memoria a largo plazo
+    longTermMemory.lastSummary = summary;
+    longTermMemory.summaryDate = Date.now();
+    saveLongTermMemory();
+    
+    // Mantener solo los últimos 25 mensajes en memoria corta
+    shortTermMemory = shortTermMemory.slice(-25);
+    
+    console.log('💾 Conversación resumida y guardada');
 }
 
 // ============ ANÁLISIS DE SENTIMIENTO ============
@@ -2618,6 +2710,26 @@ function analyzeCodeIntelligently(code, lang) {
     return { format: format, description: description, issues: issues, suggestions: suggestions };
 }
 
+
+function generateContextualResponse(input, baseResponse) {
+    var msg = input.toLowerCase();
+    var sentiment = analyzeSentiment(msg);
+    var memoryResults = searchMemory(msg);
+    var userName = longTermMemory.userName ? longTermMemory.userName : '';
+    
+    // Inyectar memoria en el prompt si hay datos relevantes
+    var memoryContext = '';
+    if (longTermMemory.userName) {
+        memoryContext += 'Usuario: ' + longTermMemory.userName + '. ';
+    }
+    if (longTermMemory.userTopics.length > 0) {
+        memoryContext += 'Le interesa: ' + longTermMemory.userTopics.slice(0, 3).join(', ') + '. ';
+    }
+    if (longTermMemory.learnedInfo.length > 0) {
+        memoryContext += 'Datos aprendidos: ' + longTermMemory.learnedInfo.slice(-2).join('. ') + '. ';
+    }
+
+
 // ============ GENERAR RESPUESTA CONTEXTUAL ============
 function generateContextualResponse(input, baseResponse) {
     var msg = input.toLowerCase();
@@ -2711,6 +2823,24 @@ function quickSend(text) {
     sendMessage();
 }
 
+
+function shouldUseKB(message) {
+    var kbTriggers = ['precio', 'producto', 'servicio', 'empresa', 'contacto', 'ubicacion', 'horario', 'politica', 'garantia', 'envio', 'pago'];
+    var msg = message.toLowerCase();
+    return kbTriggers.some(function(trigger) { return msg.includes(trigger); });
+}
+
+function shouldUseAPI(message) {
+    var apiTriggers = ['?', 'que es', 'quien es', 'como se', 'por que', 'explica', 'define', 'calcula', 'resuelve'];
+    var msg = message.toLowerCase();
+    return apiTriggers.some(function(trigger) { return msg.includes(trigger); });
+}
+
+function shouldUseSearch(message) {
+    var searchTriggers = ['busca', 'google', 'internet', 'noticia', 'actual', 'hoy', 'ayer', '2024', '2025'];
+    var msg = message.toLowerCase();
+    return searchTriggers.some(function(trigger) { return msg.includes(trigger); });
+}
 
 // ============ REEMPLAZAR sendMessage() ============
     async function sendMessage() {
@@ -3735,13 +3865,30 @@ async function searchDuckDuckGo(query) {
     return null;
 }
 
+function getModelSystemPrompt(modelId) {
+    for (var i = 0; i < models.length; i++) {
+        if (models[i].modelId === modelId) {
+            return models[i].systemPrompt || '';
+        }
+    }
+    return '';
+}
+
+body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory(),
+    systemPrompt: getModelSystemPrompt(currentModel)
+})
 
 async function askQwen(message) {
     try {
         var resp = await fetch('/api/qwen', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) {
@@ -3752,12 +3899,24 @@ async function askQwen(message) {
 }
 
 
+function buildConversationHistory() {
+    var history = [];
+    shortTermMemory.slice(-10).forEach(function(m) {
+        history.push({ role: 'user', content: m.user });
+        history.push({ role: 'assistant', content: m.eva });
+    });
+    return history;
+}
+
 async function askGemini(message) {
     try {
         var resp = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+}
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) return data.answer;
@@ -3770,7 +3929,10 @@ async function askMistral(message) {
         var resp = await fetch('/api/mistral', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+       body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) return data.answer;
@@ -3783,7 +3945,10 @@ async function askCloudflareAI(message) {
         var resp = await fetch('/api/cloudflare', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) return data.answer;
@@ -3796,7 +3961,10 @@ async function askDeepSeek(message) {
         var resp = await fetch('/api/deepseek', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) {
@@ -3809,7 +3977,10 @@ async function askDeepSeek(message) {
 
 async function askBuscador(message) {
     try {
-        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+        var resp = await fetch('/api/search-web', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) return data.answer;
     } catch(e) {}
@@ -3889,7 +4060,10 @@ async function askGroq(message) {
         var resp = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+    message: message,
+    history: buildConversationHistory()
+})
         });
         var data = await resp.json();
         if (data.answer && data.answer.length > 5) {

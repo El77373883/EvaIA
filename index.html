@@ -2900,7 +2900,9 @@ function quickSend(text) {
 
 // ============ REEMPLAZAR sendMessage() ============
 async function sendMessage() {
+    console.log('sendMessage llamado');
     if (isProcessing) return;
+
     
     // ===== LÍMITE DE 5 HORAS =====
     var now = Date.now();
@@ -3047,9 +3049,13 @@ if (voiceEnabled) speakText(contextualResponse);
         
         addToShortTermMemory(message, contextualResponse);
         saveChatHistory();
-                isProcessing = false;
-        }, delay);
+        isProcessing = false;
+}, delay);
 }
+
+
+
+        
 
 
 

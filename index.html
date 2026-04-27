@@ -211,6 +211,21 @@
 .think-footer-btn{display:block;width:100%;padding:14px;border:none;background:#fff;border-radius:14px;color:#007AFF;font-size:17px;font-weight:400;cursor:pointer;font-family:inherit;text-align:center}
 .think-footer-btn:active{background:#F2F2F7}
 
+
+/* ===== MODELO 3D (esfera flotante) ===== */
+.eva-thinking { width: 40px; height: 40px; position: relative; flex-shrink: 0; }
+.eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #7C3AED, #2563EB); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(37,99,235,0.4), 0 0 0 4px rgba(37,99,235,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
+.eva-thinking .sphere::after { content: ''; position: absolute; top: 8px; left: 10px; width: 8px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 12px 4px 0 -2px rgba(255,255,255,0.6); }
+.eva-thinking .sphere::before { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; animation: mouthTalk 0.6s ease-in-out infinite; }
+@keyframes float3D { 0%,100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); } 25% { transform: translateY(-6px) rotateY(10deg) rotateX(5deg); } 50% { transform: translateY(-3px) rotateY(-5deg) rotateX(-3deg); } 75% { transform: translateY(-8px) rotateY(-10deg) rotateX(5deg); } }
+@keyframes mouthTalk { 0%,100% { transform: translateX(-50%) scaleX(1); } 50% { transform: translateX(-50%) scaleX(0.4); } }
+.eva-particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+.eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #2563EB; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
+.particle:nth-child(1) { left: -8px; top: 50%; animation-delay: 0s; }
+.particle:nth-child(2) { right: -6px; top: 30%; animation-delay: 0.4s; }
+.particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
+@keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
+
     </style>
 </head>
 <body>
@@ -2379,44 +2394,40 @@ function addThinkingIndicator() {
     var container = document.createElement('div');
     container.id = id;
     container.className = 'typing-indicator';
-
-    var steps = [
-        { icon: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>', text: 'Analizando mensaje' },
-        { icon: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>', text: 'Procesando contexto' },
-        { icon: '<svg viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>', text: 'Generando respuesta' }
-    ];
-    var stepIdx = 0;
-
+    
+    // Crear la esfera 3D
+    var sphere = document.createElement('div');
+    sphere.className = 'eva-thinking';
+    sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
+    
+    // Crear la burbuja de texto
     var bubble = document.createElement('div');
-    bubble.className = 'think-bub';
-    bubble.innerHTML =
-        '<div class="think-bub-icon spin" id="bubIcon' + id + '">' + steps[0].icon + '</div>' +
-        '<div class="think-bub-content">' +
-            '<div class="think-bub-text" id="bubText' + id + '">' + steps[0].text + '</div>' +
-            '<div class="think-bub-dots"><div class="think-bub-dot"></div><div class="think-bub-dot"></div><div class="think-bub-dot"></div></div>' +
-        '</div>';
-
+    bubble.className = 'thinking-bubble';
+    bubble.style.cssText = 'cursor:pointer;flex-direction:column;align-items:flex-start;gap:4px;min-width:200px;';
+    bubble.innerHTML = '<span class="thinking-text" id="thinkingText">🔍 Analizando tu mensaje...</span>'
+        + '<div style="display:flex;gap:4px;margin-top:4px;">'
+        + '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>'
+        + '</div>';
+    
     bubble.onclick = function() {
         var existing = document.querySelector('.think-panel');
-        if (existing) { closeThinkPanel(); return; }
+        if (existing) { existing.remove(); return; }
         openThinkPanel(id);
     };
-
+    
+    container.appendChild(sphere);
     container.appendChild(bubble);
-
+    
+    var thinkingSteps = ['🔍 Analizando tu mensaje...', '🧠 Interpretando contexto...', '✍️ Preparando respuesta...'];
+    var stepIdx = 0;
     var stepInterval = setInterval(function() {
-        stepIdx = (stepIdx + 1) % steps.length;
-        var textEl = document.getElementById('bubText' + id);
-        var iconEl = document.getElementById('bubIcon' + id);
-        if (!textEl) { clearInterval(stepInterval); return; }
-        textEl.classList.add('fade');
-        setTimeout(function() {
-            if (textEl) { textEl.textContent = steps[stepIdx].text; textEl.classList.remove('fade'); }
-            if (iconEl) iconEl.innerHTML = steps[stepIdx].icon;
-        }, 250);
-    }, 1800);
+        stepIdx = (stepIdx + 1) % thinkingSteps.length;
+        var el = document.getElementById('thinkingText');
+        if (el) el.textContent = thinkingSteps[stepIdx];
+        else clearInterval(stepInterval);
+    }, 800);
     container._stepInterval = stepInterval;
-
+    
     chatArea.appendChild(container);
     chatArea.scrollTop = chatArea.scrollHeight;
     return id;

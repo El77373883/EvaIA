@@ -61,23 +61,7 @@
 .thinking-bubble::after { content: '👆 Ver proceso'; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #999; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
 .thinking-bubble:hover::after { opacity: 1; }
 
-/* Ventana de pensamientos */
-.think-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #333; }
-.think-panel-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #fff; }
-.think-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; color: #888; transition: all 0.3s; }
-.think-step.done { color: #4ade80; }
-.think-step.current { color: #fff; font-weight: 600; }
-.think-step-icon { width: 24px; text-align: center; font-size: 14px; }
-.think-step-text { flex: 1; }
-.think-step-status { font-size: 11px; font-weight: 600; }
-.think-progress { height: 3px; background: #333; border-radius: 2px; margin-top: 12px; overflow: hidden; }
-.think-progress-bar { height: 100%; background: linear-gradient(90deg,#6C5CE7,#A78BFA); border-radius: 2px; transition: width 0.5s ease; }
-.think-panel-actions { display: flex; gap: 8px; margin-top: 14px; }
-.think-panel-btn { padding: 8px 16px; border-radius: 10px; border: 1px solid #444; background: transparent; color: #aaa; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-.think-panel-btn:hover { border-color: #6C5CE7; color: #fff; }
-.think-panel-btn.primary { background: #6C5CE7; border-color: #6C5CE7; color: #fff; }
 
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .thinking-bubble:active { transform: scale(0.97); }
         .thinking-dot { width: 6px; height: 6px; background: #999; border-radius: 50%; animation: dotPulse 1.4s infinite; }
         .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -3284,6 +3268,35 @@ function generatePageCode(data) {
     .feature p { font-size: 14px; color: #777; line-height: 1.6; }
     footer { text-align: center; padding: 40px; background: #111; color: #888; font-size: 13px; }
     footer span { color: ${color}; }
+    
+    
+    /* Panel de proceso profesional */
+.think-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:998;animation:fadeIn 0.2s ease}
+.think-panel{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:400px;background:#fff;border-radius:16px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.12);animation:thinkIn 0.35s ease;overflow:hidden}
+@keyframes thinkIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.think-panel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
+.think-panel-title{font-weight:600;font-size:14px;color:#111;display:flex;align-items:center;gap:8px}
+.think-panel-title-dot{width:8px;height:8px;border-radius:50%;background:#2563EB;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.think-panel-close{width:28px;height:28px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#999;font-size:16px;transition:all 0.2s}
+.think-panel-close:hover{background:#f5f5f5;color:#333}
+.think-steps{padding:8px 20px 16px}
+.think-step{display:flex;align-items:center;gap:12px;padding:8px 0}
+.think-step-icon{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#e5e5e5;transition:all 0.3s}
+.think-step.done .think-step-icon{background:#2563EB}
+.think-step.current .think-step-icon{background:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,0.15)}
+.think-step-text{flex:1;font-size:13px;color:#999;font-weight:400}
+.think-step.done .think-step-text{color:#2563EB}
+.think-step.current .think-step-text{color:#111;font-weight:500}
+.think-step-check{font-size:12px;color:#2563EB;opacity:0;font-weight:500}
+.think-step.done .think-step-check{opacity:1}
+.think-bar{height:2px;background:#f0f0f0;margin:0 20px 12px;border-radius:1px;overflow:hidden}
+.think-bar-fill{height:100%;background:#2563EB;border-radius:1px;transition:width 0.4s ease}
+.think-panel-btn{display:block;width:calc(100% - 40px);margin:0 20px 16px;padding:10px;border-radius:10px;border:none;background:#f8f8f8;color:#666;font-weight:500;cursor:pointer;font-size:12px;text-align:center;transition:all 0.2s}
+.think-panel-btn:hover{background:#eee;color:#333}
+    
+    
+    
   </style>
 </head>
 <body>
@@ -4042,7 +4055,7 @@ var thinkInterval = null;
 
 function openThinkPanel(thinkingId) {
     var existing = document.querySelector('.think-panel');
-    if (existing) { existing.remove(); return; }
+    if (existing) { closeThinkPanel(); return; }
     if (document.querySelector('.think-overlay')) { closeThinkPanel(); return; }
     if (thinkInterval) clearInterval(thinkInterval);
     
@@ -4056,72 +4069,23 @@ function openThinkPanel(thinkingId) {
     var steps = [];
     
     if (currentModel === 'wiki') {
-        steps = [
-            { icon: '🔍', cls: 'blue', text: 'Buscando en Wikipedia...' },
-            { icon: '📚', cls: 'purple', text: 'Extrayendo artículo...' },
-            { icon: '📝', cls: 'orange', text: 'Resumiendo información...' },
-            { icon: '✅', cls: 'green', text: 'Resultado listo' }
-        ];
+        steps = ['Buscando en Wikipedia', 'Extrayendo articulo', 'Resumiendo informacion', 'Resultado listo'];
     } else if (currentModel === 'code') {
-        steps = [
-            { icon: '💻', cls: 'blue', text: 'Analizando código...' },
-            { icon: '🔍', cls: 'purple', text: 'Buscando errores...' },
-            { icon: '⚡', cls: 'orange', text: 'Optimizando...' },
-            { icon: '✅', cls: 'green', text: 'Código procesado' }
-        ];
+        steps = ['Analizando codigo', 'Buscando errores', 'Optimizando', 'Codigo procesado'];
     } else if (currentModel === 'qwen' || currentModel === 'deepseek') {
-        steps = [
-            { icon: '🧠', cls: 'purple', text: 'Razonando...' },
-            { icon: '💭', cls: 'blue', text: 'Analizando lógica...' },
-            { icon: '✨', cls: 'orange', text: 'Formulando respuesta...' },
-            { icon: '✅', cls: 'green', text: 'Respuesta lista' }
-        ];
+        steps = ['Razonando', 'Analizando logica', 'Formulando respuesta', 'Respuesta lista'];
     } else if (currentModel === 'gemini') {
-        steps = [
-            { icon: '🌟', cls: 'blue', text: 'Consultando Gemini...' },
-            { icon: '🧠', cls: 'purple', text: 'Procesando con Google AI...' },
-            { icon: '✨', cls: 'orange', text: 'Generando respuesta...' },
-            { icon: '✅', cls: 'green', text: '¡Listo!' }
-        ];
+        steps = ['Consultando Gemini', 'Procesando', 'Generando respuesta', 'Listo'];
     } else if (currentModel === 'duck' || currentModel === 'buscador') {
-        steps = [
-            { icon: '🔍', cls: 'blue', text: 'Buscando en internet...' },
-            { icon: '🌐', cls: 'purple', text: 'Rastreando resultados...' },
-            { icon: '📋', cls: 'orange', text: 'Organizando información...' },
-            { icon: '✅', cls: 'green', text: 'Resultados listos' }
-        ];
+        steps = ['Buscando en internet', 'Rastreando resultados', 'Organizando informacion', 'Resultados listos'];
     } else if (msg.includes('archivo') || msg.includes('descargar')) {
-        steps = [
-            { icon: '📄', cls: 'blue', text: 'Creando estructura del archivo' },
-            { icon: '📝', cls: 'purple', text: 'Escribiendo contenido' },
-            { icon: '🔍', cls: 'orange', text: 'Verificando formato' },
-            { icon: '📦', cls: 'blue', text: 'Preparando descarga' },
-            { icon: '✅', cls: 'green', text: 'Archivo listo' }
-        ];
-    } else if (msg.includes('código') || msg.includes('codigo') || msg.includes('html') || msg.includes('programa') || msg.includes('calculadora') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera')) {
-        steps = [
-            { icon: '🔍', cls: 'blue', text: 'Analizando requisitos' },
-            { icon: '📐', cls: 'purple', text: 'Diseñando estructura' },
-            { icon: '⚡', cls: 'orange', text: 'Escribiendo funciones' },
-            { icon: '🎨', cls: 'blue', text: 'Aplicando estilos' },
-            { icon: '🧪', cls: 'purple', text: 'Verificando lógica' },
-            { icon: '✅', cls: 'green', text: 'Código completado' }
-        ];
+        steps = ['Creando estructura', 'Escribiendo contenido', 'Verificando formato', 'Preparando descarga', 'Archivo listo'];
+    } else if (msg.includes('codigo') || msg.includes('html') || msg.includes('programa') || msg.includes('calculadora') || msg.includes('crea') || msg.includes('hazme') || msg.includes('genera')) {
+        steps = ['Analizando requisitos', 'Disenando estructura', 'Escribiendo funciones', 'Aplicando estilos', 'Verificando logica', 'Codigo completado'];
     } else if (msg.includes('imagen') || msg.includes('dibuja')) {
-        steps = [
-            { icon: '🔮', cls: 'purple', text: 'Interpretando prompt' },
-            { icon: '🎭', cls: 'blue', text: 'Definiendo estilo' },
-            { icon: '🎨', cls: 'orange', text: 'Generando imagen' },
-            { icon: '✅', cls: 'green', text: 'Imagen lista' }
-        ];
+        steps = ['Interpretando prompt', 'Definiendo estilo', 'Generando imagen', 'Imagen lista'];
     } else {
-        steps = [
-            { icon: '👁️', cls: 'blue', text: 'Leyendo tu mensaje' },
-            { icon: '🧠', cls: 'purple', text: 'Interpretando contexto' },
-            { icon: '💭', cls: 'orange', text: 'Analizando intención' },
-            { icon: '✍️', cls: 'blue', text: 'Redactando respuesta' },
-            { icon: '✨', cls: 'green', text: '¡Listo!' }
-        ];
+        steps = ['Leyendo tu mensaje', 'Interpretando contexto', 'Analizando intencion', 'Redactando respuesta', 'Listo'];
     }
     
     var panel = document.createElement('div');
@@ -4129,15 +4093,15 @@ function openThinkPanel(thinkingId) {
     panel.id = 'thinkPanel';
     
     var html = '<div class="think-panel-header">';
-    html += '<div class="think-panel-title">🧠 Eva pensando...</div>';
-    html += '<button class="think-panel-close" onclick="closeThinkPanel()">✕</button>';
+    html += '<div class="think-panel-title"><span class="think-panel-title-dot"></span>Procesando</div>';
+    html += '<button class="think-panel-close" onclick="closeThinkPanel()">x</button>';
     html += '</div><div class="think-steps">';
     
     steps.forEach(function(s, i) {
-        html += '<div class="think-step" id="ts' + i + '" style="animation-delay:' + (i*0.15) + 's">';
-        html += '<div class="think-step-icon ' + s.cls + '">' + s.icon + '</div>';
-        html += '<span class="think-step-text">' + s.text + '</span>';
-        html += '<span class="think-step-check">⏳</span>';
+        html += '<div class="think-step" id="ts' + i + '">';
+        html += '<div class="think-step-icon"></div>';
+        html += '<span class="think-step-text">' + s + '</span>';
+        html += '<span class="think-step-check">Listo</span>';
         html += '</div>';
     });
     
@@ -4152,11 +4116,11 @@ function openThinkPanel(thinkingId) {
     thinkInterval = setInterval(function() {
         if (current > 0) {
             var prev = document.getElementById('ts' + (current-1));
-            if (prev) { prev.classList.add('done'); prev.querySelector('.think-step-check').textContent = '✅'; }
+            if (prev) { prev.classList.add('done'); }
         }
         if (current < total) {
             var curr = document.getElementById('ts' + current);
-            if (curr) { curr.classList.add('current'); curr.querySelector('.think-step-check').textContent = '⏳'; }
+            if (curr) { curr.classList.add('current'); }
             var bar = document.getElementById('thinkBarFill');
             if (bar) bar.style.width = Math.round((current/total)*100) + '%';
             current++;
@@ -4165,9 +4129,9 @@ function openThinkPanel(thinkingId) {
             var bar = document.getElementById('thinkBarFill');
             if (bar) bar.style.width = '100%';
             var last = document.getElementById('ts' + (total-1));
-            if (last) { last.classList.add('done'); last.querySelector('.think-step-check').textContent = '✅'; }
+            if (last) { last.classList.add('done'); }
         }
-    }, 600);
+    }, 800);
 }
 
 

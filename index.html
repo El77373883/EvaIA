@@ -44,17 +44,83 @@
         .action-mini-btn.liked { color: #2563EB; }
         .action-mini-btn.disliked { color: #EF4444; }
         .typing-indicator { display: flex; align-items: center; gap: 10px; align-self: flex-start; }
-        .eva-thinking { width: 40px; height: 40px; position: relative; flex-shrink: 0; }
-        .eva-thinking .sphere { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #D48A72, #e8a87c, #D48A72); position: relative; animation: float3D 2s ease-in-out infinite; box-shadow: 0 10px 20px rgba(212,138,114,0.4), 0 0 0 4px rgba(212,138,114,0.2), inset 0 -5px 10px rgba(0,0,0,0.1), inset 0 5px 10px rgba(255,255,255,0.3); }
-        .eva-thinking .sphere::after { content: ''; position: absolute; top: 8px; left: 10px; width: 8px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 12px 4px 0 -2px rgba(255,255,255,0.6); }
-        .eva-thinking .sphere::before { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; animation: mouthTalk 0.6s ease-in-out infinite; }
-        @keyframes float3D { 0%,100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); } 25% { transform: translateY(-6px) rotateY(10deg) rotateX(5deg); } 50% { transform: translateY(-3px) rotateY(-5deg) rotateX(-3deg); } 75% { transform: translateY(-8px) rotateY(-10deg) rotateX(5deg); } }
-        @keyframes mouthTalk { 0%,100% { transform: translateX(-50%) scaleX(1); } 50% { transform: translateX(-50%) scaleX(0.4); } }
-        .eva-particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
-        .eva-particles .particle { position: absolute; width: 4px; height: 4px; background: #D48A72; border-radius: 50%; animation: particleFloat 1.5s ease-in-out infinite; }
-        .particle:nth-child(1) { left: -8px; top: 50%; animation-delay: 0s; }
-        .particle:nth-child(2) { right: -6px; top: 30%; animation-delay: 0.4s; }
-        .particle:nth-child(3) { left: 50%; top: -8px; animation-delay: 0.8s; }
+   /* ===== PORTAL CÓSMICO EVA ===== */
+.eva-thinking {
+    width: 44px;
+    height: 44px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.eva-core {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #a78bfa, #7c3aed);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: coreBreathe 1.5s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(124,58,237,0.9), 0 0 28px rgba(99,102,241,0.5);
+    z-index: 3;
+}
+
+@keyframes coreBreathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+}
+
+.eva-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    z-index: 2;
+}
+
+.eva-ring:nth-child(1) {
+    width: 30px;
+    height: 30px;
+    border-top-color: rgba(168,85,247,0.7);
+    border-right-color: rgba(99,102,241,0.4);
+    animation: ringSpin 2.5s linear infinite;
+}
+
+.eva-ring:nth-child(2) {
+    width: 38px;
+    height: 38px;
+    border-bottom-color: rgba(139,92,246,0.5);
+    border-left-color: rgba(99,102,241,0.3);
+    animation: ringSpin 4s linear infinite reverse;
+}
+
+@keyframes ringSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.eva-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #a78bfa;
+    z-index: 1;
+    animation: particleOrbit 2s ease-in-out infinite;
+}
+
+.eva-particle:nth-child(1) { top: 4px; left: 50%; animation-delay: 0s; }
+.eva-particle:nth-child(2) { bottom: 4px; right: 8px; animation-delay: 0.3s; animation-duration: 2.5s; }
+.eva-particle:nth-child(3) { bottom: 8px; left: 8px; animation-delay: 0.6s; animation-duration: 1.8s; }
+.eva-particle:nth-child(4) { top: 6px; right: 8px; animation-delay: 0.9s; animation-duration: 2.2s; }
+
+@keyframes particleOrbit {
+    0%, 100% { opacity: 0.2; transform: translateY(0) scale(1); }
+    50% { opacity: 1; transform: translateY(-8px) scale(2); }
+}
         @keyframes particleFloat { 0%,100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 1; transform: translateY(-10px) scale(1.5); } }
         .thinking-text { font-size: 12px; color: #999; font-style: italic; }
         .thinking-bubble::after { content: '👆 Toca para ver proceso'; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #999; white-space: nowrap; opacity: 0; }
@@ -397,16 +463,15 @@
 
 <main id="welcomeScreen">
     <div style="color:#D48A72;margin-bottom:24px;">
-        <div class="eva-thinking" style="width:60px;height:60px;margin:0 auto;">
-            <div class="sphere" style="width:60px;height:60px;">
-                <div class="eva-particles">
-                    <div class="particle"></div>
-                    <div class="particle"></div>
-                    <div class="particle"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="eva-thinking" style="width:60px;height:60px;margin:0 auto;">
+    <div class="eva-ring"></div>
+    <div class="eva-ring"></div>
+    <div class="eva-core"></div>
+    <div class="eva-particle"></div>
+    <div class="eva-particle"></div>
+    <div class="eva-particle"></div>
+    <div class="eva-particle"></div>
+</div>
 <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
 <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
 <div id="quickSuggestions" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:24px;padding:0 20px;">
@@ -2594,9 +2659,22 @@ function addThinkingIndicator() {
     container.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:12px;animation:fadeIn 0.3s ease;';
     
     // ===== MODELO 3D (esfera naranja) =====
-    var sphere = document.createElement('div');
-    sphere.className = 'eva-thinking';
-    sphere.innerHTML = '<div class="sphere"><div class="eva-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div></div></div>';
+var core = document.createElement('div');
+core.className = 'eva-thinking';
+var ring1 = document.createElement('div'); ring1.className = 'eva-ring';
+var ring2 = document.createElement('div'); ring2.className = 'eva-ring';
+var nucleus = document.createElement('div'); nucleus.className = 'eva-core';
+var p1 = document.createElement('div'); p1.className = 'eva-particle';
+var p2 = document.createElement('div'); p2.className = 'eva-particle';
+var p3 = document.createElement('div'); p3.className = 'eva-particle';
+var p4 = document.createElement('div'); p4.className = 'eva-particle';
+core.appendChild(ring1);
+core.appendChild(ring2);
+core.appendChild(nucleus);
+core.appendChild(p1);
+core.appendChild(p2);
+core.appendChild(p3);
+core.appendChild(p4);
     
     // ===== BURBUJA SIN FONDO, SOLO ICONO GRIS + TEXTO =====
     var bubble = document.createElement('div');

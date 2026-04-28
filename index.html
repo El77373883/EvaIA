@@ -280,23 +280,131 @@
 .scroll-btn.show{display:flex}
 .scroll-btn svg{width:18px;height:18px;stroke:#555;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 
-/* ===== THINKING BUBBLE PRO ===== */
-.think-bub{background:#F0F0F0;border-radius:18px;border-bottom-left-radius:4px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;min-width:210px;position:relative;overflow:hidden;animation:fadeIn 0.3s ease}
-.think-bub::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transform:translateX(-100%);animation:bubShimmer 2.2s ease-in-out infinite}
-@keyframes bubShimmer{0%{transform:translateX(-100%)}60%,100%{transform:translateX(200%)}}
-.think-bub-icon{width:34px;height:34px;border-radius:10px;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:iconPulse 2s ease-in-out infinite}
-@keyframes iconPulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4)}50%{box-shadow:0 0 0 6px rgba(99,102,241,0)}}
-.think-bub-icon svg{width:16px;height:16px;stroke:#aaa;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:#aaa}
-.think-bub-icon.spin svg{animation:iconSpin 2s linear infinite}
-@keyframes iconSpin{to{transform:rotate(360deg)}}
-.think-bub-content{flex:1;min-width:0}
-.think-bub-text{font-size:13px;color:#444;font-weight:500;transition:opacity 0.25s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.think-bub-text.fade{opacity:0}
-.think-bub-dots{display:flex;gap:4px;margin-top:5px}
-.think-bub-dot{width:5px;height:5px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);animation:bubDot 1.4s ease-in-out infinite}
-.think-bub-dot:nth-child(2){animation-delay:0.2s}
-.think-bub-dot:nth-child(3){animation-delay:0.4s}
-@keyframes bubDot{0%,60%,100%{opacity:0.3;transform:scale(0.7)}30%{opacity:1;transform:scale(1.2)}}
+/* ===== THINKING INDICATOR PREMIUM v2.0 ===== */
+.think-bub {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 22px;
+    border-bottom-left-radius: 6px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    min-width: 240px;
+    max-width: 320px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.35s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.think-bub::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.3) 38%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.3) 42%, transparent 44%);
+    transform: translateX(-100%);
+    animation: shimmerSweep 3.2s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes shimmerSweep {
+    0%, 100% { transform: translateX(-100%); }
+    65% { transform: translateX(250%); }
+}
+
+.think-bub-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 32px;
+    flex-shrink: 0;
+    z-index: 2;
+    padding-top: 4px;
+}
+
+.think-bub-eq-bar {
+    width: 4px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #7c3aed, #a78bfa);
+    animation: eqPulse 1.2s ease-in-out infinite;
+}
+
+.think-bub-eq-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+.think-bub-eq-bar:nth-child(2) { height: 22px; animation-delay: 0.15s; }
+.think-bub-eq-bar:nth-child(3) { height: 16px; animation-delay: 0.3s; }
+.think-bub-eq-bar:nth-child(4) { height: 28px; animation-delay: 0.45s; }
+.think-bub-eq-bar:nth-child(5) { height: 10px; animation-delay: 0.6s; }
+
+@keyframes eqPulse {
+    0%, 100% { transform: scaleY(0.5); opacity: 0.4; }
+    50% { transform: scaleY(1.15); opacity: 1; }
+}
+
+.think-bub-content {
+    flex: 1;
+    min-width: 0;
+    z-index: 2;
+}
+
+.think-bub-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7c3aed;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    animation: textGlow 2.8s ease-in-out infinite;
+}
+
+@keyframes textGlow {
+    0%, 100% { opacity: 0.65; text-shadow: 0 0 0px rgba(124, 58, 237, 0); }
+    50% { opacity: 1; text-shadow: 0 0 10px rgba(124, 58, 237, 0.35); }
+}
+
+.think-bub-skeleton {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.25) 50%, rgba(124, 58, 237, 0.1) 100%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 2.2s ease-in-out infinite;
+    margin-bottom: 7px;
+}
+
+.think-bub-skeleton:nth-child(2) { width: 82%; }
+.think-bub-skeleton:nth-child(3) { width: 62%; }
+.think-bub-skeleton:nth-child(4) { width: 44%; }
+
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.think-bub-dots {
+    display: flex;
+    gap: 3px;
+    margin-top: 5px;
+}
+
+.think-bub-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.4);
+    animation: dotFade 1.4s ease-in-out infinite;
+}
+
+.think-bub-dot:nth-child(2) { animation-delay: 0.2s; }
+.think-bub-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotFade {
+    0%, 60%, 100% { opacity: 0.2; transform: scale(0.6); }
+    30% { opacity: 1; transform: scale(1.25); }
+}
 /* ===== CURSOR GLOW ===== */
 .tw-cursor{display:inline-block;width:2px;height:1em;background:#2563EB;margin-left:1px;vertical-align:text-bottom;border-radius:1px;animation:cursorBlink 0.75s ease-in-out infinite;box-shadow:0 0 6px rgba(37,99,235,0.7),0 0 14px rgba(37,99,235,0.3)}
 @keyframes cursorBlink{0%,45%{opacity:1}50%,100%{opacity:0}}
@@ -2695,39 +2803,51 @@ function addThinkingIndicator() {
     
 
     
-    // ===== BURBUJA SIN FONDO, SOLO ICONO GRIS + TEXTO =====
-    var bubble = document.createElement('div');
-    bubble.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;';
-    bubble.onclick = function() {
-        var existing = document.querySelector('.think-panel');
-        if (existing) { existing.remove(); return; }
-        openThinkPanel();
-    };
-    
-    // Icono SVG gris (cambia entre lupa, engranaje, check)
-    var iconSpan = document.createElement('span');
-    iconSpan.style.cssText = 'display:flex;align-items:center;color:#aaa;';
-    iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+// ===== THINKING BUBBLE PREMIUM =====
+var bubble = document.createElement('div');
+bubble.className = 'think-bub';
+bubble.onclick = function() {
+    var existing = document.querySelector('.think-panel');
+    if (existing) { existing.remove(); return; }
+    openThinkPanel();
+};
 
-    // Texto gris
-    var textSpan = document.createElement('span');
-    textSpan.id = 'thinkingText';
-    textSpan.style.cssText = 'font-size:13px;font-weight:400;color:#9CA3AF;letter-spacing:-0.2px;';
-    textSpan.textContent = 'Analizando mensaje';
-    
-    // Puntos animados grises
-    var dotsSpan = document.createElement('span');
-    dotsSpan.style.cssText = 'display:inline-flex;gap:3px;margin-left:3px;';
-    for(var i=0;i<3;i++){
-        var dot = document.createElement('span');
-        dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#D1D5DB;animation:dotClaude 1.2s ease-in-out infinite;';
-        dot.style.animationDelay = (i*0.15)+'s';
-        dotsSpan.appendChild(dot);
-    }
-    textSpan.appendChild(dotsSpan);
-    
-    bubble.appendChild(iconSpan);
-    bubble.appendChild(textSpan);
+// Ecualizador
+var eq = document.createElement('div');
+eq.className = 'think-bub-eq';
+for (var e = 0; e < 5; e++) {
+    var bar = document.createElement('div');
+    bar.className = 'think-bub-eq-bar';
+    eq.appendChild(bar);
+}
+bubble.appendChild(eq);
+
+// Contenido
+var content = document.createElement('div');
+content.className = 'think-bub-content';
+
+var label = document.createElement('div');
+label.className = 'think-bub-text';
+label.textContent = 'Eva está procesando';
+content.appendChild(label);
+
+for (var s = 0; s < 3; s++) {
+    var skel = document.createElement('div');
+    skel.className = 'think-bub-skeleton';
+    content.appendChild(skel);
+}
+
+var dotsRow = document.createElement('div');
+dotsRow.className = 'think-bub-dots';
+for (var d = 0; d < 3; d++) {
+    var dot = document.createElement('div');
+    dot.className = 'think-bub-dot';
+    dotsRow.appendChild(dot);
+}
+content.appendChild(dotsRow);
+
+bubble.appendChild(content);
+container.appendChild(bubble);
     
     // Portal cósmico
 var core = document.createElement('div'); core.className = 'eva-thinking';

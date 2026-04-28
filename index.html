@@ -504,7 +504,9 @@
     <div class="eva-particle"></div>
     <div class="eva-particle"></div>
     <div class="eva-particle"></div>
+ </div>
 </div>
+
 <h1 class="greeting" id="welcomeGreeting">Hola, soy Eva.<br>En que puedo ayudarte?</h1>
 <p style="margin-top:12px;font-size:13px;color:#999;" id="welcomeModelName">Eva Pro</p>
 <div id="quickSuggestions" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:24px;padding:0 20px;">
@@ -2727,8 +2729,19 @@ function addThinkingIndicator() {
     bubble.appendChild(iconSpan);
     bubble.appendChild(textSpan);
     
-    container.appendChild(sphere);
-    container.appendChild(bubble);
+    // Portal cósmico
+var core = document.createElement('div'); core.className = 'eva-thinking';
+var r1 = document.createElement('div'); r1.className = 'eva-ring';
+var r2 = document.createElement('div'); r2.className = 'eva-ring';
+var nuc = document.createElement('div'); nuc.className = 'eva-core';
+var p1 = document.createElement('div'); p1.className = 'eva-particle';
+var p2 = document.createElement('div'); p2.className = 'eva-particle';
+var p3 = document.createElement('div'); p3.className = 'eva-particle';
+var p4 = document.createElement('div'); p4.className = 'eva-particle';
+core.appendChild(r1); core.appendChild(r2); core.appendChild(nuc);
+core.appendChild(p1); core.appendChild(p2); core.appendChild(p3); core.appendChild(p4);
+container.appendChild(core);
+container.appendChild(bubble);
     
     // Iconos grises que cambian según el paso
     var icons = [
